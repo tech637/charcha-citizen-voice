@@ -13,7 +13,7 @@ const Index = () => {
       <div 
         className="relative flex flex-col items-center justify-center min-h-screen px-4 text-center"
         style={{
-          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 800'%3E%3Cdefs%3E%3ClinearGradient id='bg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23e0f2fe'/%3E%3Cstop offset='100%25' style='stop-color:%23f1f8e9'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='url(%23bg)'/%3E%3Cg opacity='0.1'%3E%3Ccircle cx='200' cy='200' r='100' fill='%2364b5f6'/%3E%3Ccircle cx='800' cy='150' r='80' fill='%2381c784'/%3E%3Ccircle cx='1000' cy='400' r='120' fill='%23ffb74d'/%3E%3Ccircle cx='300' cy='600' r='90' fill='%23f06292'/%3E%3C/g%3E%3Cg opacity='0.05'%3E%3Cpath d='M100,300 Q300,100 500,300 T900,300' stroke='%23666' stroke-width='2' fill='none'/%3E%3Cpath d='M200,500 Q400,300 600,500 T1000,500' stroke='%23666' stroke-width='2' fill='none'/%3E%3C/g%3E%3C/svg%3E")`,
+          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url("/images/community.png")`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat'
@@ -79,7 +79,7 @@ const Index = () => {
             </div>
           </div>
           <div className="border-t border-border mt-8 pt-8 text-center text-sm text-muted-foreground">
-            © 2024 Charcha. All rights reserved.
+            © 2025 Charcha. All rights reserved.
           </div>
         </div>
       </footer>

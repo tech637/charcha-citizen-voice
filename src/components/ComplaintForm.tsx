@@ -1,5 +1,6 @@
 
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -8,6 +9,10 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
+import { useComplaint } from "@/contexts/ComplaintContext";
+import { LoginDialog } from "./LoginDialog";
+import { createComplaint } from "@/lib/complaints";
 import { 
   Trash, 
   Droplets, 
@@ -28,7 +33,15 @@ const ComplaintForm = () => {
   const [description, setDescription] = useState("");
   const [isPublic, setIsPublic] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
+  const [location, setLocation] = useState("");
+  const [latitude, setLatitude] = useState<number | undefined>();
+  const [longitude, setLongitude] = useState<number | undefined>();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showLoginDialog, setShowLoginDialog] = useState(false);
   const { toast } = useToast();
+  const { user } = useAuth();
+  const { setPendingComplaint } = useComplaint();
+  const navigate = useNavigate();
 
   const categories = [
     { id: "garbage", label: "Garbage", icon: Trash },
@@ -56,16 +69,101 @@ const ComplaintForm = () => {
     setFiles(prev => prev.filter((_, i) => i !== index));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleLocationDetection = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setLatitude(position.coords.latitude);
+          setLongitude(position.coords.longitude);
+          toast({
+            title: "Location Detected",
+            description: `Location: ${position.coords.latitude.toFixed(4)}, ${position.coords.longitude.toFixed(4)}`,
+          });
+        },
+        (error) => {
+          console.error("Location error:", error);
+          toast({
+            title: "Location Error",
+            description: "Unable to detect location. Please enable location services or enter address manually.",
+            variant: "destructive",
+          });
+        }
+      );
+    } else {
+      toast({
+        title: "Location Not Supported",
+        description: "Geolocation is not supported by this browser.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // This will need Supabase integration for authentication and data storage
-    console.log("Complaint data:", {
+
+    if (!selectedCategory || !description.trim()) {
+      toast({
+        title: "Missing Information",
+        description: "Please select a category and provide a description.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Prepare complaint data
+    const complaintData = {
       category: selectedCategory,
-      description,
-      isPublic,
-      files: files.length,
-    });
-    alert("To submit complaints, please connect to Supabase first for authentication and data storage!");
+      description: description.trim(),
+      location_address: location || undefined,
+      latitude,
+      longitude,
+      is_public: isPublic,
+      files: files.length > 0 ? files : undefined,
+    };
+
+    // Check if user is logged in
+    if (!user) {
+      // Save complaint data temporarily and show login dialog
+      setPendingComplaint(complaintData);
+      setShowLoginDialog(true);
+      return;
+    }
+
+    // User is logged in, submit the complaint
+    setIsSubmitting(true);
+
+    try {
+      const { data, error } = await createComplaint(complaintData, user.id);
+
+      if (error) {
+        throw error;
+      }
+
+      toast({
+        title: "Complaint Submitted!",
+        description: "Your complaint has been submitted successfully. You'll receive updates via email.",
+      });
+
+      // Reset form
+      setSelectedCategory("");
+      setDescription("");
+      setIsPublic(false);
+      setFiles([]);
+      setLocation("");
+      setLatitude(undefined);
+      setLongitude(undefined);
+
+      // Redirect to dashboard
+      navigate("/dashboard");
+    } catch (error: any) {
+      toast({
+        title: "Submission Failed",
+        description: error.message || "Failed to submit complaint. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -164,27 +262,21 @@ const ComplaintForm = () => {
                 type="button"
                 variant="outline"
                 className="w-full"
-                onClick={() => {
-                  if (navigator.geolocation) {
-                    navigator.geolocation.getCurrentPosition(
-                      (position) => {
-                        console.log("Location:", position.coords);
-                        alert(`Location detected: ${position.coords.latitude}, ${position.coords.longitude}`);
-                      },
-                      (error) => {
-                        console.error("Location error:", error);
-                        alert("Unable to detect location. Please enable location services.");
-                      }
-                    );
-                  } else {
-                    alert("Geolocation is not supported by this browser.");
-                  }
-                }}
+                onClick={handleLocationDetection}
               >
                 <MapPin className="h-4 w-4 mr-2" />
                 Detect My Location
               </Button>
-              <Input placeholder="Or enter address manually..." />
+              <Input 
+                placeholder="Or enter address manually..." 
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+              />
+              {(latitude && longitude) && (
+                <p className="text-sm text-muted-foreground">
+                  Location: {latitude.toFixed(4)}, {longitude.toFixed(4)}
+                </p>
+              )}
             </div>
           </div>
 
@@ -202,33 +294,19 @@ const ComplaintForm = () => {
 
           {/* Submit Button */}
           <Button 
-            type="button" 
+            type="submit" 
             className="w-full"
-            disabled={!selectedCategory || !description.trim()}
-            onClick={() => {
-              // Check if user is logged in (mock check)
-              const isLoggedIn = false; // This would come from auth context in real app
-              
-              if (!isLoggedIn) {
-                toast({
-                  title: "Login Required",
-                  description: "Please login or sign up to file a complaint.",
-                  variant: "destructive",
-                });
-                return;
-              }
-              
-              // If logged in, proceed with form submission
-              toast({
-                title: "Complaint Submitted!",
-                description: "Your complaint has been submitted successfully. You'll receive updates via email.",
-              });
-            }}
+            disabled={!selectedCategory || !description.trim() || isSubmitting}
           >
-            Submit Complaint
+            {isSubmitting ? "Submitting..." : "Submit Complaint"}
           </Button>
         </form>
       </CardContent>
+      
+      <LoginDialog 
+        open={showLoginDialog} 
+        onOpenChange={setShowLoginDialog} 
+      />
     </Card>
   );
 };

@@ -1,73 +1,85 @@
-# Welcome to your Lovable project
+# Charcha - Citizen Voice Platform
 
-## Project info
+A civic engagement platform that allows citizens to report and track civic problems in their area.
 
-**URL**: https://lovable.dev/projects/cd682fb3-43c4-4381-adba-0eb397c94797
+## Features
 
-## How can I edit this code?
+- **Complaint Filing**: Report civic issues with photos, location, and detailed descriptions
+- **User Authentication**: Secure signup and login with email or Google OAuth
+- **Dashboard**: Track your complaints and their status
+- **Community Feed**: View public complaints from other citizens
+- **Real-time Updates**: Get notified about complaint status changes
 
-There are several ways of editing your application.
-
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/cd682fb3-43c4-4381-adba-0eb397c94797) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
+## Technologies Used
 
 This project is built with:
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+- **Frontend**: React 18 + TypeScript + Vite
+- **UI Framework**: shadcn/ui components with Radix UI primitives
+- **Styling**: Tailwind CSS with custom design system
+- **Backend**: Supabase (Database, Authentication, Storage)
+- **State Management**: React Query (TanStack Query)
+- **Routing**: React Router DOM
+- **Form Handling**: React Hook Form with Zod validation
 
-## How can I deploy this project?
+## Getting Started
 
-Simply open [Lovable](https://lovable.dev/projects/cd682fb3-43c4-4381-adba-0eb397c94797) and click on Share -> Publish.
+### Prerequisites
 
-## Can I connect a custom domain to my Lovable project?
+- Node.js (v18 or higher)
+- npm or yarn
 
-Yes, you can!
+### Installation
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+1. **Clone the repository**
+   ```bash
+   git clone <YOUR_GIT_URL>
+   cd charcha-citizen-voice
+   ```
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Set up environment variables**
+   Create a `.env.local` file in the root directory:
+   ```bash
+   VITE_SUPABASE_URL=your-supabase-url
+   VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
+   ```
+
+4. **Start the development server**
+   ```bash
+   npm run dev
+   ```
+
+5. **Open your browser**
+   Navigate to `http://localhost:8080`
+
+## Project Structure
+
+```
+src/
+├── components/          # React components
+│   ├── ui/             # shadcn/ui components
+│   ├── Dashboard.tsx   # User dashboard
+│   ├── ComplaintForm.tsx # Main complaint form
+│   └── ...
+├── contexts/           # React contexts
+├── lib/               # Utility functions and services
+├── pages/             # Route components
+└── hooks/             # Custom React hooks
+```
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
+
+## License
+
+© 2025 Charcha. All rights reserved.
