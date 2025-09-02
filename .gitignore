@@ -7,10 +7,22 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Dependency directories
 node_modules
+
+# Build output
 dist
 dist-ssr
+
+# Local overrides
 *.local
+
+# Environment files
+.env
+.env.*        # catch .env.local, .env.development, etc.
+
+# Product Requirement Docs (local only, ignore for GitHub)
+PRD/
 
 # Editor directories and files
 .vscode/*
