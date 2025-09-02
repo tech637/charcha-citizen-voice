@@ -1,5 +1,6 @@
 
 import { Button } from "@/components/ui/button";
+import Navigation from "@/components/Navigation";
 import ComplaintForm from "@/components/ComplaintForm";
 import HowItWorks from "@/components/HowItWorks";
 import CommunityPreview from "@/components/CommunityPreview";
@@ -7,6 +8,7 @@ import CommunityPreview from "@/components/CommunityPreview";
 const Index = () => {
   return (
     <div className="min-h-screen bg-background">
+      <Navigation />
       {/* Hero Section with Background */}
       <div 
         className="relative flex flex-col items-center justify-center min-h-screen px-4 text-center"

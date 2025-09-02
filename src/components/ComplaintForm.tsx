@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
 import { 
   Trash, 
   Droplets, 
@@ -27,6 +28,7 @@ const ComplaintForm = () => {
   const [description, setDescription] = useState("");
   const [isPublic, setIsPublic] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
+  const { toast } = useToast();
 
   const categories = [
     { id: "garbage", label: "Garbage", icon: Trash },
@@ -200,9 +202,28 @@ const ComplaintForm = () => {
 
           {/* Submit Button */}
           <Button 
-            type="submit" 
+            type="button" 
             className="w-full"
             disabled={!selectedCategory || !description.trim()}
+            onClick={() => {
+              // Check if user is logged in (mock check)
+              const isLoggedIn = false; // This would come from auth context in real app
+              
+              if (!isLoggedIn) {
+                toast({
+                  title: "Login Required",
+                  description: "Please login or sign up to file a complaint.",
+                  variant: "destructive",
+                });
+                return;
+              }
+              
+              // If logged in, proceed with form submission
+              toast({
+                title: "Complaint Submitted!",
+                description: "Your complaint has been submitted successfully. You'll receive updates via email.",
+              });
+            }}
           >
             Submit Complaint
           </Button>
