@@ -9,6 +9,7 @@ import { getUserComplaints, createComplaint } from "@/lib/complaints";
 import { Complaint } from "@/lib/supabase";
 import { useToast } from "@/hooks/use-toast";
 import { FileText, Clock, CheckCircle, AlertCircle, Plus, LogOut } from "lucide-react";
+import Navigation from "./Navigation";
 
 const Dashboard = () => {
   const { user, signOut } = useAuth();
@@ -103,6 +104,7 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <Navigation />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8 flex justify-between items-start">
@@ -154,7 +156,7 @@ const Dashboard = () => {
           <h2 className="text-xl font-semibold mb-4">Quick Actions</h2>
           <div className="flex flex-col sm:flex-row gap-4">
             <Button 
-              onClick={() => document.getElementById('complaint-form')?.scrollIntoView({ behavior: 'smooth' })}
+              onClick={() => navigate("/")}
               className="flex items-center gap-2"
             >
               <Plus className="w-4 h-4" />

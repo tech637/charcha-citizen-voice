@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { useComplaint } from "@/contexts/ComplaintContext";
+import { useFiles } from "@/contexts/FileContext";
 import { createComplaint } from "@/lib/complaints";
 import { Chrome } from "lucide-react";
 
@@ -25,6 +26,7 @@ export const LoginDialog = ({ open, onOpenChange }: LoginDialogProps) => {
   const { toast } = useToast();
   const { user, signIn, signUp, signInWithGoogle } = useAuth();
   const { pendingComplaint, clearPendingComplaint } = useComplaint();
+  const { pendingFiles, clearPendingFiles } = useFiles();
   const navigate = useNavigate();
 
   // Handle pending complaint after successful authentication
@@ -32,7 +34,31 @@ export const LoginDialog = ({ open, onOpenChange }: LoginDialogProps) => {
     const submitPendingComplaint = async () => {
       if (user && pendingComplaint) {
         try {
-          const { data, error } = await createComplaint(pendingComplaint, user.id);
+          // Add a small delay to ensure user profile is created
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          
+          // Reconstruct files from stored data if any
+          let reconstructedFiles: File[] = [];
+          if (pendingFiles.length > 0) {
+            reconstructedFiles = pendingFiles.map(storedFile => {
+              // Convert base64 data back to File object
+              const byteString = atob(storedFile.data.split(',')[1]);
+              const arrayBuffer = new ArrayBuffer(byteString.length);
+              const uint8Array = new Uint8Array(arrayBuffer);
+              for (let i = 0; i < byteString.length; i++) {
+                uint8Array[i] = byteString.charCodeAt(i);
+              }
+              return new File([arrayBuffer], storedFile.name, { type: storedFile.type });
+            });
+          }
+          
+          // Create complaint data with reconstructed files
+          const complaintDataWithFiles = {
+            ...pendingComplaint,
+            files: reconstructedFiles.length > 0 ? reconstructedFiles : undefined
+          };
+          
+          const { data, error } = await createComplaint(complaintDataWithFiles, user.id);
           
           if (error) {
             throw error;
@@ -44,9 +70,11 @@ export const LoginDialog = ({ open, onOpenChange }: LoginDialogProps) => {
           });
 
           clearPendingComplaint();
+          clearPendingFiles();
           onOpenChange(false);
           navigate("/dashboard");
         } catch (error: any) {
+          console.error('Complaint submission error:', error);
           toast({
             title: "Submission Failed",
             description: error.message || "Failed to submit complaint. Please try again.",
@@ -57,7 +85,7 @@ export const LoginDialog = ({ open, onOpenChange }: LoginDialogProps) => {
     };
 
     submitPendingComplaint();
-  }, [user, pendingComplaint, clearPendingComplaint, onOpenChange, navigate, toast]);
+  }, [user, pendingComplaint, pendingFiles, clearPendingComplaint, clearPendingFiles, onOpenChange, navigate, toast]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();

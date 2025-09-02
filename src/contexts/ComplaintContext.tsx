@@ -7,7 +7,7 @@ export interface PendingComplaintData {
   latitude?: number
   longitude?: number
   is_public: boolean
-  files?: File[]
+  files?: File[] // Store files in memory for upload after login
 }
 
 interface ComplaintContextType {
@@ -31,15 +31,46 @@ interface ComplaintProviderProps {
 }
 
 export const ComplaintProvider: React.FC<ComplaintProviderProps> = ({ children }) => {
-  const [pendingComplaint, setPendingComplaint] = useState<PendingComplaintData | null>(null)
+  // Initialize from localStorage if available (for OAuth redirects)
+  const [pendingComplaint, setPendingComplaint] = useState<PendingComplaintData | null>(() => {
+    try {
+      const stored = localStorage.getItem('pendingComplaint')
+      const parsed = stored ? JSON.parse(stored) : null
+      console.log('ComplaintContext: Loading from localStorage:', parsed)
+      return parsed
+    } catch (error) {
+      console.error('ComplaintContext: Error loading from localStorage:', error)
+      return null
+    }
+  })
 
   const clearPendingComplaint = () => {
     setPendingComplaint(null)
+    localStorage.removeItem('pendingComplaint')
+  }
+
+  // Store complaint data in localStorage (without files) for OAuth redirects
+  const updatePendingComplaint = (complaint: PendingComplaintData | null) => {
+    console.log('ComplaintContext: Setting pending complaint:', complaint)
+    setPendingComplaint(complaint)
+    
+    if (complaint) {
+      // Store complaint data without files (files can't be serialized)
+      const complaintWithoutFiles = {
+        ...complaint,
+        files: undefined
+      }
+      localStorage.setItem('pendingComplaint', JSON.stringify(complaintWithoutFiles))
+      console.log('ComplaintContext: Saved to localStorage (without files)')
+    } else {
+      localStorage.removeItem('pendingComplaint')
+      console.log('ComplaintContext: Removed from localStorage')
+    }
   }
 
   const value = {
     pendingComplaint,
-    setPendingComplaint,
+    setPendingComplaint: updatePendingComplaint,
     clearPendingComplaint,
   }
 

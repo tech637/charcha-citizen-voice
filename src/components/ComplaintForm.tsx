@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { useComplaint } from "@/contexts/ComplaintContext";
+import { useFiles } from "@/contexts/FileContext";
 import { LoginDialog } from "./LoginDialog";
 import { createComplaint } from "@/lib/complaints";
 import { 
@@ -41,6 +42,7 @@ const ComplaintForm = () => {
   const { toast } = useToast();
   const { user } = useAuth();
   const { setPendingComplaint } = useComplaint();
+  const { setPendingFiles } = useFiles();
   const navigate = useNavigate();
 
   const categories = [
@@ -123,8 +125,40 @@ const ComplaintForm = () => {
 
     // Check if user is logged in
     if (!user) {
-      // Save complaint data temporarily and show login dialog
-      setPendingComplaint(complaintData);
+      // Store complaint data (without files) in localStorage for OAuth redirects
+      const complaintWithoutFiles = {
+        ...complaintData,
+        files: undefined
+      };
+      console.log('User not logged in, saving pending complaint:', complaintWithoutFiles);
+      setPendingComplaint(complaintWithoutFiles);
+      
+      // Store files separately in FileContext (with base64 encoding for localStorage)
+      if (files.length > 0) {
+        const filePromises = files.map(async (file) => {
+          return new Promise<{ name: string; type: string; size: number; data: string }>((resolve) => {
+            const reader = new FileReader();
+            reader.onload = () => {
+              resolve({
+                name: file.name,
+                type: file.type,
+                size: file.size,
+                data: reader.result as string
+              });
+            };
+            reader.readAsDataURL(file);
+          });
+        });
+        
+        const storedFiles = await Promise.all(filePromises);
+        setPendingFiles(storedFiles);
+        
+        toast({
+          title: "Files Ready for Upload",
+          description: "Your files are ready. Please login to complete your complaint submission.",
+        });
+      }
+      
       setShowLoginDialog(true);
       return;
     }

@@ -24,7 +24,7 @@ const Index = () => {
             Raise Your Voice. Fix Your City.
           </h1>
           <p className="text-xl md:text-2xl text-white/90 mb-8 max-w-2xl mx-auto drop-shadow">
-            Report civic problems in your area – from garbage to waterlogging – and track them until resolved.
+            Report civic problems in your area from garbage to waterlogging and track them until resolved.
           </p>
           <Button 
             size="lg" 

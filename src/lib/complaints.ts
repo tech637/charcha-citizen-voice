@@ -32,11 +32,17 @@ export const createComplaint = async (complaintData: CreateComplaintData, userId
       throw complaintError
     }
 
-    // If there are files, upload them to Supabase Storage
+    // Handle file uploads
     if (complaintData.files && complaintData.files.length > 0) {
       const filePromises = complaintData.files.map(async (file) => {
+        // Check if file has a valid name
+        if (!file || !file.name) {
+          console.warn('Skipping file without name:', file)
+          return
+        }
+        
         // Create a unique filename
-        const fileExt = file.name.split('.').pop()
+        const fileExt = file.name.split('.').pop() || 'bin'
         const fileName = `${complaint.id}/${Date.now()}.${fileExt}`
         
         // Upload file to Supabase Storage
