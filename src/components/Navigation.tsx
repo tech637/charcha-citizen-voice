@@ -24,15 +24,23 @@ const Navigation = () => {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <div className="flex-shrink-0">
-            <h1 className="text-2xl font-bold text-primary">Charcha</h1>
+            <button 
+              onClick={() => navigate("/")}
+              className="text-2xl font-bold text-primary hover:text-primary/80 transition-colors"
+            >
+              Charcha
+            </button>
           </div>
 
           {/* Desktop Navigation */}
           <div className="hidden md:block">
             <div className="ml-10 flex items-baseline space-x-4">
-              <a href="#" className="text-foreground hover:text-primary px-3 py-2 rounded-md text-sm font-medium">
+              <button 
+                onClick={() => navigate("/")}
+                className="text-foreground hover:text-primary px-3 py-2 rounded-md text-sm font-medium transition-colors"
+              >
                 Home
-              </a>
+              </button>
               <a href="#how-it-works" className="text-muted-foreground hover:text-primary px-3 py-2 rounded-md text-sm font-medium">
                 How It Works
               </a>
@@ -40,9 +48,12 @@ const Navigation = () => {
                 Community
               </a>
               {user && (
-                <a href="/dashboard" className="text-muted-foreground hover:text-primary px-3 py-2 rounded-md text-sm font-medium">
-                  Dashboard
-                </a>
+                              <button 
+                onClick={() => navigate("/dashboard")}
+                className="text-muted-foreground hover:text-primary px-3 py-2 rounded-md text-sm font-medium transition-colors"
+              >
+                Dashboard
+              </button>
               )}
             </div>
           </div>
@@ -107,9 +118,15 @@ const Navigation = () => {
         {isMenuOpen && (
           <div className="md:hidden">
             <div className="px-2 pt-2 pb-3 space-y-1 bg-background border-t border-border">
-              <a href="#" className="text-foreground hover:text-primary block px-3 py-2 rounded-md text-base font-medium">
+              <button 
+                onClick={() => {
+                  navigate("/");
+                  setIsMenuOpen(false);
+                }}
+                className="text-foreground hover:text-primary block px-3 py-2 rounded-md text-base font-medium transition-colors w-full text-left"
+              >
                 Home
-              </a>
+              </button>
               <a href="#how-it-works" className="text-muted-foreground hover:text-primary block px-3 py-2 rounded-md text-base font-medium">
                 How It Works
               </a>
@@ -117,9 +134,15 @@ const Navigation = () => {
                 Community
               </a>
               {user && (
-                <a href="/dashboard" className="text-muted-foreground hover:text-primary block px-3 py-2 rounded-md text-base font-medium">
+                <button 
+                  onClick={() => {
+                    navigate("/dashboard");
+                    setIsMenuOpen(false);
+                  }}
+                  className="text-muted-foreground hover:text-primary block px-3 py-2 rounded-md text-base font-medium transition-colors w-full text-left"
+                >
                   Dashboard
-                </a>
+                </button>
               )}
               <div className="pt-4 pb-3 border-t border-border">
                 <div className="flex flex-col space-y-3 px-3">

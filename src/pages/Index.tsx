@@ -10,17 +10,23 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <Navigation />
       {/* Hero Section with Background */}
-      <div 
-        className="relative flex flex-col items-center justify-center min-h-screen px-4 text-center"
-        style={{
-          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url("/images/community.jpg")`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat'
-        }}
-      >
+      <div className="relative flex flex-col items-center justify-center min-h-screen px-4 text-center overflow-hidden">
+        {/* Background Video */}
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover z-0"
+        >
+          <source src="/videos/hero.mp4" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+        
+        {/* Video Overlay */}
+        <div className="absolute inset-0 bg-black/40 z-10" />
         <div className="max-w-4xl mx-auto relative z-10">
-          <h1 className="text-5xl md:text-6xl font-bold mb-6  drop-shadow-lg" style={{ color: "#lightblue)" }}>
+          <h1 className="text-5xl md:text-6xl font-bold mb-6 text-white drop-shadow-lg">
             Raise Your Voice. Fix Your City.
           </h1>
           <p className="text-xl md:text-2xl text-white/90 mb-8 max-w-2xl mx-auto drop-shadow" >
