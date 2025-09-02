@@ -17,7 +17,11 @@ export const AuthCallback = () => {
   console.log('AuthCallback mounted, pendingComplaint:', pendingComplaint);
 
   useEffect(() => {
+    let isSubmitting = false; // Prevent multiple submissions
+    
     const handleAuthCallback = async () => {
+      if (isSubmitting) return; // Prevent multiple executions
+      
       try {
         // Get the session from the URL hash
         const { data, error } = await supabase.auth.getSession();
@@ -39,7 +43,8 @@ export const AuthCallback = () => {
           console.log('Pending complaint:', pendingComplaint);
           
           // If there's a pending complaint, submit it
-          if (pendingComplaint) {
+          if (pendingComplaint && !isSubmitting) {
+            isSubmitting = true; // Mark as submitting
             try {
               console.log('Submitting pending complaint...');
               console.log('Pending files:', pendingFiles.length);
@@ -89,6 +94,8 @@ export const AuthCallback = () => {
                 description: error.message || "Failed to submit complaint. Please try again.",
                 variant: "destructive",
               });
+            } finally {
+              isSubmitting = false; // Reset flag
             }
           }
 
@@ -105,7 +112,7 @@ export const AuthCallback = () => {
     };
 
     handleAuthCallback();
-  }, [navigate, pendingComplaint, clearPendingComplaint, toast]);
+  }, [navigate, pendingComplaint, pendingFiles, clearPendingComplaint, clearPendingFiles, toast]);
 
   return (
     <div className="min-h-screen flex items-center justify-center">

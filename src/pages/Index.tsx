@@ -20,10 +20,10 @@ const Index = () => {
         }}
       >
         <div className="max-w-4xl mx-auto relative z-10">
-          <h1 className="text-5xl md:text-6xl font-bold mb-6 text-white drop-shadow-lg">
+          <h1 className="text-5xl md:text-6xl font-bold mb-6  drop-shadow-lg" style={{ color: "#lightblue)" }}>
             Raise Your Voice. Fix Your City.
           </h1>
-          <p className="text-xl md:text-2xl text-white/90 mb-8 max-w-2xl mx-auto drop-shadow">
+          <p className="text-xl md:text-2xl text-white/90 mb-8 max-w-2xl mx-auto drop-shadow" >
             Report civic problems in your area from garbage to waterlogging and track them until resolved.
           </p>
           <Button 

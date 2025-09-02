@@ -31,8 +31,11 @@ export const LoginDialog = ({ open, onOpenChange }: LoginDialogProps) => {
 
   // Handle pending complaint after successful authentication
   useEffect(() => {
+    let isSubmitting = false; // Prevent multiple submissions
+    
     const submitPendingComplaint = async () => {
-      if (user && pendingComplaint) {
+      if (user && pendingComplaint && !isSubmitting) {
+        isSubmitting = true; // Mark as submitting
         try {
           // Add a small delay to ensure user profile is created
           await new Promise(resolve => setTimeout(resolve, 1000));
@@ -80,6 +83,8 @@ export const LoginDialog = ({ open, onOpenChange }: LoginDialogProps) => {
             description: error.message || "Failed to submit complaint. Please try again.",
             variant: "destructive",
           });
+        } finally {
+          isSubmitting = false; // Reset flag
         }
       }
     };
