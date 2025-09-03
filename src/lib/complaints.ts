@@ -119,12 +119,21 @@ export const getPublicComplaints = async () => {
       .limit(20)
 
     if (error) {
+      console.error('complaints.ts: Supabase error:', error);
       throw error
     }
 
     return { data, error: null }
-  } catch (error) {
-    return { data: null, error }
+  } catch (error: any) {
+    console.error('complaints.ts: Error in getPublicComplaints:', error);
+    return { 
+      data: null, 
+      error: {
+        message: error.message || 'Failed to fetch public complaints',
+        details: error.details || null,
+        hint: error.hint || null
+      }
+    }
   }
 }
 

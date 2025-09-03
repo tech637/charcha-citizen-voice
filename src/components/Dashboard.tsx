@@ -8,8 +8,35 @@ import { useComplaint } from "@/contexts/ComplaintContext";
 import { getUserComplaints, createComplaint } from "@/lib/complaints";
 import { Complaint } from "@/lib/supabase";
 import { useToast } from "@/hooks/use-toast";
-import { FileText, Clock, CheckCircle, AlertCircle, Plus, LogOut } from "lucide-react";
+import { FileText, Clock, CheckCircle, AlertCircle, Plus, LogOut, MapPin } from "lucide-react";
+import { hasLocationData } from "@/lib/locationUtils";
+import { useLocationFormat } from "@/hooks/useLocationFormat";
 import Navigation from "./Navigation";
+
+// Location display component for Dashboard
+const LocationDisplay: React.FC<{
+  location_address?: string;
+  latitude?: number;
+  longitude?: number;
+}> = ({ location_address, latitude, longitude }) => {
+  const { formattedLocation, isLoading } = useLocationFormat(location_address, latitude, longitude);
+
+  if (!hasLocationData(location_address, latitude, longitude)) {
+    return null;
+  }
+
+  return (
+    <div className="flex items-center space-x-2 text-sm text-muted-foreground bg-muted/30 rounded-md px-3 py-2 mb-4">
+      <MapPin className="h-4 w-4 text-primary flex-shrink-0" />
+      <span className="font-medium">
+        {formattedLocation}
+        {isLoading && (
+          <span className="ml-2 text-xs text-muted-foreground">(loading...)</span>
+        )}
+      </span>
+    </div>
+  );
+};
 
 const Dashboard = () => {
   const { user, signOut } = useAuth();
@@ -186,11 +213,13 @@ const Dashboard = () => {
           ) : (
             <div className="space-y-4">
               {complaints.map((complaint) => (
-                <Card key={complaint.id}>
+                <Card key={complaint.id} className="hover:shadow-lg transition-all duration-300 border-border/60 bg-card/50 backdrop-blur-sm">
                   <CardHeader>
                     <div className="flex justify-between items-start">
                       <div>
-                        <CardTitle className="text-lg capitalize">{complaint.category.replace('-', ' ')}</CardTitle>
+                        <CardTitle className="text-lg capitalize bg-primary/10 text-primary px-3 py-1 rounded-lg inline-block">
+                          {complaint.category.replace('-', ' ')}
+                        </CardTitle>
                         <p className="text-sm text-muted-foreground mt-1">
                           Filed on {new Date(complaint.created_at).toLocaleDateString()}
                         </p>
@@ -199,12 +228,22 @@ const Dashboard = () => {
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-muted-foreground mb-4">{complaint.description}</p>
-                    {complaint.location_address && (
-                      <p className="text-sm text-muted-foreground mb-4">
-                        <strong>Location:</strong> {complaint.location_address}
-                      </p>
-                    )}
+                    <LocationDisplay 
+                      location_address={complaint.location_address}
+                      latitude={complaint.latitude}
+                      longitude={complaint.longitude}
+                    />
+                    <div className="bg-gradient-to-r from-muted/5 to-muted/10 border border-border/50 rounded-xl p-4 shadow-sm mb-4 hover:shadow-md transition-all duration-300 hover:border-primary/20">
+                      <div className="flex items-start space-x-3">
+                        <div className="flex-shrink-0 w-2 h-2 bg-primary rounded-full mt-2 animate-pulse"></div>
+                        <div className="flex-1">
+                          <h4 className="text-sm font-semibold text-muted-foreground mb-2">Complaint Description:</h4>
+                          <p className="text-foreground text-base leading-relaxed font-medium">
+                            {complaint.description}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
                     <div className="flex gap-2">
                       <Button variant="outline" size="sm">
                         View Details

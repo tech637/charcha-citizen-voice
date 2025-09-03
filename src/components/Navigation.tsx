@@ -44,9 +44,12 @@ const Navigation = () => {
               <a href="#how-it-works" className="text-muted-foreground hover:text-primary px-3 py-2 rounded-md text-sm font-medium">
                 How It Works
               </a>
-              <a href="#community" className="text-muted-foreground hover:text-primary px-3 py-2 rounded-md text-sm font-medium">
+              <button 
+                onClick={() => navigate("/community")}
+                className="text-muted-foreground hover:text-primary px-3 py-2 rounded-md text-sm font-medium transition-colors"
+              >
                 Community
-              </a>
+              </button>
               {user && (
                               <button 
                 onClick={() => navigate("/dashboard")}
@@ -130,9 +133,15 @@ const Navigation = () => {
               <a href="#how-it-works" className="text-muted-foreground hover:text-primary block px-3 py-2 rounded-md text-base font-medium">
                 How It Works
               </a>
-              <a href="#community" className="text-muted-foreground hover:text-primary block px-3 py-2 rounded-md text-base font-medium">
+              <button 
+                onClick={() => {
+                  navigate("/community");
+                  setIsMenuOpen(false);
+                }}
+                className="text-muted-foreground hover:text-primary block px-3 py-2 rounded-md text-base font-medium transition-colors w-full text-left"
+              >
                 Community
-              </a>
+              </button>
               {user && (
                 <button 
                   onClick={() => {

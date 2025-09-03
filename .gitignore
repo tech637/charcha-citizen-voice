@@ -24,6 +24,9 @@ dist-ssr
 # Product Requirement Docs (local only, ignore for GitHub)
 PRD/
 
+# Development context documentation (local only)
+context.md
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
