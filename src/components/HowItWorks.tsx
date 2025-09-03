@@ -22,20 +22,20 @@ const HowItWorks = () => {
   ];
 
   return (
-    <div className="py-16 px-4">
+    <div className="py-8 md:py-16 px-4">
       <div className="max-w-4xl mx-auto">
-        <h2 className="text-3xl font-bold text-center mb-12">How It Works</h2>
-        <div className="grid md:grid-cols-3 gap-8">
+        <h2 className="text-2xl md:text-3xl font-bold text-center mb-8 md:mb-12">How It Works</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
           {steps.map((step, index) => {
             const IconComponent = step.icon;
             return (
               <Card key={index} className="text-center">
-                <CardContent className="pt-6">
-                  <div className="mb-4 mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
-                    <IconComponent className="h-8 w-8 text-primary" />
+                <CardContent className="pt-4 md:pt-6">
+                  <div className="mb-3 md:mb-4 mx-auto w-12 h-12 md:w-16 md:h-16 bg-primary/10 rounded-full flex items-center justify-center">
+                    <IconComponent className="h-6 w-6 md:h-8 md:w-8 text-primary" />
                   </div>
-                  <h3 className="text-xl font-semibold mb-2">{step.title}</h3>
-                  <p className="text-muted-foreground">{step.description}</p>
+                  <h3 className="text-lg md:text-xl font-semibold mb-2">{step.title}</h3>
+                  <p className="text-sm md:text-base text-muted-foreground">{step.description}</p>
                 </CardContent>
               </Card>
             );

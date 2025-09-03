@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ThumbsUp, ThumbsDown, MapPin, Calendar, Eye, RefreshCw, AlertCircle } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { getPublicComplaints } from '@/lib/complaints';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -24,12 +25,12 @@ const LocationDisplay: React.FC<{
   }
 
   return (
-    <div className="flex items-center space-x-2 text-sm text-muted-foreground bg-muted/30 rounded-md px-3 py-2">
-      <MapPin className="h-4 w-4 text-primary flex-shrink-0" />
+    <div className="flex items-center space-x-2 text-xs text-gray-600 bg-gray-50 rounded-md px-2 py-1">
+      <MapPin className="h-3 w-3 text-gray-500 flex-shrink-0" />
       <span className="font-medium">
         {formattedLocation}
         {isLoading && (
-          <span className="ml-2 text-xs text-muted-foreground">(loading...)</span>
+          <span className="ml-1 text-xs text-gray-400">(loading...)</span>
         )}
       </span>
     </div>
@@ -304,210 +305,331 @@ const CommunityFeed: React.FC = () => {
 
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-muted/20">
       <Navigation />
-      <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between">
+      <div className="container mx-auto px-4 py-6 max-w-7xl">
+        {/* Admin-style Header */}
+        <div className="bg-white rounded-lg shadow-sm border p-4 md:p-6 mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold mb-2">Community Feed</h1>
-              <p className="text-muted-foreground">
-                See what issues your neighbors are reporting and show your support
+              <h1 className="text-xl md:text-2xl font-bold text-gray-900">Community Complaints</h1>
+              <p className="text-sm text-gray-600 mt-1">
+                Public complaints from your community • {complaints.length} total
               </p>
             </div>
-            <Button 
-              variant="outline" 
-              onClick={handleRefresh}
-              disabled={refreshing}
-              className="flex items-center space-x-2"
-            >
-              <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
-              <span>{refreshing ? 'Refreshing...' : 'Refresh'}</span>
-            </Button>
+            <div className="flex items-center gap-3">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleRefresh}
+                disabled={refreshing}
+                className="flex items-center gap-2"
+              >
+                <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+                Refresh
+              </Button>
+            </div>
           </div>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          <Card>
-            <CardContent className="p-4">
-              <div className="text-2xl font-bold">{complaints.length}</div>
-              <div className="text-sm text-muted-foreground">Total Complaints</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4">
-              <div className="text-2xl font-bold">
-                {complaints.filter(c => c.status === 'pending').length}
-              </div>
-              <div className="text-sm text-muted-foreground">Pending</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4">
-              <div className="text-2xl font-bold">
-                {complaints.filter(c => c.status === 'in_progress').length}
-              </div>
-              <div className="text-sm text-muted-foreground">In Progress</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4">
-              <div className="text-2xl font-bold">
-                {complaints.filter(c => c.status === 'resolved').length}
-              </div>
-              <div className="text-sm text-muted-foreground">Resolved</div>
-            </CardContent>
-          </Card>
+        {/* Admin Stats Cards */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-6">
+          <div className="bg-white rounded-lg border p-3 md:p-4">
+            <div className="text-lg md:text-2xl font-bold text-gray-900">{complaints.length}</div>
+            <div className="text-xs md:text-sm text-gray-600">Total</div>
+          </div>
+          <div className="bg-white rounded-lg border p-3 md:p-4">
+            <div className="text-lg md:text-2xl font-bold text-yellow-600">
+              {complaints.filter(c => c.status === 'pending').length}
+            </div>
+            <div className="text-xs md:text-sm text-gray-600">Pending</div>
+          </div>
+          <div className="bg-white rounded-lg border p-3 md:p-4">
+            <div className="text-lg md:text-2xl font-bold text-blue-600">
+              {complaints.filter(c => c.status === 'in_progress').length}
+            </div>
+            <div className="text-xs md:text-sm text-gray-600">In Progress</div>
+          </div>
+          <div className="bg-white rounded-lg border p-3 md:p-4">
+            <div className="text-lg md:text-2xl font-bold text-green-600">
+              {complaints.filter(c => c.status === 'resolved').length}
+            </div>
+            <div className="text-xs md:text-sm text-gray-600">Resolved</div>
+          </div>
         </div>
 
 
 
-        {/* Complaints Feed */}
-        <div className="space-y-6">
-          {complaints.length === 0 ? (
-            <Card>
-              <CardContent className="p-8 text-center">
-                <Eye className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">No Public Complaints Yet</h3>
-                <p className="text-muted-foreground mb-4">
-                  Be the first to share a complaint publicly and help build the community feed!
-                </p>
-                <Button onClick={() => window.location.href = '/'}>
-                  File a Complaint
-                </Button>
-              </CardContent>
-            </Card>
-                       ) : (
-               complaints.map((complaint) => (
-                 <Card key={complaint.id} className="hover:shadow-lg transition-all duration-300 border-border/60 bg-card/50 backdrop-blur-sm">
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-center space-x-3">
-                        <Avatar>
-                          <AvatarImage src="" />
-                          <AvatarFallback>{getInitials(complaint.users?.full_name)}</AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <CardTitle className="text-lg">
-                            {complaint.users?.full_name || 'Anonymous User'}
-                          </CardTitle>
-                          <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                            <Calendar className="h-4 w-4" />
-                            <span>{formatDate(complaint.created_at)}</span>
-                          </div>
-                        </div>
+        {/* Tabs for filtering complaints */}
+        <Tabs defaultValue="in_progress" className="w-full">
+          <TabsList className="grid w-full grid-cols-2 mb-6">
+            <TabsTrigger value="in_progress">
+              In Progress ({complaints.filter(c => c.status === 'pending' || c.status === 'in_progress').length})
+            </TabsTrigger>
+            <TabsTrigger value="resolved">
+              Resolved ({complaints.filter(c => c.status === 'resolved').length})
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="in_progress">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              {complaints.filter(c => c.status === 'pending' || c.status === 'in_progress').length === 0 ? (
+                <div className="col-span-full bg-white rounded-lg border p-8 text-center">
+                  <Eye className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold mb-2 text-gray-900">No In Progress Complaints</h3>
+                  <p className="text-gray-600 mb-4">
+                    No pending or in-progress complaints at the moment.
+                  </p>
+                </div>
+              ) : (
+                complaints.filter(c => c.status === 'pending' || c.status === 'in_progress').map((complaint) => (
+              <div key={complaint.id} className="bg-white rounded-lg border shadow-sm hover:shadow-md transition-shadow">
+                <div className="p-4 md:p-6">
+                  {/* Header Row */}
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-4">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
+                        <span className="text-sm font-medium text-primary">
+                          {getInitials(complaint.users?.full_name)}
+                        </span>
                       </div>
-                      <Badge className={getStatusColor(complaint.status)}>
+                      <div>
+                        <h3 className="font-semibold text-gray-900 text-sm md:text-base">
+                          {complaint.users?.full_name || 'Anonymous User'}
+                        </h3>
+                        <p className="text-xs text-gray-500 flex items-center gap-1">
+                          <Calendar className="h-3 w-3" />
+                          {formatDate(complaint.created_at)}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline" className="text-xs">
+                        {complaint.category.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                      </Badge>
+                      <Badge className={`${getStatusColor(complaint.status)} text-xs`}>
                         {getStatusText(complaint.status)}
                       </Badge>
                     </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      {/* Category */}
-                      <div>
-                        <Badge variant="outline" className="mb-2 bg-primary/10 text-primary border-primary/20 hover:bg-primary/20 transition-colors">
-                          {complaint.category.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                        </Badge>
+                  </div>
+
+                  {/* Content */}
+                  <div className="space-y-3">
+
+                    {/* Location */}
+                    <LocationDisplay 
+                      location_address={complaint.location_address}
+                      latitude={complaint.latitude}
+                      longitude={complaint.longitude}
+                    />
+
+                    {/* Description */}
+                    <div className="bg-gray-50 rounded-lg p-3 md:p-4">
+                      <h4 className="text-xs font-medium text-gray-600 mb-2">COMPLAINT DESCRIPTION</h4>
+                      <p className="text-sm text-gray-900 leading-relaxed">
+                        {complaint.description}
+                      </p>
+                    </div>
+
+                    {/* Media Files */}
+                    {complaint.complaint_files && complaint.complaint_files.length > 0 && (
+                      <div className="space-y-2">
+                        <h4 className="text-xs font-medium text-gray-600">ATTACHMENTS</h4>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                          {complaint.complaint_files.map((file) => (
+                            <div key={file.id} className="relative">
+                              {file.file_type.startsWith('image/') ? (
+                                <img
+                                  src={file.file_url}
+                                  alt={file.file_name}
+                                  className="w-full h-20 md:h-24 object-cover rounded-md border"
+                                  onError={(e) => {
+                                    console.error('CommunityFeed: Image load error for file:', file.file_name);
+                                    e.currentTarget.style.display = 'none';
+                                  }}
+                                />
+                              ) : (
+                                <div className="w-full h-20 md:h-24 bg-gray-100 rounded-md border flex items-center justify-center">
+                                  <span className="text-xs text-gray-500">
+                                    {file.file_name}
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
                       </div>
+                    )}
 
-                      {/* Location */}
-                      <LocationDisplay 
-                        location_address={complaint.location_address}
-                        latitude={complaint.latitude}
-                        longitude={complaint.longitude}
-                      />
+                    {/* Action Buttons */}
+                    <div className="flex items-center justify-between pt-3 border-t border-gray-200">
+                      <div className="flex items-center space-x-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleLike(complaint.id)}
+                          className={`flex items-center space-x-1 text-xs ${
+                            likedComplaints.has(complaint.id) 
+                              ? 'text-green-600 bg-green-50' 
+                              : 'text-gray-600 hover:bg-green-50 hover:text-green-600'
+                          }`}
+                        >
+                          <ThumbsUp className="h-3 w-3" />
+                          <span>Like</span>
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDislike(complaint.id)}
+                          className={`flex items-center space-x-1 text-xs ${
+                            dislikedComplaints.has(complaint.id) 
+                              ? 'text-red-600 bg-red-50' 
+                              : 'text-gray-600 hover:bg-red-50 hover:text-red-600'
+                          }`}
+                        >
+                          <ThumbsDown className="h-3 w-3" />
+                          <span>Dislike</span>
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+                ))
+              )}
+            </div>
+          </TabsContent>
 
-                      {/* Description */}
-                      <div className="bg-gradient-to-r from-muted/5 to-muted/10 border border-border/50 rounded-xl p-4 shadow-sm hover:shadow-md transition-all duration-300 hover:border-primary/20">
-                        <div className="flex items-start space-x-3">
-                          <div className="flex-shrink-0 w-2 h-2 bg-primary rounded-full mt-2 animate-pulse"></div>
-                          <div className="flex-1">
-                            <h4 className="text-sm font-semibold text-muted-foreground mb-2">Complaint Description:</h4>
-                            <p className="text-foreground text-base leading-relaxed font-medium">
-                              {complaint.description}
+          <TabsContent value="resolved">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              {complaints.filter(c => c.status === 'resolved').length === 0 ? (
+                <div className="col-span-full bg-white rounded-lg border p-8 text-center">
+                  <Eye className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold mb-2 text-gray-900">No Resolved Complaints</h3>
+                  <p className="text-gray-600 mb-4">
+                    No resolved complaints at the moment.
+                  </p>
+                </div>
+              ) : (
+                complaints.filter(c => c.status === 'resolved').map((complaint) => (
+                  <div key={complaint.id} className="bg-white rounded-lg border shadow-sm hover:shadow-md transition-shadow">
+                    <div className="p-4 md:p-6">
+                      {/* Header Row */}
+                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-4">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
+                            <span className="text-sm font-medium text-primary">
+                              {getInitials(complaint.users?.full_name)}
+                            </span>
+                          </div>
+                          <div>
+                            <h3 className="font-semibold text-gray-900 text-sm md:text-base">
+                              {complaint.users?.full_name || 'Anonymous User'}
+                            </h3>
+                            <p className="text-xs text-gray-500 flex items-center gap-1">
+                              <Calendar className="h-3 w-3" />
+                              {formatDate(complaint.created_at)}
                             </p>
                           </div>
                         </div>
+                        <div className="flex items-center gap-2">
+                          <Badge variant="outline" className="text-xs">
+                            {complaint.category.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                          </Badge>
+                          <Badge className={`${getStatusColor(complaint.status)} text-xs`}>
+                            {getStatusText(complaint.status)}
+                          </Badge>
+                        </div>
                       </div>
 
-                      {/* Media Files */}
-                      {complaint.complaint_files && complaint.complaint_files.length > 0 && (
-                        <div className="space-y-2">
-                          <h4 className="text-sm font-medium">Attachments:</h4>
-                          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                            {complaint.complaint_files.map((file) => (
-                              <div key={file.id} className="relative">
-                                {file.file_type.startsWith('image/') ? (
-                                  <img
-                                    src={file.file_url}
-                                    alt={file.file_name}
-                                    className="w-full h-24 object-cover rounded-md border"
-                                    onError={(e) => {
-                                      console.error('CommunityFeed: Image load error for file:', file.file_name);
-                                      e.currentTarget.style.display = 'none';
-                                    }}
-                                  />
-                                ) : (
-                                  <div className="w-full h-24 bg-muted rounded-md border flex items-center justify-center">
-                                    <span className="text-xs text-muted-foreground">
-                                      {file.file_name}
-                                    </span>
-                                  </div>
-                                )}
-                              </div>
-                            ))}
+                      {/* Content */}
+                      <div className="space-y-3">
+                        {/* Location */}
+                        <LocationDisplay 
+                          location_address={complaint.location_address}
+                          latitude={complaint.latitude}
+                          longitude={complaint.longitude}
+                        />
+
+                        {/* Description */}
+                        <div className="bg-gray-50 rounded-lg p-3 md:p-4">
+                          <h4 className="text-xs font-medium text-gray-600 mb-2">COMPLAINT DESCRIPTION</h4>
+                          <p className="text-sm text-gray-900 leading-relaxed">
+                            {complaint.description}
+                          </p>
+                        </div>
+
+                        {/* Media Files */}
+                        {complaint.complaint_files && complaint.complaint_files.length > 0 && (
+                          <div className="space-y-2">
+                            <h4 className="text-xs font-medium text-gray-600">ATTACHMENTS</h4>
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                              {complaint.complaint_files.map((file) => (
+                                <div key={file.id} className="relative">
+                                  {file.file_type.startsWith('image/') ? (
+                                    <img
+                                      src={file.file_url}
+                                      alt={file.file_name}
+                                      className="w-full h-20 md:h-24 object-cover rounded-md border"
+                                      onError={(e) => {
+                                        console.error('CommunityFeed: Image load error for file:', file.file_name);
+                                        e.currentTarget.style.display = 'none';
+                                      }}
+                                    />
+                                  ) : (
+                                    <div className="w-full h-20 md:h-24 bg-gray-100 rounded-md border flex items-center justify-center">
+                                      <span className="text-xs text-gray-500">
+                                        {file.file_name}
+                                      </span>
+                                    </div>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Action Buttons */}
+                        <div className="flex items-center justify-between pt-3 border-t border-gray-200">
+                          <div className="flex items-center space-x-2">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleLike(complaint.id)}
+                              className={`flex items-center space-x-1 text-xs ${
+                                likedComplaints.has(complaint.id) 
+                                  ? 'text-green-600 bg-green-50' 
+                                  : 'text-gray-600 hover:bg-green-50 hover:text-green-600'
+                              }`}
+                            >
+                              <ThumbsUp className="h-3 w-3" />
+                              <span>Like</span>
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleDislike(complaint.id)}
+                              className={`flex items-center space-x-1 text-xs ${
+                                dislikedComplaints.has(complaint.id) 
+                                  ? 'text-red-600 bg-red-50' 
+                                  : 'text-gray-600 hover:bg-red-50 hover:text-red-600'
+                              }`}
+                            >
+                              <ThumbsDown className="h-3 w-3" />
+                              <span>Dislike</span>
+                            </Button>
                           </div>
                         </div>
-                      )}
-
-                      {/* Like/Dislike Buttons */}
-                                             <div className="flex items-center space-x-4 pt-4 border-t border-border/30">
-                         <Button
-                           variant="ghost"
-                           size="sm"
-                           onClick={() => handleLike(complaint.id)}
-                           className={`flex items-center space-x-2 transition-all duration-200 ${
-                             likedComplaints.has(complaint.id) 
-                               ? 'text-green-600 bg-green-50 hover:bg-green-100' 
-                               : 'hover:bg-green-50 hover:text-green-600'
-                           }`}
-                         >
-                           <ThumbsUp className="h-4 w-4" />
-                           <span>Like</span>
-                         </Button>
-                         <Button
-                           variant="ghost"
-                           size="sm"
-                           onClick={() => handleDislike(complaint.id)}
-                           className={`flex items-center space-x-2 transition-all duration-200 ${
-                             dislikedComplaints.has(complaint.id) 
-                               ? 'text-red-600 bg-red-50 hover:bg-red-100' 
-                               : 'hover:bg-red-50 hover:text-red-600'
-                           }`}
-                         >
-                           <ThumbsDown className="h-4 w-4" />
-                           <span>Dislike</span>
-                         </Button>
-                       </div>
+                      </div>
                     </div>
-                  </CardContent>
-                </Card>
-            ))
-          )}
-        </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </TabsContent>
+        </Tabs>
 
-        {/* Load More Button */}
-        {complaints.length > 0 && (
-          <div className="text-center mt-8">
-            <Button variant="outline" onClick={handleRefresh} disabled={refreshing}>
-              <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
-              {refreshing ? 'Refreshing...' : 'Refresh Feed'}
-            </Button>
-          </div>
-        )}
+
       </div>
     </div>
   );

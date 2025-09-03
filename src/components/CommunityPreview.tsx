@@ -134,33 +134,43 @@ const CommunityPreview = () => {
   const complaintsToShow = realComplaints.length > 0 ? realComplaints : sampleComplaints;
 
   return (
-    <div className="py-16 px-4 bg-muted/30">
-      <div className="max-w-4xl mx-auto">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold mb-4">Community Voice</h2>
-          <p className="text-muted-foreground">See what issues your neighbors are reporting and join the conversation to make our city better.</p>
+    <div id="community" className="py-8 md:py-16 px-4 bg-gradient-to-br from-muted/20 to-muted/40 relative overflow-hidden">
+      {/* Background decoration */}
+      <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -translate-y-16 translate-x-16"></div>
+      <div className="absolute bottom-0 left-0 w-24 h-24 bg-primary/5 rounded-full translate-y-12 -translate-x-12"></div>
+      
+      <div className="max-w-4xl mx-auto relative z-10">
+        <div className="text-center mb-8 md:mb-12">
+          <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-medium mb-4">
+            <span className="w-2 h-2 bg-primary rounded-full animate-pulse"></span>
+            Live Community Updates
+          </div>
+          <h2 className="text-2xl md:text-3xl font-bold mb-3 md:mb-4">Community Voice</h2>
+          <p className="text-sm md:text-base text-muted-foreground max-w-2xl mx-auto">
+            See what issues your neighbors are reporting and join the conversation to make our city better.
+          </p>
         </div>
         
         {loading ? (
-          <div className="text-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-            <p className="text-muted-foreground">Loading community updates...</p>
+          <div className="text-center py-6 md:py-8">
+            <div className="animate-spin rounded-full h-6 w-6 md:h-8 md:w-8 border-b-2 border-primary mx-auto mb-3 md:mb-4"></div>
+            <p className="text-sm md:text-base text-muted-foreground">Loading community updates...</p>
           </div>
         ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-6 md:mb-8">
             {complaintsToShow.map((complaint) => (
             <Card key={complaint.id} className="hover:shadow-md transition-shadow">
-              <CardHeader className="pb-3">
-                <div className="flex justify-between items-start">
-                  <Badge variant="outline">
+              <CardHeader className="pb-2 md:pb-3">
+                <div className="flex justify-between items-start gap-2">
+                  <Badge variant="outline" className="text-xs">
                     {complaint.category?.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase()) || 'General'}
                   </Badge>
-                  <Badge className={getStatusColor(complaint.status)}>
+                  <Badge className={`${getStatusColor(complaint.status)} text-xs`}>
                     {getStatusText(complaint.status)}
                   </Badge>
                 </div>
               </CardHeader>
-              <CardContent>
+              <CardContent className="space-y-3">
                 {/* Location */}
                 {complaint.location_address || complaint.latitude ? (
                   <LocationDisplay 
@@ -178,12 +188,12 @@ const CommunityPreview = () => {
                 ) : null}
                 
                 {/* Description */}
-                <div className="bg-gradient-to-r from-muted/5 to-muted/10 border border-border/50 rounded-lg p-3 mb-3 hover:shadow-md transition-all duration-300">
+                <div className="bg-gradient-to-r from-muted/5 to-muted/10 border border-border/50 rounded-lg p-2 md:p-3 hover:shadow-md transition-all duration-300">
                   <div className="flex items-start space-x-2">
-                    <div className="flex-shrink-0 w-1.5 h-1.5 bg-primary rounded-full mt-1.5 animate-pulse"></div>
+                    <div className="flex-shrink-0 w-1 h-1 md:w-1.5 md:h-1.5 bg-primary rounded-full mt-1 md:mt-1.5 animate-pulse"></div>
                     <div className="flex-1">
                       <h4 className="text-xs font-semibold text-muted-foreground mb-1">Complaint Description:</h4>
-                      <p className="text-sm line-clamp-2 font-medium leading-relaxed">{complaint.description}</p>
+                      <p className="text-xs md:text-sm line-clamp-2 font-medium leading-relaxed">{complaint.description}</p>
                     </div>
                   </div>
                 </div>
@@ -207,9 +217,10 @@ const CommunityPreview = () => {
           <Button 
             variant="outline" 
             size="lg"
+            className="w-full sm:w-auto"
             onClick={() => navigate('/community')}
           >
-            View More →
+            View More Community Updates →
           </Button>
         </div>
       </div>
