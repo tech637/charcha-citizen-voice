@@ -24,6 +24,7 @@ CREATE TABLE public.users (
   full_name TEXT,
   phone TEXT,
   avatar_url TEXT,
+  role TEXT DEFAULT 'citizen' CHECK (role IN ('citizen', 'admin', 'moderator')),
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -40,7 +41,35 @@ CREATE TABLE public.categories (
 );
 ```
 
-#### 3. `complaints` Table
+#### 3. `communities` Table
+```sql
+CREATE TABLE public.communities (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  name TEXT NOT NULL,
+  description TEXT,
+  location TEXT,
+  latitude DECIMAL(10, 8),
+  longitude DECIMAL(11, 8),
+  admin_id UUID REFERENCES auth.users(id) NOT NULL,
+  is_active BOOLEAN DEFAULT true,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+```
+
+#### 4. `user_communities` Table
+```sql
+CREATE TABLE public.user_communities (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID REFERENCES auth.users(id) NOT NULL,
+  community_id UUID REFERENCES public.communities(id) ON DELETE CASCADE NOT NULL,
+  role TEXT DEFAULT 'citizen' CHECK (role IN ('citizen', 'moderator', 'admin')),
+  joined_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  UNIQUE(user_id, community_id)
+);
+```
+
+#### 5. `complaints` Table
 ```sql
 CREATE TABLE public.complaints (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -310,17 +339,36 @@ src/
   - Professional color scheme with gray backgrounds and clear typography
   - Efficient use of space with reduced padding and optimized layouts
 
-### 12. Grid Layout and Tabbed Interface
-- **Problem**: Needed 2 complaints per row on desktop and better content organization
-- **Solution**: Implemented grid layout with tabs for filtering complaints
-- **Result**: Enhanced layout with:
-  - 2-column grid on desktop (lg:grid-cols-2), single column on mobile
-  - Tabbed interface with "In Progress" and "Resolved" tabs
-  - Dynamic tab counts showing number of complaints in each category
-  - Centered content with max-width container for better mobile experience
-  - Proper filtering of complaints by status (pending/in_progress vs resolved)
-  - Consistent card design across both tabs
-  - Mobile-optimized spacing and responsive design
+### 12. Admin Panel Implementation
+- **Problem**: Need admin-only access panel for platform management
+- **Solution**: Created simple admin panel with role-based access control
+- **Result**: Clean admin interface with:
+  - Admin-only access using `isUserAdmin` function
+  - Simple "Hello Admin" welcome message
+  - Role-based navigation (admin links only visible to admins)
+  - Automatic redirect for non-admin users
+
+### 13. Community Management System
+- **Problem**: Need system for creating and managing communities
+- **Solution**: Implemented comprehensive community management with admin panel
+- **Result**: Full community system with:
+  - Admin panel for creating new communities
+  - User role management (citizen, admin, moderator)
+  - Community-specific complaint feeds
+  - India community for all public complaints
+  - Auto-join functionality for new users
+  - Dynamic community pages accessible via `/communities/{name}`
+
+### 14. Database Schema Simplification
+- **Problem**: Complex dual-table role management causing issues
+- **Solution**: Simplified to single `users` table with `role` column
+- **Result**: Cleaner database structure with:
+  - Single source of truth for user roles
+  - Eliminated `profiles` table complexity
+  - Simplified authentication and role checking
+  - Better performance and maintainability
+  - Clean, professional admin dashboard design
+  - Removed all community-related functionality as requested
 
 ## Production Deployment
 - **Domain**: https://www.charcha.net.in/

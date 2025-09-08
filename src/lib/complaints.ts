@@ -7,6 +7,7 @@ export interface CreateComplaintData {
   latitude?: number
   longitude?: number
   is_public: boolean
+  community_id?: string
   files?: File[]
 }
 
@@ -23,6 +24,7 @@ export const createComplaint = async (complaintData: CreateComplaintData, userId
         latitude: complaintData.latitude,
         longitude: complaintData.longitude,
         is_public: complaintData.is_public,
+        community_id: complaintData.community_id,
         status: 'pending'
       })
       .select()
@@ -112,7 +114,8 @@ export const getPublicComplaints = async () => {
       .select(`
         *,
         complaint_files (*),
-        users (full_name)
+        users (full_name),
+        communities (name, location)
       `)
       .eq('is_public', true)
       .order('created_at', { ascending: false })

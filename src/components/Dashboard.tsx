@@ -52,22 +52,24 @@ const Dashboard = () => {
       return;
     }
 
-    const fetchComplaints = async () => {
+    const fetchData = async () => {
       try {
-        const { data, error } = await getUserComplaints(user.id);
-        if (error) {
-          console.error("Error fetching complaints:", error);
+        // Fetch complaints
+        const { data: complaintsData, error: complaintsError } = await getUserComplaints(user.id);
+        if (complaintsError) {
+          console.error("Error fetching complaints:", complaintsError);
         } else {
-          setComplaints(data || []);
+          setComplaints(complaintsData || []);
         }
+
       } catch (error) {
-        console.error("Error fetching complaints:", error);
+        console.error("Error fetching data:", error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchComplaints();
+    fetchData();
   }, [user, navigate]);
 
   // Handle pending complaint for OAuth users
@@ -194,6 +196,7 @@ const Dashboard = () => {
             </Button>
           </div>
         </div>
+
 
         {/* Recent Complaints */}
         <div>

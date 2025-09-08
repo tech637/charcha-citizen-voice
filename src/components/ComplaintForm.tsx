@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,6 +14,7 @@ import { useComplaint } from "@/contexts/ComplaintContext";
 import { useFiles } from "@/contexts/FileContext";
 import { LoginDialog } from "./LoginDialog";
 import { createComplaint } from "@/lib/complaints";
+import { getIndiaCommunityId } from "@/lib/india-community";
 import { 
   Trash, 
   Droplets, 
@@ -59,6 +60,7 @@ const ComplaintForm = () => {
     { id: "safety", label: "Safety", icon: Shield },
     { id: "other", label: "Other", icon: AlertTriangle },
   ];
+
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -112,6 +114,19 @@ const ComplaintForm = () => {
       return;
     }
 
+    // Get India community ID for public complaints
+    let indiaCommunityId = null;
+    if (isPublic) {
+      try {
+        indiaCommunityId = await getIndiaCommunityId();
+        if (!indiaCommunityId) {
+          console.warn('India community not found, creating complaint without community assignment');
+        }
+      } catch (error) {
+        console.error('Error fetching India community ID:', error);
+      }
+    }
+
     // Prepare complaint data
     const complaintData = {
       category: selectedCategory,
@@ -120,6 +135,7 @@ const ComplaintForm = () => {
       latitude,
       longitude,
       is_public: isPublic,
+      community_id: indiaCommunityId || undefined,
       files: files.length > 0 ? files : undefined,
     };
 
@@ -322,7 +338,7 @@ const ComplaintForm = () => {
               onCheckedChange={(checked) => setIsPublic(checked as boolean)}
             />
             <Label htmlFor="public" className="text-sm font-medium">
-              Share publicly in Community Feed
+              Share publicly
             </Label>
           </div>
 

@@ -37,6 +37,7 @@ export interface User {
   id: string
   email: string
   full_name?: string
+  role?: 'citizen' | 'admin' | 'moderator'
   created_at: string
   updated_at: string
 }
@@ -50,6 +51,7 @@ export interface Complaint {
   latitude?: number
   longitude?: number
   is_public: boolean
+  community_id?: string
   status: 'pending' | 'in-progress' | 'resolved' | 'rejected'
   created_at: string
   updated_at: string
@@ -62,5 +64,32 @@ export interface ComplaintFile {
   file_url: string
   file_type?: string
   file_size?: number
+  created_at: string
+}
+
+export interface Community {
+  id: string
+  name: string
+  description?: string
+  location?: string
+  latitude?: number
+  longitude?: number
+  admin_id: string
+  is_active: boolean
+  created_at: string
+  updated_at: string
+}
+
+export interface UserCommunity {
+  id: string
+  user_id: string
+  community_id: string
+  role: 'member' | 'moderator' | 'admin'
+  joined_at: string
+}
+
+export interface Profile {
+  id: string
+  role: 'citizen' | 'admin' | 'moderator'
   created_at: string
 }

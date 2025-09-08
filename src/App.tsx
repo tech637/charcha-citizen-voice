@@ -10,7 +10,11 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Dashboard from "./components/Dashboard";
 import { AuthCallback } from "./components/AuthCallback";
+import AdminPanel from "./components/admin/AdminPanel";
+import AdminTest from "./components/AdminTest";
 import CommunityFeed from "./components/CommunityFeed";
+import IndiaCommunityFeed from "./components/IndiaCommunityFeed";
+import CommunityPage from "./components/CommunityPage";
 
 const queryClient = new QueryClient();
 
@@ -26,7 +30,11 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/community" element={<CommunityFeed />} />
+              <Route path="/communities" element={<CommunityFeed />} />
+              <Route path="/communities/:communityName" element={<CommunityPage />} />
+              <Route path="/india" element={<IndiaCommunityFeed />} />
+              <Route path="/admin" element={<AdminPanel />} />
+              <Route path="/admin-test" element={<AdminTest />} />
               <Route path="/auth/callback" element={<AuthCallback />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />

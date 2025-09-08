@@ -26,6 +26,8 @@ PRD/
 
 # Development context documentation (local only)
 context.md
+rule.md
+ADMIN_SETUP.md
 
 # Editor directories and files
 .vscode/*

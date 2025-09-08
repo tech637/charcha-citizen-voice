@@ -1,17 +1,37 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, LogOut } from "lucide-react";
+import { Menu, X, LogOut, Shield } from "lucide-react";
 import { LoginDialog } from "./LoginDialog";
 import { useAuth } from "@/contexts/AuthContext";
+import { isUserAdmin } from "@/lib/communities";
 
 const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+
+  // Check if user is admin
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      if (user) {
+        try {
+          const adminStatus = await isUserAdmin(user.id);
+          setIsAdmin(adminStatus);
+        } catch (error) {
+          console.error('Error checking admin status:', error);
+        }
+      } else {
+        setIsAdmin(false);
+      }
+    };
+
+    checkAdminStatus();
+  }, [user]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -45,19 +65,11 @@ const Navigation = () => {
                 How It Works
               </a>
               <button 
-                onClick={() => navigate("/community")}
+                onClick={() => navigate("/communities")}
                 className="text-muted-foreground hover:text-primary px-3 py-2 rounded-md text-sm font-medium transition-colors"
               >
-                Community
+                Communities
               </button>
-              {user && (
-                              <button 
-                onClick={() => navigate("/dashboard")}
-                className="text-muted-foreground hover:text-primary px-3 py-2 rounded-md text-sm font-medium transition-colors"
-              >
-                Dashboard
-              </button>
-              )}
             </div>
           </div>
 
@@ -71,7 +83,6 @@ const Navigation = () => {
                 <Button 
                   variant="outline" 
                   onClick={handleSignOut}
-                  className="mr-4"
                 >
                   <LogOut className="h-4 w-4 mr-2" />
                   Sign Out
@@ -81,6 +92,16 @@ const Navigation = () => {
                 >
                   Dashboard
                 </Button>
+                {isAdmin && (
+                  <Button 
+                    variant="outline"
+                    onClick={() => navigate("/admin")}
+                    className="flex items-center gap-2"
+                  >
+                    <Shield className="h-4 w-4" />
+                    Admin
+                  </Button>
+                )}
               </div>
             ) : (
               <>
@@ -135,24 +156,13 @@ const Navigation = () => {
               </a>
               <button 
                 onClick={() => {
-                  navigate("/community");
+                  navigate("/communities");
                   setIsMenuOpen(false);
                 }}
                 className="text-muted-foreground hover:text-primary block px-3 py-2 rounded-md text-base font-medium transition-colors w-full text-left"
               >
-                Community
+                Communities
               </button>
-              {user && (
-                <button 
-                  onClick={() => {
-                    navigate("/dashboard");
-                    setIsMenuOpen(false);
-                  }}
-                  className="text-muted-foreground hover:text-primary block px-3 py-2 rounded-md text-base font-medium transition-colors w-full text-left"
-                >
-                  Dashboard
-                </button>
-              )}
               <div className="pt-4 pb-3 border-t border-border">
                 <div className="flex flex-col space-y-3 px-3">
                   {user ? (
@@ -180,6 +190,19 @@ const Navigation = () => {
                       >
                         Dashboard
                       </Button>
+                      {isAdmin && (
+                        <Button 
+                          variant="outline"
+                          onClick={() => {
+                            navigate("/admin");
+                            setIsMenuOpen(false);
+                          }}
+                          className="w-full flex items-center gap-2"
+                        >
+                          <Shield className="h-4 w-4" />
+                          Admin Panel
+                        </Button>
+                      )}
                     </>
                   ) : (
                     <>

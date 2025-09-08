@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { User as SupabaseUser, Session } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
+import { autoJoinIndiaCommunity } from '@/lib/auto-join-india'
 
 interface AuthContextType {
   user: SupabaseUser | null
@@ -34,21 +35,46 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Function to create or update user profile
   const createUserProfile = async (user: SupabaseUser) => {
     try {
-      const { error } = await supabase
+      // First check if user already exists
+      const { data: existingUser, error: checkError } = await supabase
         .from('users')
-        .upsert({
+        .select('id, role')
+        .eq('id', user.id)
+        .single()
+
+      if (checkError && checkError.code !== 'PGRST116') {
+        console.error('Error checking existing user:', checkError)
+        return
+      }
+
+      if (existingUser) {
+        // User exists, don't overwrite their role
+        console.log('✅ User already exists, keeping existing role:', existingUser.role)
+        return
+      }
+
+      // User doesn't exist, create with default role
+      const { error: userError } = await supabase
+        .from('users')
+        .insert({
           id: user.id,
           email: user.email!,
           full_name: user.user_metadata?.full_name || user.user_metadata?.name || null,
           phone: user.user_metadata?.phone || null,
-        }, {
-          onConflict: 'id'
+          role: 'citizen' // Default role for new users only
         })
 
-      if (error) {
-        console.error('Error creating user profile:', error)
+      if (userError) {
+        console.error('Error creating user profile:', userError)
       } else {
-        console.log('✅ User profile created/updated successfully')
+        console.log('✅ New user profile created successfully')
+        
+        // Auto-join India community for new users
+        try {
+          await autoJoinIndiaCommunity(user.id)
+        } catch (error) {
+          console.error('Error auto-joining India community:', error)
+        }
       }
     } catch (error) {
       console.error('Error in createUserProfile:', error)

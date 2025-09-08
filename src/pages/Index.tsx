@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import Navigation from "@/components/Navigation";
 import ComplaintForm from "@/components/ComplaintForm";
 import HowItWorks from "@/components/HowItWorks";
-import CommunityPreview from "@/components/CommunityPreview";
 
 const Index = () => {
   return (
@@ -45,7 +44,7 @@ const Index = () => {
             <Button 
               variant="outline"
               size="lg" 
-              className="text-base md:text-lg px-6 md:px-8 py-2 md:py-3 border-white/30 text-white hover:bg-white/10 w-full sm:w-auto"
+              className="text-base md:text-lg px-6 md:px-8 py-2 md:py-3 border-white/30 text-black hover:bg-white/10 w-full sm:w-auto"
               onClick={() => {
                 document.getElementById('community')?.scrollIntoView({ behavior: 'smooth' });
               }}
@@ -64,8 +63,6 @@ const Index = () => {
       {/* How It Works Section */}
       <HowItWorks />
 
-      {/* Community Preview Section */}
-      <CommunityPreview />
 
       {/* Footer */}
       <footer className="bg-muted py-8 md:py-12 px-4">
