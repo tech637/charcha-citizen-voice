@@ -12,6 +12,29 @@
 - **File Handling**: Supabase Storage
 - **Deployment**: Production domain at https://www.charcha.net.in/
 
+## Recent Updates (January 2025)
+
+### Mobile-Responsive Admin Panel
+- **User Management**: Redesigned with mobile-first approach
+  - Mobile: Stacked layout with full-width role selector
+  - Desktop: Side-by-side layout with compact design
+  - Responsive user cards with proper spacing
+- **Analytics Dashboard**: Mobile-optimized with simplified navigation
+  - Mobile: All content shown in single overview (no sub-tabs)
+  - Desktop: Tabbed interface with separate sections
+  - Interactive charts using Recharts library
+- **Removed Features**: Debug tab removed for cleaner interface
+- **Chart Library**: Added Recharts for interactive visualizations
+  - Line charts for user registration trends
+  - Pie charts for category breakdown
+  - Bar charts for priority distribution
+
+### Analytics RPC Functions
+- 8 comprehensive analytics functions created
+- Real-time data fetching with error handling
+- Mobile-friendly chart components
+- Fallback UI for missing data
+
 ## Database Structure
 
 ### Tables Created in Supabase

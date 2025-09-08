@@ -7,6 +7,8 @@ import { Shield, ArrowLeft, Building2, Users, BarChart3 } from 'lucide-react';
 import { isUserAdmin } from '@/lib/communities';
 import { useAuth } from '@/contexts/AuthContext';
 import CommunityManagement from './CommunityManagement';
+import UserManagement from './UserManagement';
+import Analytics from './Analytics';
 
 const AdminPanel = () => {
   const { user } = useAuth();
@@ -78,26 +80,6 @@ const AdminPanel = () => {
 
         {/* Main Content */}
         <div className="space-y-6">
-          {/* Welcome Card */}
-          <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-2xl">
-                <Shield className="h-6 w-6 text-blue-600" />
-                Hello Admin! 👋
-              </CardTitle>
-              <CardDescription className="text-lg">
-                You have successfully accessed the admin panel. This is where you can manage the platform.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="bg-white p-4 rounded-lg border border-blue-100">
-                <p className="text-gray-700">
-                  <strong>Admin Access Confirmed!</strong> You are logged in as an administrator and have full access to the admin panel.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-
           {/* Admin Tabs */}
           <Tabs defaultValue="communities" className="w-full">
             <TabsList className="grid w-full grid-cols-3">
@@ -120,27 +102,11 @@ const AdminPanel = () => {
             </TabsContent>
 
             <TabsContent value="users" className="mt-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">User Management</CardTitle>
-                  <CardDescription>Manage user accounts and roles</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-gray-600">Coming soon...</p>
-                </CardContent>
-              </Card>
+              <UserManagement />
             </TabsContent>
 
             <TabsContent value="analytics" className="mt-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Analytics</CardTitle>
-                  <CardDescription>View platform statistics</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-gray-600">Coming soon...</p>
-                </CardContent>
-              </Card>
+              <Analytics />
             </TabsContent>
           </Tabs>
         </div>
