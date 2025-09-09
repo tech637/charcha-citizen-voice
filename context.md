@@ -398,7 +398,7 @@ src/
 ### 14. Database Schema Simplification
 - **Problem**: Complex dual-table role management causing issues
 - **Solution**: Simplified to single `users` table with `role` column
-- **Result**: Cleaner database structure with:
+- **Result**: Cleaner database structure with
   - Single source of truth for user roles
   - Eliminated `profiles` table complexity
   - Simplified authentication and role checking
