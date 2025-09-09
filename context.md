@@ -35,6 +35,16 @@
 - Mobile-friendly chart components
 - Fallback UI for missing data
 
+### Community Visibility System (January 2025)
+- **New Visibility Types**: Implemented `visibility_type` column in complaints table
+  - `'private'`: Only visible to the user who created it
+  - `'community'`: Visible to members of a specific community
+- **Backward Compatibility**: Maintained existing `is_public` column for seamless migration
+- **Auto-Join Feature**: Users automatically join communities when filing community complaints
+- **Community-Specific Feeds**: Each community shows only its own complaints
+- **Enhanced UI**: Updated complaint form with community selection dropdown
+- **Navigation Fix**: Added missing Navigation component to all community pages
+
 ## Database Structure
 
 ### Tables Created in Supabase
@@ -105,6 +115,9 @@ CREATE TABLE public.complaints (
   longitude DECIMAL(11, 8),
   status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'in_progress', 'resolved', 'rejected')),
   priority TEXT DEFAULT 'medium' CHECK (priority IN ('low', 'medium', 'high', 'urgent')),
+  is_public BOOLEAN DEFAULT false,
+  visibility_type TEXT DEFAULT 'private' CHECK (visibility_type IN ('private', 'community')),
+  community_id UUID REFERENCES public.communities(id),
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -415,6 +428,41 @@ src/
   - **Status Legend**: Visual legend showing marker colors and complaint counts
   - **Refresh Functionality**: Manual refresh button to update map data
   - **Error Handling**: Graceful fallbacks for missing data or API failures
+
+### 16. Community Visibility System Implementation
+- **Problem**: Need granular control over complaint visibility and community-specific complaint feeds
+- **Solution**: Implemented comprehensive visibility system with community integration
+- **Result**: Advanced complaint management system with:
+  - **Dual Visibility System**: 
+    - `visibility_type` column with 'private' or 'community' values
+    - Backward compatibility maintained with existing `is_public` column
+    - Automatic synchronization between both systems
+  - **Community Integration**:
+    - Complaints can be linked to specific communities via `community_id`
+    - Auto-join functionality: Users automatically join communities when filing community complaints
+    - Community-specific complaint feeds showing only relevant complaints
+  - **Enhanced Complaint Form**:
+    - Dropdown selection for visibility: "Private" or specific community
+    - Dynamic community loading with proper error handling
+    - Clear UI feedback for selected visibility type
+  - **Community Management**:
+    - Users can view joined/non-joined communities
+    - Manual join/leave functionality for communities
+    - Membership status indicators in community listings
+  - **Data Fetching Functions**:
+    - `getCommunityComplaints(communityId)`: Fetch complaints for specific community
+    - `getAllCommunityComplaints()`: Fetch all community complaints (for India community)
+    - `isUserMemberOfCommunity(userId, communityId)`: Check membership status
+    - `getUserCommunityMemberships(userId, communityIds)`: Bulk membership checking
+  - **UI Improvements**:
+    - Fixed missing Navigation component on all community pages
+    - Enhanced error handling for non-existent communities
+    - Proper loading states and user feedback
+    - Mobile-responsive design maintained
+  - **Database Migration**:
+    - Added `visibility_type` column with CHECK constraint
+    - Migrated existing data to maintain backward compatibility
+    - Proper indexing for performance optimization
 
 ## Production Deployment
 - **Domain**: https://www.charcha.net.in/

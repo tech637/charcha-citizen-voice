@@ -7,6 +7,7 @@ import { getAllCommunities, getCommunityMembers, joinCommunity, getUserCommuniti
 import { useNavigate } from 'react-router-dom';
 import { Building2, MapPin, Users, Calendar, Plus, CheckCircle, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import Navigation from './Navigation';
 
 interface Community {
   id: string;
@@ -162,7 +163,8 @@ const CommunityFeed = () => {
 
     return (
     <div className="min-h-screen bg-gray-50">
-        <div className="container mx-auto px-4 py-8">
+      <Navigation />
+      <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-4">Communities</h1>

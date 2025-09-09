@@ -5,8 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { ThumbsUp, ThumbsDown, MapPin, Calendar, Eye, RefreshCw, AlertCircle, ArrowLeft, Building2, Users, Flag } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { getPublicComplaints } from '@/lib/complaints';
-import { getAllCommunities, getCommunityMembers } from '@/lib/communities';
+import { getPublicComplaints, getCommunityComplaints, getAllCommunityComplaints } from '@/lib/complaints';
+import { getAllCommunities, getCommunityMembers, isUserMemberOfCommunity, joinCommunity } from '@/lib/communities';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { hasLocationData } from '@/lib/locationUtils';
@@ -80,6 +80,8 @@ const CommunityPage: React.FC = () => {
   const [likedComplaints, setLikedComplaints] = useState<Set<string>>(new Set());
   const [dislikedComplaints, setDislikedComplaints] = useState<Set<string>>(new Set());
   const [memberCount, setMemberCount] = useState(0);
+  const [isUserMember, setIsUserMember] = useState<boolean | null>(null);
+  const [membershipLoading, setMembershipLoading] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
 
@@ -107,8 +109,15 @@ const CommunityPage: React.FC = () => {
       );
 
       if (!foundCommunity) {
-        setError(`Community "${communityName}" not found. Available communities: ${communities?.map(c => c.name).join(', ') || 'None'}`);
+        const availableCommunities = communities?.map(c => c.name).join(', ') || 'None';
+        setError(`Community "${communityName}" not found. Available communities: ${availableCommunities}`);
         setLoading(false);
+        
+        toast({
+          title: "Community Not Found",
+          description: `The community "${communityName}" does not exist. Available communities: ${availableCommunities}`,
+          variant: "destructive",
+        });
         return;
       }
 
@@ -126,24 +135,43 @@ const CommunityPage: React.FC = () => {
         setMemberCount(0);
       }
 
-      // Get all public complaints
-      const { data: allComplaints, error: complaintsError } = await getPublicComplaints();
-      
-      if (complaintsError) {
-        throw complaintsError;
+      // Check if current user is a member of this community
+      if (user) {
+        setMembershipLoading(true);
+        try {
+          const isMember = await isUserMemberOfCommunity(user.id, foundCommunity.id);
+          setIsUserMember(isMember);
+        } catch (error) {
+          console.error('Error checking membership:', error);
+          setIsUserMember(false);
+        } finally {
+          setMembershipLoading(false);
+        }
+      } else {
+        setIsUserMember(false);
       }
 
-      // For India community, show ALL public complaints
-      // For other communities, filter by community_id
+      // Get complaints based on community type using new visibility system
       let communityComplaints;
+      
       if (foundCommunity.name.toLowerCase() === 'india') {
-        // India community shows all public complaints
-        communityComplaints = allComplaints || [];
+        // India community shows ALL community complaints (visibility_type = 'community')
+        const { data: allCommunityComplaints, error: complaintsError } = await getAllCommunityComplaints();
+        
+        if (complaintsError) {
+          throw complaintsError;
+        }
+        
+        communityComplaints = allCommunityComplaints || [];
       } else {
-        // Other communities filter by community_id
-        communityComplaints = (allComplaints || []).filter(complaint => 
-          complaint.community_id === foundCommunity.id
-        );
+        // Other communities show only complaints specific to that community
+        const { data: specificComplaints, error: complaintsError } = await getCommunityComplaints(foundCommunity.id);
+        
+        if (complaintsError) {
+          throw complaintsError;
+        }
+        
+        communityComplaints = specificComplaints || [];
       }
 
       setComplaints(communityComplaints);
@@ -278,6 +306,48 @@ const CommunityPage: React.FC = () => {
     }
   };
 
+  // Join community function
+  const handleJoinCommunity = async () => {
+    if (!user || !community) {
+      toast({
+        title: "Login Required",
+        description: "Please login to join communities",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      setMembershipLoading(true);
+      
+      const { data, error } = await joinCommunity(community.id, user.id);
+      
+      if (error) {
+        throw error;
+      }
+
+      // Update membership status
+      setIsUserMember(true);
+      
+      // Update member count
+      setMemberCount(prev => prev + 1);
+
+      toast({
+        title: "Successfully Joined!",
+        description: `You've joined the ${community.name} community`,
+      });
+    } catch (error: any) {
+      console.error('Error joining community:', error);
+      toast({
+        title: "Error Joining Community",
+        description: error.message || "Failed to join community. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setMembershipLoading(false);
+    }
+  };
+
   const formatDate = (dateString: string) => {
     try {
       return new Date(dateString).toLocaleDateString('en-US', {
@@ -395,6 +465,31 @@ const CommunityPage: React.FC = () => {
                   {community.name.toLowerCase() === 'india' ? '∞' : memberCount}
                 </div>
               </div>
+              
+              {/* Membership Status and Join Button */}
+              {community.name.toLowerCase() !== 'india' && user && (
+                <div className="flex items-center gap-2">
+                  {membershipLoading ? (
+                    <div className="text-sm text-gray-500">Checking...</div>
+                  ) : isUserMember ? (
+                    <div className="flex items-center gap-1 text-green-600 text-sm">
+                      <Users className="h-4 w-4" />
+                      <span>You're a Member</span>
+                    </div>
+                  ) : (
+                    <Button
+                      size="sm"
+                      onClick={handleJoinCommunity}
+                      disabled={membershipLoading}
+                      className="flex items-center gap-2"
+                    >
+                      <Users className="h-4 w-4" />
+                      Join Community
+                    </Button>
+                  )}
+                </div>
+              )}
+              
               <Button
                 variant="outline"
                 size="sm"

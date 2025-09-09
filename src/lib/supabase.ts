@@ -51,6 +51,7 @@ export interface Complaint {
   latitude?: number
   longitude?: number
   is_public: boolean
+  visibility_type?: 'private' | 'community'
   community_id?: string
   status: 'pending' | 'in-progress' | 'resolved' | 'rejected'
   created_at: string

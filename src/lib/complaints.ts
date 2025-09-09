@@ -1,5 +1,37 @@
 import { supabase, Complaint, ComplaintFile } from './supabase'
 
+/**
+ * Complaint Creation with New Visibility System
+ * 
+ * The complaint system now supports two visibility types:
+ * 1. 'private' - Only visible to the user who created it
+ * 2. 'community' - Visible to members of a specific community
+ * 
+ * Usage Examples:
+ * 
+ * // Create a private complaint (backwards compatible)
+ * const privateComplaint = {
+ *   category: 'garbage',
+ *   description: 'Garbage not collected',
+ *   is_public: false,
+ *   // ... other fields
+ * }
+ * 
+ * // Create a community complaint using new system
+ * const communityComplaint = createComplaintData({
+ *   category: 'garbage',
+ *   description: 'Garbage not collected',
+ *   visibility: { type: 'community', community_id: 'uuid-here' }
+ * })
+ * 
+ * // Create a private complaint using new system
+ * const privateComplaintNew = createComplaintData({
+ *   category: 'garbage',
+ *   description: 'Garbage not collected',
+ *   visibility: 'private'
+ * })
+ */
+
 export interface CreateComplaintData {
   category: string
   description: string
@@ -9,10 +41,75 @@ export interface CreateComplaintData {
   is_public: boolean
   community_id?: string
   files?: File[]
+  // New visibility system
+  visibility_type?: 'private' | 'community'
+}
+
+// Helper function to create complaint data with new visibility system
+export const createComplaintData = (options: {
+  category: string
+  description: string
+  location_address?: string
+  latitude?: number
+  longitude?: number
+  files?: File[]
+  visibility: 'private' | { type: 'community', community_id: string }
+}): CreateComplaintData => {
+  const baseData = {
+    category: options.category,
+    description: options.description,
+    location_address: options.location_address,
+    latitude: options.latitude,
+    longitude: options.longitude,
+    files: options.files,
+  }
+
+  if (options.visibility === 'private') {
+    return {
+      ...baseData,
+      visibility_type: 'private',
+      is_public: false,
+      community_id: undefined,
+    }
+  } else {
+    return {
+      ...baseData,
+      visibility_type: 'community',
+      is_public: true,
+      community_id: options.visibility.community_id,
+    }
+  }
 }
 
 export const createComplaint = async (complaintData: CreateComplaintData, userId: string) => {
   try {
+    // Determine visibility settings based on the new logic
+    let visibility_type: 'private' | 'community'
+    let is_public: boolean
+    let community_id: string | null = null
+
+    if (complaintData.visibility_type) {
+      // New visibility system
+      visibility_type = complaintData.visibility_type
+      if (visibility_type === 'community' && complaintData.community_id) {
+        is_public = true
+        community_id = complaintData.community_id
+      } else {
+        is_public = false
+        community_id = null
+      }
+    } else {
+      // Backwards compatibility - use existing is_public logic
+      is_public = complaintData.is_public
+      if (is_public) {
+        visibility_type = 'community'
+        community_id = complaintData.community_id || null
+      } else {
+        visibility_type = 'private'
+        community_id = null
+      }
+    }
+
     // First, create the complaint
     const { data: complaint, error: complaintError } = await supabase
       .from('complaints')
@@ -23,8 +120,9 @@ export const createComplaint = async (complaintData: CreateComplaintData, userId
         location_address: complaintData.location_address,
         latitude: complaintData.latitude,
         longitude: complaintData.longitude,
-        is_public: complaintData.is_public,
-        community_id: complaintData.community_id,
+        is_public: is_public,
+        visibility_type: visibility_type,
+        community_id: community_id,
         status: 'pending'
       })
       .select()
@@ -32,6 +130,40 @@ export const createComplaint = async (complaintData: CreateComplaintData, userId
 
     if (complaintError) {
       throw complaintError
+    }
+
+    // If complaint is community-based, ensure user is a member of that community
+    if (visibility_type === 'community' && community_id) {
+      try {
+        // Check if user is already a member
+        const { data: existingMembership, error: membershipCheckError } = await supabase
+          .from('user_communities')
+          .select('id')
+          .eq('user_id', userId)
+          .eq('community_id', community_id)
+          .single()
+
+        // If not a member, add them automatically
+        if (membershipCheckError && membershipCheckError.code === 'PGRST116') {
+          const { error: joinError } = await supabase
+            .from('user_communities')
+            .insert({
+              user_id: userId,
+              community_id: community_id,
+              role: 'member'
+            })
+
+          if (joinError) {
+            console.warn('Failed to auto-join user to community:', joinError)
+            // Don't throw error here as complaint was created successfully
+          } else {
+            console.log('User automatically joined community:', community_id)
+          }
+        }
+      } catch (error) {
+        console.warn('Error handling community membership:', error)
+        // Don't throw error here as complaint was created successfully
+      }
     }
 
     // Handle file uploads
@@ -80,7 +212,17 @@ export const createComplaint = async (complaintData: CreateComplaintData, userId
       await Promise.all(filePromises)
     }
 
-    return { data: complaint, error: null }
+    // Return the complaint with the new fields
+    const responseData = {
+      id: complaint.id,
+      title: complaint.category, // Using category as title for now
+      visibility_type: visibility_type,
+      is_public: is_public,
+      community_id: community_id,
+      ...complaint // Include all other complaint fields
+    }
+
+    return { data: responseData, error: null }
   } catch (error) {
     return { data: null, error }
   }
@@ -133,6 +275,76 @@ export const getPublicComplaints = async () => {
       data: null, 
       error: {
         message: error.message || 'Failed to fetch public complaints',
+        details: error.details || null,
+        hint: error.hint || null
+      }
+    }
+  }
+}
+
+// New function to get complaints for a specific community
+export const getCommunityComplaints = async (communityId: string) => {
+  try {
+    const { data, error } = await supabase
+      .from('complaints')
+      .select(`
+        *,
+        complaint_files (*),
+        users (full_name),
+        communities (name, location)
+      `)
+      .eq('community_id', communityId)
+      .eq('visibility_type', 'community')
+      .order('created_at', { ascending: false })
+      .limit(50)
+
+    if (error) {
+      console.error('complaints.ts: Supabase error for community complaints:', error);
+      throw error
+    }
+
+    return { data, error: null }
+  } catch (error: any) {
+    console.error('complaints.ts: Error in getCommunityComplaints:', error);
+    return { 
+      data: null, 
+      error: {
+        message: error.message || 'Failed to fetch community complaints',
+        details: error.details || null,
+        hint: error.hint || null
+      }
+    }
+  }
+}
+
+// New function to get all community complaints (for India community)
+export const getAllCommunityComplaints = async () => {
+  try {
+    const { data, error } = await supabase
+      .from('complaints')
+      .select(`
+        *,
+        complaint_files (*),
+        users (full_name),
+        communities (name, location)
+      `)
+      .eq('visibility_type', 'community')
+      .not('community_id', 'is', null)
+      .order('created_at', { ascending: false })
+      .limit(50)
+
+    if (error) {
+      console.error('complaints.ts: Supabase error for all community complaints:', error);
+      throw error
+    }
+
+    return { data, error: null }
+  } catch (error: any) {
+    console.error('complaints.ts: Error in getAllCommunityComplaints:', error);
+    return { 
+      data: null, 
+      error: {
+        message: error.message || 'Failed to fetch all community complaints',
         details: error.details || null,
         hint: error.hint || null
       }

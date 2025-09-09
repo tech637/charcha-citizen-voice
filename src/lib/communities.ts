@@ -290,3 +290,55 @@ export const deleteCommunity = async (communityId: string, userId: string) => {
     return { data: null, error }
   }
 }
+
+// Check if user is a member of a specific community
+export const isUserMemberOfCommunity = async (userId: string, communityId: string): Promise<boolean> => {
+  try {
+    const { data, error } = await supabase
+      .from('user_communities')
+      .select('id')
+      .eq('user_id', userId)
+      .eq('community_id', communityId)
+      .single()
+
+    if (error && error.code !== 'PGRST116') {
+      console.error('Error checking community membership:', error)
+      return false
+    }
+
+    return !!data
+  } catch (error) {
+    console.error('Error in isUserMemberOfCommunity:', error)
+    return false
+  }
+}
+
+// Get user's membership status for multiple communities
+export const getUserCommunityMemberships = async (userId: string, communityIds: string[]): Promise<Record<string, boolean>> => {
+  try {
+    const { data, error } = await supabase
+      .from('user_communities')
+      .select('community_id')
+      .eq('user_id', userId)
+      .in('community_id', communityIds)
+
+    if (error) {
+      console.error('Error fetching community memberships:', error)
+      return {}
+    }
+
+    const memberships: Record<string, boolean> = {}
+    communityIds.forEach(id => {
+      memberships[id] = false
+    })
+
+    data?.forEach(membership => {
+      memberships[membership.community_id] = true
+    })
+
+    return memberships
+  } catch (error) {
+    console.error('Error in getUserCommunityMemberships:', error)
+    return {}
+  }
+}

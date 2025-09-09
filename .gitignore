@@ -25,9 +25,9 @@ dist-ssr
 PRD/
 
 # Development context documentation (local only)
-context.md
 rule.md
 ADMIN_SETUP.md
+context.md
 
 # Editor directories and files
 .vscode/*

@@ -8,12 +8,14 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { useComplaint } from "@/contexts/ComplaintContext";
 import { useFiles } from "@/contexts/FileContext";
 import { LoginDialog } from "./LoginDialog";
-import { createComplaint } from "@/lib/complaints";
+import { createComplaint, createComplaintData } from "@/lib/complaints";
+import { getAllCommunities } from "@/lib/communities";
 import { getIndiaCommunityId } from "@/lib/india-community";
 import { 
   Trash, 
@@ -33,13 +35,17 @@ import {
 const ComplaintForm = () => {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [description, setDescription] = useState("");
-  const [isPublic, setIsPublic] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
   const [location, setLocation] = useState("");
   const [latitude, setLatitude] = useState<number | undefined>();
   const [longitude, setLongitude] = useState<number | undefined>();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showLoginDialog, setShowLoginDialog] = useState(false);
+  
+  // New state for community selection
+  const [communities, setCommunities] = useState<Array<{id: string, name: string}>>([]);
+  const [selectedVisibility, setSelectedVisibility] = useState<string>("private");
+  const [loadingCommunities, setLoadingCommunities] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
   const { setPendingComplaint } = useComplaint();
@@ -60,6 +66,32 @@ const ComplaintForm = () => {
     { id: "safety", label: "Safety", icon: Shield },
     { id: "other", label: "Other", icon: AlertTriangle },
   ];
+
+  // Load communities on component mount
+  useEffect(() => {
+    const loadCommunities = async () => {
+      setLoadingCommunities(true);
+      try {
+        const { data, error } = await getAllCommunities();
+        if (error) {
+          console.error('Error loading communities:', error);
+          toast({
+            title: "Error",
+            description: "Failed to load communities. Using private mode only.",
+            variant: "destructive",
+          });
+        } else {
+          setCommunities(data || []);
+        }
+      } catch (error) {
+        console.error('Error loading communities:', error);
+      } finally {
+        setLoadingCommunities(false);
+      }
+    };
+
+    loadCommunities();
+  }, [toast]);
 
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -114,30 +146,42 @@ const ComplaintForm = () => {
       return;
     }
 
-    // Get India community ID for public complaints
-    let indiaCommunityId = null;
-    if (isPublic) {
-      try {
-        indiaCommunityId = await getIndiaCommunityId();
-        if (!indiaCommunityId) {
-          console.warn('India community not found, creating complaint without community assignment');
-        }
-      } catch (error) {
-        console.error('Error fetching India community ID:', error);
+    // Prepare complaint data using new visibility system
+    let complaintData;
+    
+    if (selectedVisibility === "private") {
+      // Private complaint
+      complaintData = createComplaintData({
+        category: selectedCategory,
+        description: description.trim(),
+        location_address: location || undefined,
+        latitude,
+        longitude,
+        files: files.length > 0 ? files : undefined,
+        visibility: 'private'
+      });
+    } else {
+      // Community complaint
+      const selectedCommunity = communities.find(c => c.id === selectedVisibility);
+      if (!selectedCommunity) {
+        toast({
+          title: "Invalid Selection",
+          description: "Please select a valid community or private mode.",
+          variant: "destructive",
+        });
+        return;
       }
+      
+      complaintData = createComplaintData({
+        category: selectedCategory,
+        description: description.trim(),
+        location_address: location || undefined,
+        latitude,
+        longitude,
+        files: files.length > 0 ? files : undefined,
+        visibility: { type: 'community', community_id: selectedCommunity.id }
+      });
     }
-
-    // Prepare complaint data
-    const complaintData = {
-      category: selectedCategory,
-      description: description.trim(),
-      location_address: location || undefined,
-      latitude,
-      longitude,
-      is_public: isPublic,
-      community_id: indiaCommunityId || undefined,
-      files: files.length > 0 ? files : undefined,
-    };
 
     // Check if user is logged in
     if (!user) {
@@ -197,7 +241,7 @@ const ComplaintForm = () => {
       // Reset form
       setSelectedCategory("");
       setDescription("");
-      setIsPublic(false);
+      setSelectedVisibility("private");
       setFiles([]);
       setLocation("");
       setLatitude(undefined);
@@ -330,16 +374,36 @@ const ComplaintForm = () => {
             </div>
           </div>
 
-          {/* Step 5: Public Sharing */}
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="public"
-              checked={isPublic}
-              onCheckedChange={(checked) => setIsPublic(checked as boolean)}
-            />
-            <Label htmlFor="public" className="text-sm font-medium">
-              Share publicly
-            </Label>
+          {/* Step 5: Visibility / Community Selection */}
+          <div className="space-y-3">
+            <Label className="text-base font-semibold">Visibility / Community</Label>
+            <Select 
+              value={selectedVisibility} 
+              onValueChange={setSelectedVisibility}
+              disabled={loadingCommunities}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder={loadingCommunities ? "Loading communities..." : "Select visibility option"} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="private">Private (Only visible to you)</SelectItem>
+                {communities.map((community) => (
+                  <SelectItem key={community.id} value={community.id}>
+                    {community.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {selectedVisibility === "private" && (
+              <p className="text-sm text-muted-foreground">
+                This complaint will only be visible to you.
+              </p>
+            )}
+            {selectedVisibility !== "private" && (
+              <p className="text-sm text-muted-foreground">
+                This complaint will be visible to members of the selected community.
+              </p>
+            )}
           </div>
 
           {/* Submit Button */}
