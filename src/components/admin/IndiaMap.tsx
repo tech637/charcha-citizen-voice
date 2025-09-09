@@ -309,16 +309,6 @@ const IndiaMap: React.FC = () => {
             </div>
           </div>
 
-          {/* Map Info */}
-          <div className="text-sm text-gray-600 bg-gray-50 rounded-lg p-3">
-            <p className="font-medium mb-1">Map Status:</p>
-            <ul className="text-xs space-y-1">
-              <li>• Interactive map centered on India</li>
-              <li>• {loading ? 'Loading complaints...' : `Found ${complaints.length} complaints with coordinates`}</li>
-              <li>• Click markers to view complaint details</li>
-              <li>• OpenStreetMap data source</li>
-            </ul>
-          </div>
         </div>
       </CardContent>
     </Card>
