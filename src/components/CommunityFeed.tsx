@@ -3,10 +3,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
-import { getAllCommunities } from '@/lib/communities';
-import { getCommunityMembers } from '@/lib/communities';
+import { getAllCommunities, getCommunityMembers, joinCommunity, getUserCommunities } from '@/lib/communities';
 import { useNavigate } from 'react-router-dom';
-import { Building2, MapPin, Users, Calendar, Plus } from 'lucide-react';
+import { Building2, MapPin, Users, Calendar, Plus, CheckCircle, Loader2 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 interface Community {
   id: string;
@@ -24,13 +24,19 @@ interface Community {
 const CommunityFeed = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [communities, setCommunities] = useState<Community[]>([]);
   const [loading, setLoading] = useState(true);
   const [memberCounts, setMemberCounts] = useState<Record<string, number>>({});
+  const [userCommunities, setUserCommunities] = useState<Set<string>>(new Set());
+  const [joiningCommunities, setJoiningCommunities] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     fetchCommunities();
-  }, []);
+    if (user) {
+      fetchUserCommunities();
+    }
+  }, [user]);
 
   const fetchCommunities = async () => {
     try {
@@ -61,12 +67,84 @@ const CommunityFeed = () => {
     }
   };
 
+  const fetchUserCommunities = async () => {
+    if (!user) return;
+    
+    try {
+      const { data, error } = await getUserCommunities(user.id);
+      if (error) {
+        console.error('Error fetching user communities:', error);
+      } else {
+        const communityIds = new Set((data || []).map(uc => uc.community_id));
+        setUserCommunities(communityIds);
+      }
+    } catch (error) {
+      console.error('Error fetching user communities:', error);
+    }
+  };
+
+  const handleJoinCommunity = async (communityId: string, communityName: string) => {
+    if (!user) {
+      toast({
+        title: "Login Required",
+        description: "Please login to join communities",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      setJoiningCommunities(prev => new Set(prev).add(communityId));
+      
+      const { data, error } = await joinCommunity(communityId, user.id);
+      
+      if (error) {
+        throw error;
+      }
+
+      // Update user communities state
+      setUserCommunities(prev => new Set(prev).add(communityId));
+      
+      // Update member count
+      setMemberCounts(prev => ({
+        ...prev,
+        [communityId]: (prev[communityId] || 0) + 1
+      }));
+
+      toast({
+        title: "Successfully Joined!",
+        description: `You've joined the ${communityName} community`,
+      });
+    } catch (error: any) {
+      console.error('Error joining community:', error);
+      toast({
+        title: "Error Joining Community",
+        description: error.message || "Failed to join community. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setJoiningCommunities(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(communityId);
+        return newSet;
+      });
+    }
+  };
+
   const formatDate = (dateString: string) => {
-      return new Date(dateString).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
       day: 'numeric'
     });
+  };
+
+  const isUserMember = (communityId: string) => {
+    return userCommunities.has(communityId);
+  };
+
+  const isJoining = (communityId: string) => {
+    return joiningCommunities.has(communityId);
   };
 
   if (loading) {
@@ -112,77 +190,102 @@ const CommunityFeed = () => {
           </Card>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {communities.map((community) => (
-              <Card key={community.id} className="hover:shadow-lg transition-shadow duration-200">
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-2">
-                      <Building2 className="h-5 w-5 text-primary" />
-                      <CardTitle className="text-lg">{community.name}</CardTitle>
+            {communities.map((community) => {
+              const isMember = isUserMember(community.id);
+              const isJoiningCommunity = isJoining(community.id);
+              
+              return (
+                <Card key={community.id} className="hover:shadow-lg transition-shadow duration-200">
+                  <CardHeader className="pb-3">
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center gap-2">
+                        <Building2 className="h-5 w-5 text-primary" />
+                        <CardTitle className="text-lg">{community.name}</CardTitle>
                       </div>
-                    <Badge variant={community.is_active ? "default" : "secondary"}>
-                      {community.is_active ? "Active" : "Inactive"}
+                      <Badge variant={community.is_active ? "default" : "secondary"}>
+                        {community.is_active ? "Active" : "Inactive"}
                       </Badge>
                     </div>
-                  {community.description && (
-                    <p className="text-sm text-muted-foreground line-clamp-3">
-                      {community.description}
-                    </p>
-                  )}
-                </CardHeader>
-                <CardContent className="pt-0">
-                  {community.location && (
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
-                      <MapPin className="h-4 w-4" />
-                      <span>{community.location}</span>
+                    {community.description && (
+                      <p className="text-sm text-muted-foreground line-clamp-3">
+                        {community.description}
+                      </p>
+                    )}
+                  </CardHeader>
+                  <CardContent className="pt-0">
+                    {community.location && (
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
+                        <MapPin className="h-4 w-4" />
+                        <span>{community.location}</span>
                       </div>
                     )}
 
-                  {community.latitude && community.longitude && (
-                    <div className="text-xs text-muted-foreground mb-3 bg-gray-100 p-2 rounded">
-                      📍 {community.latitude.toFixed(4)}, {community.longitude.toFixed(4)}
-              </div>
-                  )}
-
-                  <div className="flex items-center justify-between text-xs text-muted-foreground mb-4">
-                    <div className="flex items-center gap-1">
-                              <Calendar className="h-3 w-3" />
-                      <span>Created {formatDate(community.created_at)}</span>
-                          </div>
-                    <div className="flex items-center gap-1">
-                      <Users className="h-3 w-3" />
-                      <span>{memberCounts[community.id] || 0} members</span>
-                        </div>
+                    {community.latitude && community.longitude && (
+                      <div className="text-xs text-muted-foreground mb-3 bg-gray-100 p-2 rounded">
+                        📍 {community.latitude.toFixed(4)}, {community.longitude.toFixed(4)}
                       </div>
+                    )}
 
-                          <div className="space-y-2">
-                    {community.name === 'India' ? (
-                      <Button className="w-full bg-green-600 hover:bg-green-700">
-                        <Users className="h-4 w-4 mr-2" />
-                        You're Already a Member
-                      </Button>
-                    ) : (
-                      <Button className="w-full" disabled={!community.is_active}>
-                        {community.is_active ? 'Join Community' : 'Community Inactive'}
-                      </Button>
-                    )}
-                    {user && (
-                      <Button 
-                        variant="outline" 
-                        className="w-full" 
-                        size="sm"
-                        onClick={() => {
-                          navigate(`/communities/${community.name.toLowerCase()}`);
-                        }}
-                      >
-                        View Community Feed
-                      </Button>
-                    )}
-                                </div>
-                </CardContent>
-              </Card>
-                              ))}
-                          </div>
+                    <div className="flex items-center justify-between text-xs text-muted-foreground mb-4">
+                      <div className="flex items-center gap-1">
+                        <Calendar className="h-3 w-3" />
+                        <span>Created {formatDate(community.created_at)}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Users className="h-3 w-3" />
+                        <span>{memberCounts[community.id] || 0} members</span>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      {community.name === 'India' ? (
+                        <Button className="w-full bg-green-600 hover:bg-green-700" disabled>
+                          <CheckCircle className="h-4 w-4 mr-2" />
+                          You're Already a Member
+                        </Button>
+                      ) : isMember ? (
+                        <Button className="w-full bg-green-600 hover:bg-green-700" disabled>
+                          <CheckCircle className="h-4 w-4 mr-2" />
+                          You're a Member
+                        </Button>
+                      ) : (
+                        <Button 
+                          className="w-full" 
+                          disabled={!community.is_active || isJoiningCommunity}
+                          onClick={() => handleJoinCommunity(community.id, community.name)}
+                        >
+                          {isJoiningCommunity ? (
+                            <>
+                              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                              Joining...
+                            </>
+                          ) : (
+                            <>
+                              <Users className="h-4 w-4 mr-2" />
+                              {community.is_active ? 'Join Community' : 'Community Inactive'}
+                            </>
+                          )}
+                        </Button>
+                      )}
+                      
+                      {user && (
+                        <Button 
+                          variant="outline" 
+                          className="w-full" 
+                          size="sm"
+                          onClick={() => {
+                            navigate(`/communities/${community.name.toLowerCase()}`);
+                          }}
+                        >
+                          View Community Feed
+                        </Button>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
                         )}
 
         {/* Call to Action */}

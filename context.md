@@ -393,6 +393,29 @@ src/
   - Clean, professional admin dashboard design
   - Removed all community-related functionality as requested
 
+### 15. Interactive India Map Feature
+- **Problem**: Need visual representation of complaints across India for analytics
+- **Solution**: Implemented Leaflet-based interactive map in admin analytics dashboard
+- **Result**: Comprehensive map visualization with:
+  - **Interactive Map**: Leaflet map centered on India with OpenStreetMap tiles
+  - **Complaint Markers**: Color-coded markers based on complaint status
+    - 🟢 Resolved: Green markers
+    - 🔵 In Progress: Blue markers  
+    - 🟡 Pending: Yellow markers
+    - 🔴 Rejected: Red markers
+  - **Interactive Popups**: Click markers to view complaint details (category, description, status, user, date)
+  - **Geographic Coverage**: Complaints from 15+ Indian states including:
+    - North: Delhi, Punjab, Rajasthan, Uttar Pradesh
+    - South: Karnataka, Kerala, Tamil Nadu
+    - East: West Bengal, Assam
+    - West: Maharashtra, Gujarat
+    - Central: Madhya Pradesh, Jharkhand
+  - **Real-time Data**: Fetches complaints with latitude/longitude from Supabase
+  - **Mobile Responsive**: Optimized for mobile and desktop viewing
+  - **Status Legend**: Visual legend showing marker colors and complaint counts
+  - **Refresh Functionality**: Manual refresh button to update map data
+  - **Error Handling**: Graceful fallbacks for missing data or API failures
+
 ## Production Deployment
 - **Domain**: https://www.charcha.net.in/
 - **Environment Variables**: Set in hosting platform (Vercel/Netlify)

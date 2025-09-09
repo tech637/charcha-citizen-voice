@@ -38,6 +38,7 @@ import {
   Cell,
   Pie
 } from 'recharts';
+import IndiaMap from './IndiaMap';
 
 // Types for analytics data
 interface UserAnalytics {
@@ -564,6 +565,9 @@ const Analytics: React.FC = () => {
               </CardContent>
             </Card>
           </div>
+
+          {/* India Map - Leaflet Implementation */}
+          <IndiaMap />
 
           {/* Mobile: Show all content in overview */}
           <div className="block sm:hidden space-y-6">
