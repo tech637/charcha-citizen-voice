@@ -103,3 +103,50 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
   }
 }
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(calc(-100% - var(--gap)));
+  }
+}
+
+@keyframes marquee-vertical {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(calc(-100% - var(--gap)));
+  }
+}
+
+.animate-marquee {
+  animation: marquee var(--duration) linear infinite;
+}
+
+.animate-marquee-vertical {
+  animation: marquee-vertical var(--duration) linear infinite;
+}
+
+
+/* Slide in animation for new complaints */
+@keyframes slide-in-from-top {
+  0% {
+    transform: translateY(-100px);
+    opacity: 0;
+  }
+  50% {
+    transform: translateY(-10px);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-in-from-top {
+  animation: slide-in-from-top 0.6s ease-out;
+}

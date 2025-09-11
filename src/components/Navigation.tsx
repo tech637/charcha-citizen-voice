@@ -39,14 +39,15 @@ const Navigation = () => {
   };
 
   return (
-    <nav className="bg-background border-b border-border sticky top-0 z-50">
+    <nav className="sticky top-0 z-50 bg-[#A73728] shadow-lg backdrop-blur-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between h-14 sm:h-16 md:h-18">
           {/* Logo */}
           <div className="flex-shrink-0">
             <button 
               onClick={() => navigate("/")}
-              className="text-2xl font-bold text-primary hover:text-primary/80 transition-colors"
+              className="text-xl sm:text-2xl md:text-3xl font-black text-[#F5F5DC] hover:text-white transition-colors"
+              style={{fontFamily: 'Montserrat-Black, Helvetica'}}
             >
               Charcha
             </button>
@@ -57,16 +58,16 @@ const Navigation = () => {
             <div className="ml-10 flex items-baseline space-x-4">
               <button 
                 onClick={() => navigate("/")}
-                className="text-foreground hover:text-primary px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                className="text-white hover:text-gray-200 px-3 py-2 rounded-md text-sm font-medium transition-colors"
               >
                 Home
               </button>
-              <a href="#how-it-works" className="text-muted-foreground hover:text-primary px-3 py-2 rounded-md text-sm font-medium">
+              <a href="#how-it-works" className="text-gray-200 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
                 How It Works
               </a>
               <button 
                 onClick={() => navigate("/communities")}
-                className="text-muted-foreground hover:text-primary px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                className="text-gray-200 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors"
               >
                 Communities
               </button>
@@ -76,30 +77,37 @@ const Navigation = () => {
           {/* Desktop Auth Buttons */}
           <div className="hidden md:block">
             {user ? (
-              <div className="flex items-center gap-4">
-                <span className="text-sm text-muted-foreground">
+              <div className="flex items-center gap-2 lg:gap-4">
+                <span className="text-xs lg:text-sm text-gray-200 truncate max-w-32 lg:max-w-none">
                   {user.user_metadata?.full_name || user.email}
                 </span>
                 <Button 
                   variant="outline" 
                   onClick={handleSignOut}
+                  size="sm"
+                  className="text-xs lg:text-sm"
                 >
-                  <LogOut className="h-4 w-4 mr-2" />
-                  Sign Out
+                  <LogOut className="h-3 w-3 lg:h-4 lg:w-4 mr-1 lg:mr-2" />
+                  <span className="hidden lg:inline">Sign Out</span>
+                  <span className="lg:hidden">Out</span>
                 </Button>
                 <Button 
                   onClick={() => navigate("/dashboard")}
+                  size="sm"
+                  className="text-xs lg:text-sm"
                 >
-                  Dashboard
+                  <span className="hidden lg:inline">Dashboard</span>
+                  <span className="lg:hidden">Dash</span>
                 </Button>
                 {isAdmin && (
                   <Button 
                     variant="outline"
                     onClick={() => navigate("/admin")}
-                    className="flex items-center gap-2"
+                    className="flex items-center gap-1 lg:gap-2 text-xs lg:text-sm"
+                    size="sm"
                   >
-                    <Shield className="h-4 w-4" />
-                    Admin
+                    <Shield className="h-3 w-3 lg:h-4 lg:w-4" />
+                    <span className="hidden lg:inline">Admin</span>
                   </Button>
                 )}
               </div>
@@ -108,14 +116,18 @@ const Navigation = () => {
                 <Button 
                   variant="outline" 
                   onClick={() => setIsLoginOpen(true)}
-                  className="mr-4"
+                  className="mr-2 lg:mr-4 text-xs lg:text-sm"
+                  size="sm"
                 >
                   Login
                 </Button>
                 <Button 
                   onClick={() => document.getElementById('complaint-form')?.scrollIntoView({ behavior: 'smooth' })}
+                  size="sm"
+                  className="text-xs lg:text-sm"
                 >
-                  File Complaint
+                  <span className="hidden lg:inline">File Complaint</span>
+                  <span className="lg:hidden">File</span>
                 </Button>
               </>
             )}
@@ -128,11 +140,12 @@ const Navigation = () => {
               size="icon"
               onClick={toggleMenu}
               aria-label="Toggle menu"
+              className="h-10 w-10 text-[#F5F5DC] hover:bg-white/20 hover:text-white transition-all duration-200"
             >
               {isMenuOpen ? (
-                <X className="h-6 w-6" />
+                <X className="h-5 w-5" />
               ) : (
-                <Menu className="h-6 w-6" />
+                <Menu className="h-5 w-5" />
               )}
             </Button>
           </div>
@@ -141,17 +154,21 @@ const Navigation = () => {
         {/* Mobile Navigation Menu */}
         {isMenuOpen && (
           <div className="md:hidden">
-            <div className="px-2 pt-2 pb-3 space-y-1 bg-background border-t border-border">
+            <div className="px-4 pt-4 pb-6 space-y-2 bg-[#A73728]/95 backdrop-blur-sm border-t border-[#F5F5DC]/20 shadow-xl">
               <button 
                 onClick={() => {
                   navigate("/");
                   setIsMenuOpen(false);
                 }}
-                className="text-foreground hover:text-primary block px-3 py-2 rounded-md text-base font-medium transition-colors w-full text-left"
+                className="text-[#F5F5DC] hover:text-white hover:bg-white/20 block px-4 py-3 rounded-lg text-base font-semibold transition-all duration-200 w-full text-left"
               >
                 Home
               </button>
-              <a href="#how-it-works" className="text-muted-foreground hover:text-primary block px-3 py-2 rounded-md text-base font-medium">
+              <a 
+                href="#how-it-works" 
+                onClick={() => setIsMenuOpen(false)}
+                className="text-[#F5F5DC]/90 hover:text-white hover:bg-white/20 block px-4 py-3 rounded-lg text-base font-semibold transition-all duration-200"
+              >
                 How It Works
               </a>
               <button 
@@ -159,15 +176,15 @@ const Navigation = () => {
                   navigate("/communities");
                   setIsMenuOpen(false);
                 }}
-                className="text-muted-foreground hover:text-primary block px-3 py-2 rounded-md text-base font-medium transition-colors w-full text-left"
+                className="text-[#F5F5DC]/90 hover:text-white hover:bg-white/20 block px-4 py-3 rounded-lg text-base font-semibold transition-all duration-200 w-full text-left"
               >
                 Communities
               </button>
-              <div className="pt-4 pb-3 border-t border-border">
-                <div className="flex flex-col space-y-3 px-3">
+              <div className="pt-4 pb-2 border-t border-[#F5F5DC]/20">
+                <div className="flex flex-col space-y-3">
                   {user ? (
                     <>
-                      <div className="text-sm text-muted-foreground px-3 py-2">
+                      <div className="text-sm text-[#F5F5DC]/80 px-4 py-2 truncate bg-white/10 rounded-lg">
                         {user.user_metadata?.full_name || user.email}
                       </div>
                       <Button 
@@ -176,7 +193,8 @@ const Navigation = () => {
                           handleSignOut();
                           setIsMenuOpen(false);
                         }}
-                        className="w-full"
+                        className="w-full text-sm h-10 bg-white/10 border-[#F5F5DC]/30 text-[#F5F5DC] hover:bg-white/20 hover:border-[#F5F5DC]"
+                        size="sm"
                       >
                         <LogOut className="h-4 w-4 mr-2" />
                         Sign Out
@@ -186,7 +204,8 @@ const Navigation = () => {
                           navigate("/dashboard");
                           setIsMenuOpen(false);
                         }}
-                        className="w-full"
+                        className="w-full text-sm h-10 bg-[#F5F5DC] text-[#A73728] hover:bg-white font-semibold"
+                        size="sm"
                       >
                         Dashboard
                       </Button>
@@ -197,7 +216,8 @@ const Navigation = () => {
                             navigate("/admin");
                             setIsMenuOpen(false);
                           }}
-                          className="w-full flex items-center gap-2"
+                          className="w-full flex items-center gap-2 text-sm h-10 bg-white/10 border-[#F5F5DC]/30 text-[#F5F5DC] hover:bg-white/20 hover:border-[#F5F5DC]"
+                          size="sm"
                         >
                           <Shield className="h-4 w-4" />
                           Admin Panel
@@ -212,7 +232,8 @@ const Navigation = () => {
                           setIsLoginOpen(true);
                           setIsMenuOpen(false);
                         }}
-                        className="w-full"
+                        className="w-full text-sm h-10 bg-white/10 border-[#F5F5DC]/30 text-[#F5F5DC] hover:bg-white/20 hover:border-[#F5F5DC]"
+                        size="sm"
                       >
                         Login / Sign Up
                       </Button>
@@ -221,7 +242,8 @@ const Navigation = () => {
                           document.getElementById('complaint-form')?.scrollIntoView({ behavior: 'smooth' });
                           setIsMenuOpen(false);
                         }}
-                        className="w-full"
+                        className="w-full text-sm h-10 bg-[#F5F5DC] text-[#A73728] hover:bg-white font-semibold"
+                        size="sm"
                       >
                         File Complaint
                       </Button>
