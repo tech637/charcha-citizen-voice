@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
-import { getPublicComplaints } from '@/lib/complaints';
+import { getPublicComplaints, getAllCommunityComplaints } from '@/lib/complaints';
 import { getIndiaCommunityId } from '@/lib/india-community';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -89,16 +89,31 @@ const IndiaCommunityFeed = () => {
       setIndiaCommunityId(communityId);
       
       if (communityId) {
-        // Fetch public complaints for India community
-        const { data, error } = await getPublicComplaints();
-        if (error) {
-          console.error('Error fetching complaints:', error);
-        } else {
+        // First try the new getAllCommunityComplaints function
+        const { data: newData, error: newError } = await getAllCommunityComplaints();
+        
+        if (newError) {
+          console.warn('New getAllCommunityComplaints failed, falling back to getPublicComplaints:', newError);
+          
+          // Fallback to old getPublicComplaints method
+          const { data: fallbackData, error: fallbackError } = await getPublicComplaints();
+          
+          if (fallbackError) {
+            console.error('Both new and fallback methods failed:', fallbackError);
+            setComplaints([]);
+            return;
+          }
+          
           // Filter complaints that belong to India community
-          const indiaComplaints = (data || []).filter(complaint => 
+          const indiaComplaints = (fallbackData || []).filter(complaint => 
             complaint.community_id === communityId
           );
+          console.log('Using fallback method, found India complaints:', indiaComplaints.length);
           setComplaints(indiaComplaints);
+        } else {
+          // Use the new method - it already returns all community complaints
+          console.log('Using new getAllCommunityComplaints method, found:', newData?.length || 0, 'complaints');
+          setComplaints(newData || []);
         }
       } else {
         console.warn('India community not found');
@@ -106,6 +121,7 @@ const IndiaCommunityFeed = () => {
       }
     } catch (error) {
       console.error('Error fetching data:', error);
+      setComplaints([]);
     } finally {
       setLoading(false);
     }

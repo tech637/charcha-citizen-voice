@@ -175,7 +175,8 @@ const IndiaMap: React.FC = () => {
       setLoading(true);
       console.log('🗺️ Fetching complaints with coordinates...');
       
-      const { data, error } = await supabase
+      // First try the new visibility_type system
+      const { data: newData, error: newError } = await supabase
         .from('complaints')
         .select(`
           id,
@@ -192,17 +193,51 @@ const IndiaMap: React.FC = () => {
         `)
         .not('latitude', 'is', null)
         .not('longitude', 'is', null)
-        .eq('is_public', true);
+        .eq('visibility_type', 'community');
 
-      if (error) {
-        throw error;
+      if (newError) {
+        console.warn('🗺️ New visibility_type query failed, falling back to is_public:', newError);
+        
+        // Fallback to old is_public system for backward compatibility
+        const { data: fallbackData, error: fallbackError } = await supabase
+          .from('complaints')
+          .select(`
+            id,
+            category,
+            description,
+            location_address,
+            latitude,
+            longitude,
+            status,
+            created_at,
+            users (
+              full_name
+            )
+          `)
+          .not('latitude', 'is', null)
+          .not('longitude', 'is', null)
+          .eq('is_public', true);
+
+        if (fallbackError) {
+          console.error('❌ Both new and fallback queries failed:', fallbackError);
+          throw fallbackError;
+        }
+
+        console.log('📍 Using fallback is_public query, found:', fallbackData?.length || 0, 'complaints');
+        setComplaints(fallbackData || []);
+        
+        toast({
+          title: "Complaints Loaded (Fallback)",
+          description: `Found ${fallbackData?.length || 0} complaints with coordinates using fallback method`,
+        });
+        return;
       }
 
-      console.log('📍 Complaints with coordinates found:', data?.length || 0);
-      console.log('🗂️ Full complaints data:', data);
+      console.log('📍 Using new visibility_type query, found:', newData?.length || 0, 'complaints');
+      console.log('🗂️ Full complaints data:', newData);
       
       // Log each complaint individually for better visibility
-      data?.forEach((complaint, index) => {
+      newData?.forEach((complaint, index) => {
         console.log(`Complaint ${index + 1}:`, {
           id: complaint.id,
           category: complaint.category,
@@ -214,11 +249,11 @@ const IndiaMap: React.FC = () => {
         });
       });
 
-      setComplaints(data || []);
+      setComplaints(newData || []);
       
       toast({
         title: "Complaints Loaded",
-        description: `Found ${data?.length || 0} complaints with coordinates`,
+        description: `Found ${newData?.length || 0} complaints with coordinates`,
       });
     } catch (error: any) {
       console.error('❌ Error fetching complaints:', error);

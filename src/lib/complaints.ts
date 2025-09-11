@@ -251,7 +251,8 @@ export const getUserComplaints = async (userId: string) => {
 
 export const getPublicComplaints = async () => {
   try {
-    const { data, error } = await supabase
+    // First try the new visibility_type system
+    const { data: newData, error: newError } = await supabase
       .from('complaints')
       .select(`
         *,
@@ -259,16 +260,37 @@ export const getPublicComplaints = async () => {
         users (full_name),
         communities (name, location)
       `)
-      .eq('is_public', true)
+      .eq('visibility_type', 'community')
       .order('created_at', { ascending: false })
       .limit(20)
 
-    if (error) {
-      console.error('complaints.ts: Supabase error:', error);
-      throw error
+    if (newError) {
+      console.warn('complaints.ts: New visibility_type query failed, falling back to is_public:', newError);
+      
+      // Fallback to old is_public system for backward compatibility
+      const { data: fallbackData, error: fallbackError } = await supabase
+        .from('complaints')
+        .select(`
+          *,
+          complaint_files (*),
+          users (full_name),
+          communities (name, location)
+        `)
+        .eq('is_public', true)
+        .order('created_at', { ascending: false })
+        .limit(20)
+
+      if (fallbackError) {
+        console.error('complaints.ts: Both new and fallback queries failed:', fallbackError);
+        throw fallbackError
+      }
+
+      console.log('complaints.ts: Using fallback is_public query, found:', fallbackData?.length || 0, 'complaints');
+      return { data: fallbackData, error: null }
     }
 
-    return { data, error: null }
+    console.log('complaints.ts: Using new visibility_type query, found:', newData?.length || 0, 'complaints');
+    return { data: newData, error: null }
   } catch (error: any) {
     console.error('complaints.ts: Error in getPublicComplaints:', error);
     return { 
