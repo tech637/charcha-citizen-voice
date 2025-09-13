@@ -75,7 +75,7 @@ export const LoginDialog = ({ open, onOpenChange }: LoginDialogProps) => {
           clearPendingComplaint();
           clearPendingFiles();
           onOpenChange(false);
-          navigate("/dashboard");
+          navigate("/communities");
         } catch (error: any) {
           console.error('Complaint submission error:', error);
           toast({
@@ -108,8 +108,10 @@ export const LoginDialog = ({ open, onOpenChange }: LoginDialogProps) => {
     } else {
       toast({
         title: "Login Successful",
-        description: "Welcome back! You can now file complaints and track their status.",
+        description: "Welcome back! You can now join communities and track complaints.",
       });
+      onOpenChange(false);
+      navigate("/communities");
       // Don't close dialog here - let useEffect handle pending complaint submission
     }
   };
@@ -142,7 +144,8 @@ export const LoginDialog = ({ open, onOpenChange }: LoginDialogProps) => {
         title: "Account Created",
         description: "Your account has been created successfully. Please check your email to verify your account.",
       });
-      // Don't close dialog here - let useEffect handle pending complaint submission
+      onOpenChange(false);
+      navigate("/communities");
     }
   };
 

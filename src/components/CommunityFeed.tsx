@@ -2,11 +2,33 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/contexts/AuthContext';
 import { getAllCommunities, getCommunityMembers, joinCommunity, getUserCommunities } from '@/lib/communities';
+import { getPublicComplaints, getAllCommunityComplaints, getCommunityComplaints } from '@/lib/complaints';
+import { getIndiaCommunityId } from '@/lib/india-community';
 import { useNavigate } from 'react-router-dom';
-import { Building2, MapPin, Users, Calendar, Plus, CheckCircle, Loader2 } from 'lucide-react';
+import { 
+  Building2, 
+  MapPin, 
+  Users, 
+  Calendar, 
+  Plus, 
+  CheckCircle, 
+  Loader2, 
+  ThumbsUp, 
+  ThumbsDown, 
+  Eye, 
+  RefreshCw,
+  AlertCircle,
+  ArrowLeft,
+  ChevronDown,
+  ChevronUp
+} from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { hasLocationData } from '@/lib/locationUtils';
+import { useLocationFormat } from '@/hooks/useLocationFormat';
 import Navigation from './Navigation';
 
 interface Community {
@@ -22,6 +44,56 @@ interface Community {
   updated_at: string;
 }
 
+interface CommunityComplaint {
+  id: string;
+  category: string;
+  description: string;
+  location_address?: string;
+  latitude?: number;
+  longitude?: number;
+  status: 'pending' | 'in_progress' | 'resolved' | 'rejected';
+  created_at: string;
+  community_id?: string;
+  users: {
+    full_name?: string;
+  };
+  communities?: {
+    name: string;
+    location: string;
+  };
+  complaint_files: Array<{
+    id: string;
+    file_url: string;
+    file_name: string;
+    file_type: string;
+  }>;
+}
+
+// Location display component
+const LocationDisplay: React.FC<{
+  location_address?: string;
+  latitude?: number;
+  longitude?: number;
+}> = ({ location_address, latitude, longitude }) => {
+  const { formattedLocation, isLoading } = useLocationFormat(location_address, latitude, longitude);
+
+  if (!hasLocationData(location_address, latitude, longitude)) {
+    return null;
+  }
+
+  return (
+    <div className="flex items-center space-x-2 text-xs text-gray-600 bg-gray-50 rounded-md px-2 py-1">
+      <MapPin className="h-3 w-3 text-gray-500 flex-shrink-0" />
+      <span className="font-medium">
+        {formattedLocation}
+        {isLoading && (
+          <span className="ml-1 text-xs text-gray-400">(loading...)</span>
+        )}
+      </span>
+    </div>
+  );
+};
+
 const CommunityFeed = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -31,6 +103,19 @@ const CommunityFeed = () => {
   const [memberCounts, setMemberCounts] = useState<Record<string, number>>({});
   const [userCommunities, setUserCommunities] = useState<Set<string>>(new Set());
   const [joiningCommunities, setJoiningCommunities] = useState<Set<string>>(new Set());
+  
+  // Complaint-related state
+  const [complaints, setComplaints] = useState<CommunityComplaint[]>([]);
+  const [complaintsLoading, setComplaintsLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [likedComplaints, setLikedComplaints] = useState<Set<string>>(new Set());
+  const [dislikedComplaints, setDislikedComplaints] = useState<Set<string>>(new Set());
+  const [selectedCommunity, setSelectedCommunity] = useState<Community | null>(null);
+  const [showComplaints, setShowComplaints] = useState(false);
+  const [statsExpanded, setStatsExpanded] = useState(false);
+  const [mobileTab, setMobileTab] = useState<'communities' | 'feed'>('feed');
+  const [thoughtText, setThoughtText] = useState('');
+  const [isSubmittingThought, setIsSubmittingThought] = useState(false);
 
   useEffect(() => {
     fetchCommunities();
@@ -38,6 +123,13 @@ const CommunityFeed = () => {
       fetchUserCommunities();
     }
   }, [user]);
+
+  // Fetch all complaints from joined communities
+  useEffect(() => {
+    if (communities.length > 0 && userCommunities.size > 0) {
+      fetchAllJoinedCommunityComplaints();
+    }
+  }, [communities, userCommunities]);
 
   const fetchCommunities = async () => {
     try {
@@ -76,11 +168,244 @@ const CommunityFeed = () => {
       if (error) {
         console.error('Error fetching user communities:', error);
       } else {
-        const communityIds = new Set((data || []).map(uc => uc.community_id));
+        const communityIds = new Set<string>((data || []).map((uc: any) => uc.community_id));
         setUserCommunities(communityIds);
       }
     } catch (error) {
       console.error('Error fetching user communities:', error);
+    }
+  };
+
+  const fetchComplaints = async (communityId: string) => {
+    try {
+      setComplaintsLoading(true);
+      let complaintsData;
+      
+      if (communityId === 'india' || communities.find(c => c.id === communityId)?.name.toLowerCase() === 'india') {
+        // For India community, get all community complaints
+        const { data, error } = await getAllCommunityComplaints();
+        if (error) throw error;
+        complaintsData = data;
+      } else {
+        // For specific community
+        const { data, error } = await getCommunityComplaints(communityId);
+        if (error) throw error;
+        complaintsData = data;
+      }
+      
+      setComplaints(complaintsData || []);
+    } catch (error) {
+      console.error('Error fetching complaints:', error);
+      toast({
+        title: "Error Loading Complaints",
+        description: "Failed to load complaints. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setComplaintsLoading(false);
+    }
+  };
+
+  const fetchAllJoinedCommunityComplaints = async () => {
+    try {
+      setComplaintsLoading(true);
+      const allComplaints: CommunityComplaint[] = [];
+      
+      // Get complaints from all joined communities
+      for (const communityId of userCommunities) {
+        const community = communities.find(c => c.id === communityId);
+        if (community) {
+          let complaintsData;
+          if (community.name.toLowerCase() === 'india') {
+            const { data, error } = await getAllCommunityComplaints();
+            if (error) throw error;
+            complaintsData = data;
+          } else {
+            const { data, error } = await getCommunityComplaints(communityId);
+            if (error) throw error;
+            complaintsData = data;
+          }
+          if (complaintsData) {
+            allComplaints.push(...complaintsData);
+          }
+        }
+      }
+      
+      // Sort by creation date (newest first)
+      allComplaints.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+      setComplaints(allComplaints);
+    } catch (error) {
+      console.error('Error fetching joined community complaints:', error);
+      toast({
+        title: "Error Loading Feed",
+        description: "Failed to load your community feed. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setComplaintsLoading(false);
+    }
+  };
+
+  const handleRefreshComplaints = async () => {
+    try {
+      setRefreshing(true);
+      await fetchAllJoinedCommunityComplaints();
+      toast({
+        title: "Feed Updated",
+        description: "Your community feed has been refreshed",
+      });
+    } catch (error) {
+      console.error('Error refreshing complaints:', error);
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
+  const handleSubmitThought = async () => {
+    if (!thoughtText.trim() || !user) return;
+    
+    try {
+      setIsSubmittingThought(true);
+      // Navigate to dashboard to submit complaint
+      navigate('/dashboard');
+    } catch (error) {
+      console.error('Error submitting thought:', error);
+      toast({
+        title: "Error",
+        description: "Failed to open complaint form. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmittingThought(false);
+    }
+  };
+
+  const handleLike = (complaintId: string) => {
+    if (!user) {
+      toast({
+        title: "Login Required",
+        description: "Please login to like complaints",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setLikedComplaints(prev => {
+      const newSet = new Set(prev);
+      const wasLiked = newSet.has(complaintId);
+      
+      if (wasLiked) {
+        newSet.delete(complaintId);
+      } else {
+        newSet.add(complaintId);
+        
+        // Remove from disliked if it was there
+        setDislikedComplaints(prevDisliked => {
+          const newDislikedSet = new Set(prevDisliked);
+          if (newDislikedSet.has(complaintId)) {
+            newDislikedSet.delete(complaintId);
+          }
+          return newDislikedSet;
+        });
+      }
+      return newSet;
+    });
+
+    toast({
+      title: "Liked!",
+      description: "Your feedback has been recorded",
+    });
+  };
+
+  const handleDislike = (complaintId: string) => {
+    if (!user) {
+      toast({
+        title: "Login Required",
+        description: "Please login to dislike complaints",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setDislikedComplaints(prev => {
+      const newSet = new Set(prev);
+      const wasDisliked = newSet.has(complaintId);
+      
+      if (wasDisliked) {
+        newSet.delete(complaintId);
+      } else {
+        newSet.add(complaintId);
+        
+        // Remove from liked if it was there
+        setLikedComplaints(prevLiked => {
+          const newLikedSet = new Set(prevLiked);
+          if (newLikedSet.has(complaintId)) {
+            newLikedSet.delete(complaintId);
+          }
+          return newLikedSet;
+        });
+      }
+      return newSet;
+    });
+
+    toast({
+      title: "Disliked",
+      description: "Your feedback has been recorded",
+    });
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'pending':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'in_progress':
+        return 'bg-blue-100 text-blue-800';
+      case 'resolved':
+        return 'bg-green-100 text-green-800';
+      case 'rejected':
+        return 'bg-red-100 text-red-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case 'pending':
+        return 'Pending';
+      case 'in_progress':
+        return 'In Progress';
+      case 'resolved':
+        return 'Resolved';
+      case 'rejected':
+        return 'Rejected';
+      default:
+        return status;
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    try {
+      return new Date(dateString).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch (error) {
+      console.error('Error formatting date:', dateString, error);
+      return 'Invalid Date';
+    }
+  };
+
+  const getInitials = (name?: string) => {
+    if (!name) return 'U';
+    try {
+      return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+    } catch (error) {
+      console.error('Error getting initials for name:', name, error);
+      return 'U';
     }
   };
 
@@ -112,6 +437,16 @@ const CommunityFeed = () => {
         [communityId]: (prev[communityId] || 0) + 1
       }));
 
+      // Set as selected community and show complaints
+      const community = communities.find(c => c.id === communityId);
+      if (community) {
+        setSelectedCommunity(community);
+        setShowComplaints(true);
+        await fetchComplaints(communityId);
+        // On mobile, switch to feed tab when joining community
+        setMobileTab('feed');
+      }
+
       toast({
         title: "Successfully Joined!",
         description: `You've joined the ${communityName} community`,
@@ -130,14 +465,6 @@ const CommunityFeed = () => {
         return newSet;
       });
     }
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
   };
 
   const isUserMember = (communityId: string) => {
@@ -162,101 +489,340 @@ const CommunityFeed = () => {
   }
 
     return (
-    <div className="min-h-screen bg-gray-50">
-      <Navigation />
-      <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">Communities</h1>
-          <p className="text-gray-600 max-w-2xl mx-auto">
-            Join communities to connect with others and share local issues. All users are automatically part of the India community.
+      <div className="min-h-screen bg-[#E2EEF9]">
+        <Navigation />
+        <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8">
+        {/* Header - Mobile Optimized */}
+        <div className="text-center mb-4 sm:mb-8">
+          <h1 className="text-xl sm:text-3xl font-bold text-[#001F3F] mb-2 sm:mb-4" style={{fontFamily: 'Montserrat-Bold, Helvetica'}}>
+            Communities
+          </h1>
+          <p className="text-[#001F3F]/80 max-w-2xl mx-auto text-sm sm:text-base px-2 mb-4">
+            Join communities to connect with others and share local issues. India community is public and available to everyone.
           </p>
         </div>
 
-        {/* Communities Grid */}
-        {communities.length === 0 ? (
-          <Card className="text-center py-12">
-            <CardContent>
-              <Building2 className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-xl font-semibold mb-2">No Communities Yet</h3>
-              <p className="text-muted-foreground mb-6">
-                Communities will appear here once they are created by administrators.
-              </p>
+        {/* Two Column Layout - Left: Thoughts, Right: Feed */}
+        <div className="w-full max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Left Column - Two Separate Sections */}
+            <div className="lg:col-span-1 space-y-6">
+              {/* Track My Complaints Section */}
               {user && (
-                <Button onClick={() => window.location.href = '/dashboard'}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Go to Dashboard
-                </Button>
+                <div className="bg-white rounded-lg border border-[#001F3F]/20 shadow-lg p-6 sticky top-4">
+                  <div className="flex flex-col items-center text-center">
+                    <div className="w-12 h-12 bg-gradient-to-br from-[#001F3F] to-[#001F3F]/80 rounded-full flex items-center justify-center shadow-md mb-4">
+                      <Eye className="h-6 w-6 text-white" />
+                    </div>
+                    <h3 className="font-semibold text-[#001F3F] text-lg mb-2" style={{fontFamily: 'Montserrat-SemiBold, Helvetica'}}>
+                      Track My Complaints
+                    </h3>
+                    <p className="text-sm text-[#001F3F]/60 mb-4">
+                      View and manage your submitted complaints
+                    </p>
+                    <Button
+                      onClick={() => navigate('/dashboard')}
+                      className="w-full bg-gradient-to-r from-[#001F3F] to-[#001F3F]/90 hover:from-[#001F3F]/90 hover:to-[#001F3F] text-white py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
+                      style={{fontFamily: 'Montserrat-SemiBold, Helvetica'}}
+                    >
+                      <Eye className="h-5 w-5 mr-2" />
+                      View Dashboard
+                    </Button>
+                  </div>
+                </div>
               )}
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {communities.map((community) => {
-              const isMember = isUserMember(community.id);
-              const isJoiningCommunity = isJoining(community.id);
-              
-              return (
-                <Card key={community.id} className="hover:shadow-lg transition-shadow duration-200">
-                  <CardHeader className="pb-3">
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-center gap-2">
-                        <Building2 className="h-5 w-5 text-primary" />
-                        <CardTitle className="text-lg">{community.name}</CardTitle>
+
+              {/* Share Your Thoughts Section */}
+              <div className="bg-white rounded-lg border border-[#001F3F]/20 shadow-lg p-6 sticky top-4">
+                <div className="flex flex-col items-center text-center mb-6">
+                  <div className="w-12 h-12 bg-gradient-to-br from-[#001F3F] to-[#001F3F]/80 rounded-full flex items-center justify-center shadow-md mb-4">
+                    <Building2 className="h-6 w-6 text-white" />
+                  </div>
+                  <h3 className="font-semibold text-[#001F3F] text-lg mb-2" style={{fontFamily: 'Montserrat-SemiBold, Helvetica'}}>
+                    Share Your Thoughts
+                  </h3>
+                  <p className="text-sm text-[#001F3F]/60">
+                    Share your thoughts with the community
+                  </p>
+                </div>
+                
+                <div className="space-y-4">
+                  <textarea
+                    value={thoughtText}
+                    onChange={(e) => setThoughtText(e.target.value)}
+                    placeholder="Share your thoughts about local issues, community concerns, or any feedback..."
+                    className="w-full p-4 border border-[#001F3F]/20 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-[#001F3F]/20 focus:border-[#001F3F] text-sm placeholder:text-[#001F3F]/50 bg-gray-50/50 transition-all duration-200"
+                    rows={4}
+                    maxLength={500}
+                  />
+                  
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-[#001F3F]/50 font-medium">
+                        {thoughtText.length}/500 characters
+                      </span>
+                      {thoughtText.length > 400 && (
+                        <span className="text-xs text-orange-500 font-medium">
+                          {500 - thoughtText.length} characters left
+                        </span>
+                      )}
+                    </div>
+                    
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setThoughtText('')}
+                        className="flex-1 text-[#001F3F] border-[#001F3F]/30 hover:bg-[#001F3F]/10 hover:border-[#001F3F]/50 transition-all duration-200"
+                        disabled={!thoughtText.trim()}
+                      >
+                        Clear
+                      </Button>
+                      <Button
+                        onClick={handleSubmitThought}
+                        disabled={!thoughtText.trim() || isSubmittingThought}
+                        className="flex-1 bg-gradient-to-r from-[#001F3F] to-[#001F3F]/90 hover:from-[#001F3F]/90 hover:to-[#001F3F] text-white shadow-md hover:shadow-lg transition-all duration-200"
+                        style={{fontFamily: 'Montserrat-SemiBold, Helvetica'}}
+                      >
+                        {isSubmittingThought ? (
+                          <>
+                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            Opening...
+                          </>
+                        ) : (
+                          <>
+                            <Plus className="h-4 w-4 mr-2" />
+                            Share Issue
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column - Feed Tabs */}
+            <div className="lg:col-span-2">
+              <Tabs defaultValue="my_feed" className="w-full">
+                <div className="bg-white rounded-lg border border-[#001F3F]/20 shadow-sm p-2 mb-6">
+                  <TabsList className="grid w-full grid-cols-2 bg-transparent h-12 gap-2">
+                    <TabsTrigger 
+                      value="my_feed"
+                      className="data-[state=active]:bg-[#001F3F] data-[state=active]:text-white text-[#001F3F] text-sm px-4 py-2 rounded-lg transition-all duration-200 hover:bg-[#001F3F]/10"
+                      style={{fontFamily: 'Montserrat-SemiBold, Helvetica'}}
+                    >
+                      <Eye className="h-4 w-4 mr-2" />
+                      <span>My Feed</span>
+                      <span className="ml-2 bg-[#001F3F]/10 text-[#001F3F] px-2 py-0.5 rounded-full text-xs font-medium">
+                        {complaints.length}
+                      </span>
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="discover"
+                      className="data-[state=active]:bg-[#001F3F] data-[state=active]:text-white text-[#001F3F] text-sm px-4 py-2 rounded-lg transition-all duration-200 hover:bg-[#001F3F]/10"
+                      style={{fontFamily: 'Montserrat-SemiBold, Helvetica'}}
+                    >
+                      <Building2 className="h-4 w-4 mr-2" />
+                      <span>Discover</span>
+                      <span className="ml-2 bg-[#001F3F]/10 text-[#001F3F] px-2 py-0.5 rounded-full text-xs font-medium">
+                        {communities.filter(c => !userCommunities.has(c.id) && c.name !== 'India').length}
+                      </span>
+                    </TabsTrigger>
+                  </TabsList>
+                </div>
+
+                  <TabsContent value="my_feed">
+                    {complaintsLoading ? (
+                      <div className="text-center py-8">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#001F3F] mx-auto mb-4"></div>
+                        <p className="text-[#001F3F]/70" style={{fontFamily: 'Montserrat-SemiBold, Helvetica'}}>Loading your feed...</p>
                       </div>
-                      <Badge variant={community.is_active ? "default" : "secondary"}>
-                        {community.is_active ? "Active" : "Inactive"}
+                    ) : complaints.length === 0 ? (
+                      <div className="bg-white rounded-lg border border-[#001F3F]/20 shadow-lg p-8 text-center">
+                        <Eye className="h-12 w-12 text-[#001F3F]/50 mx-auto mb-4" />
+                        <h3 className="text-lg font-semibold mb-2 text-[#001F3F]" style={{fontFamily: 'Montserrat-Bold, Helvetica'}}>No Complaints Yet</h3>
+                        <p className="text-[#001F3F]/70" style={{fontFamily: 'Montserrat-SemiBold, Helvetica'}}>
+                          No complaints in your joined communities yet. Be the first to share an issue!
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {complaints.map((complaint) => (
+                          <Card key={complaint.id} className="hover:shadow-xl transition-all duration-300 border border-[#001F3F]/20 shadow-lg hover:border-[#001F3F]/30">
+                            <CardContent className="p-4 sm:p-6">
+                              {/* Header - Mobile Optimized */}
+                              <div className="flex items-start justify-between mb-3 sm:mb-4">
+                                <div className="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
+                                  <Avatar className="h-6 w-6 sm:h-8 sm:w-8 flex-shrink-0">
+                                    <AvatarFallback className="text-xs">
+                                      {getInitials(complaint.users?.full_name)}
+                                    </AvatarFallback>
+                                  </Avatar>
+                                  <div className="min-w-0 flex-1">
+                                    <h3 className="font-semibold text-xs sm:text-sm text-gray-900 truncate">
+                                      {complaint.users?.full_name || 'Anonymous User'}
+                                    </h3>
+                                    <p className="text-xs text-gray-500 flex items-center gap-1">
+                                      <Calendar className="h-3 w-3 flex-shrink-0" />
+                                      <span className="truncate">{formatDate(complaint.created_at)}</span>
+                                    </p>
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0 ml-2">
+                                  <Badge variant="outline" className="text-xs px-1.5 py-0.5">
+                                    {complaint.category.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                                  </Badge>
+                                  <Badge className={`${getStatusColor(complaint.status)} text-xs px-1.5 py-0.5`}>
+                                    {getStatusText(complaint.status)}
                       </Badge>
                     </div>
-                    {community.description && (
-                      <p className="text-sm text-muted-foreground line-clamp-3">
-                        {community.description}
-                      </p>
-                    )}
-                  </CardHeader>
-                  <CardContent className="pt-0">
-                    {community.location && (
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
-                        <MapPin className="h-4 w-4" />
-                        <span>{community.location}</span>
+                              </div>
+
+                              {/* Content - Mobile Optimized */}
+                              <div className="space-y-2 sm:space-y-3">
+                                {/* Location */}
+                                <LocationDisplay 
+                                  location_address={complaint.location_address}
+                                  latitude={complaint.latitude}
+                                  longitude={complaint.longitude}
+                                />
+
+                                {/* Description */}
+                                <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
+                                  <h4 className="text-xs font-medium text-gray-600 mb-2">COMPLAINT DESCRIPTION</h4>
+                                  <p className="text-xs sm:text-sm text-gray-900 leading-relaxed">
+                                    {complaint.description}
+                                  </p>
+                                </div>
+
+                                {/* Media Files */}
+                                {complaint.complaint_files && complaint.complaint_files.length > 0 && (
+                                  <div className="space-y-2">
+                                    <h4 className="text-xs font-medium text-gray-600">ATTACHMENTS</h4>
+                                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                                      {complaint.complaint_files.map((file) => (
+                                        <div key={file.id} className="relative">
+                                          {file.file_type.startsWith('image/') ? (
+                                            <img
+                                              src={file.file_url}
+                                              alt={file.file_name}
+                                              className="w-full h-16 sm:h-20 object-cover rounded-md border"
+                                              onError={(e) => {
+                                                e.currentTarget.style.display = 'none';
+                                              }}
+                                            />
+                                          ) : (
+                                            <div className="w-full h-16 sm:h-20 bg-gray-100 rounded-md border flex items-center justify-center">
+                                              <span className="text-xs text-gray-500 truncate px-1">
+                                                {file.file_name}
+                                              </span>
+                                            </div>
+                                          )}
+                                        </div>
+                                      ))}
+                                    </div>
                       </div>
                     )}
 
-                    {community.latitude && community.longitude && (
-                      <div className="text-xs text-muted-foreground mb-3 bg-gray-100 p-2 rounded">
-                        📍 {community.latitude.toFixed(4)}, {community.longitude.toFixed(4)}
+                                {/* Action Buttons - Mobile Optimized */}
+                                <div className="flex items-center justify-between pt-2 sm:pt-3 border-t border-gray-200">
+                                  <div className="flex items-center space-x-1 sm:space-x-2">
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => handleLike(complaint.id)}
+                                      className={`flex items-center space-x-1 text-xs h-7 ${
+                                        likedComplaints.has(complaint.id) 
+                                          ? 'text-green-600 bg-green-50' 
+                                          : 'text-gray-600 hover:bg-green-50 hover:text-green-600'
+                                      }`}
+                                    >
+                                      <ThumbsUp className="h-3 w-3" />
+                                      <span className="hidden sm:inline">Like</span>
+                                    </Button>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => handleDislike(complaint.id)}
+                                      className={`flex items-center space-x-1 text-xs h-7 ${
+                                        dislikedComplaints.has(complaint.id) 
+                                          ? 'text-red-600 bg-red-50' 
+                                          : 'text-gray-600 hover:bg-red-50 hover:text-red-600'
+                                      }`}
+                                    >
+                                      <ThumbsDown className="h-3 w-3" />
+                                      <span className="hidden sm:inline">Dislike</span>
+                                    </Button>
+                                  </div>
+                                </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                        ))}
                       </div>
                     )}
+                  </TabsContent>
 
-                    <div className="flex items-center justify-between text-xs text-muted-foreground mb-4">
-                      <div className="flex items-center gap-1">
-                        <Calendar className="h-3 w-3" />
-                        <span>Created {formatDate(community.created_at)}</span>
+                  <TabsContent value="discover">
+                    {communities.filter(c => !userCommunities.has(c.id) && c.name !== 'India').length === 0 ? (
+                      <div className="bg-white rounded-lg border border-[#001F3F]/20 shadow-lg p-8 text-center">
+                        <Building2 className="h-12 w-12 text-[#001F3F]/50 mx-auto mb-4" />
+                        <h3 className="text-lg font-semibold mb-2 text-[#001F3F]" style={{fontFamily: 'Montserrat-Bold, Helvetica'}}>No New Communities</h3>
+                        <p className="text-[#001F3F]/70" style={{fontFamily: 'Montserrat-SemiBold, Helvetica'}}>
+                          You've joined all available communities! Check back later for new ones.
+                        </p>
                       </div>
-                      <div className="flex items-center gap-1">
-                        <Users className="h-3 w-3" />
-                        <span>{memberCounts[community.id] || 0} members</span>
+                    ) : (
+                      <div className="space-y-4">
+                        {communities.filter(c => !userCommunities.has(c.id) && c.name !== 'India').map((community) => (
+                          <Card key={community.id} className="hover:shadow-xl transition-all duration-300 border border-[#001F3F]/20 shadow-lg hover:border-[#001F3F]/30">
+                            <CardContent className="p-5">
+                              <div className="flex items-start justify-between mb-4">
+                                <div className="flex items-center gap-4">
+                                  <div className="w-12 h-12 bg-gradient-to-br from-[#001F3F] to-[#001F3F]/80 rounded-full flex items-center justify-center shadow-md">
+                                    <Building2 className="h-6 w-6 text-white" />
+                                  </div>
+                                  <div>
+                                    <h3 className="font-semibold text-base text-[#001F3F] mb-1" style={{fontFamily: 'Montserrat-SemiBold, Helvetica'}}>
+                                      {community.name}
+                                    </h3>
+                                    <p className="text-sm text-[#001F3F]/70">
+                                      {community.description || 'Join this community to connect with others'}
+                                    </p>
+                                  </div>
+                                </div>
+                                <Badge 
+                                  variant={community.is_active ? "default" : "secondary"} 
+                                  className={`text-xs px-3 py-1 rounded-full ${
+                                    community.is_active 
+                                      ? 'bg-green-100 text-green-700 border border-green-200' 
+                                      : 'bg-gray-100 text-gray-600 border border-gray-200'
+                                  }`}
+                                >
+                                  {community.is_active ? "Active" : "Inactive"}
+                                </Badge>
+                              </div>
+
+                              <div className="flex items-center justify-between text-sm text-[#001F3F]/60 mb-4 bg-gray-50/50 rounded-lg p-3">
+                                <div className="flex items-center gap-2">
+                                  <Users className="h-4 w-4 text-[#001F3F]/70" />
+                                  <span className="font-medium">{memberCounts[community.id] || 0} members</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <Calendar className="h-4 w-4 text-[#001F3F]/70" />
+                                  <span className="font-medium">{formatDate(community.created_at)}</span>
                       </div>
                     </div>
 
-                    <div className="space-y-2">
-                      {community.name === 'India' ? (
-                        <Button className="w-full bg-green-600 hover:bg-green-700" disabled>
-                          <CheckCircle className="h-4 w-4 mr-2" />
-                          You're Already a Member
-                        </Button>
-                      ) : isMember ? (
-                        <Button className="w-full bg-green-600 hover:bg-green-700" disabled>
-                          <CheckCircle className="h-4 w-4 mr-2" />
-                          You're a Member
-                        </Button>
-                      ) : (
                         <Button 
-                          className="w-full" 
-                          disabled={!community.is_active || isJoiningCommunity}
+                                className="w-full bg-gradient-to-r from-[#001F3F] to-[#001F3F]/90 hover:from-[#001F3F]/90 hover:to-[#001F3F] text-white text-sm h-10 shadow-md hover:shadow-lg transition-all duration-200" 
+                                size="sm"
+                                disabled={!community.is_active || isJoining(community.id)}
                           onClick={() => handleJoinCommunity(community.id, community.name)}
+                                style={{fontFamily: 'Montserrat-SemiBold, Helvetica'}}
                         >
-                          {isJoiningCommunity ? (
+                                {isJoining(community.id) ? (
                             <>
                               <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                               Joining...
@@ -264,52 +830,23 @@ const CommunityFeed = () => {
                           ) : (
                             <>
                               <Users className="h-4 w-4 mr-2" />
-                              {community.is_active ? 'Join Community' : 'Community Inactive'}
+                                    {community.is_active ? 'Join Community' : 'Inactive'}
                             </>
                           )}
                         </Button>
-                      )}
-                      
-                      {user && (
-                        <Button 
-                          variant="outline" 
-                          className="w-full" 
-                          size="sm"
-                          onClick={() => {
-                            navigate(`/communities/${community.name.toLowerCase()}`);
-                          }}
-                        >
-                          View Community Feed
-                        </Button>
-                      )}
-                    </div>
                   </CardContent>
                 </Card>
-              );
-            })}
+                        ))}
+                      </div>
+                    )}
+                  </TabsContent>
+                </Tabs>
+              </div>
+            </div>
           </div>
-                        )}
-
-        {/* Call to Action */}
-        {user && communities.length > 0 && (
-          <div className="text-center mt-12">
-            <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
-              <CardContent className="py-8">
-                <h3 className="text-xl font-semibold mb-2">Want to Create a Community?</h3>
-                <p className="text-muted-foreground mb-4">
-                  Only administrators can create new communities. Contact your local admin to request a new community.
-                </p>
-                <Button variant="outline" onClick={() => window.location.href = '/dashboard'}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Go to Dashboard
-                            </Button>
-              </CardContent>
-            </Card>
-                  </div>
-              )}
+        </div>
       </div>
-    </div>
-  );
+    );
 };
 
 export default CommunityFeed;

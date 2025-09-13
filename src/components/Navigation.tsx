@@ -39,7 +39,7 @@ const Navigation = () => {
   };
 
   return (
-    <nav className="sticky top-0 z-50 bg-[#A73728] shadow-lg backdrop-blur-sm">
+    <nav className="sticky top-0 z-50 bg-[#001F3F] shadow-lg backdrop-blur-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-14 sm:h-16 md:h-18">
           {/* Logo */}
@@ -84,20 +84,11 @@ const Navigation = () => {
                 <Button 
                   variant="outline" 
                   onClick={handleSignOut}
-                  size="sm"
-                  className="text-xs lg:text-sm"
+                  size="icon"
+                  className="h-8 w-8"
+                  title="Sign Out"
                 >
-                  <LogOut className="h-3 w-3 lg:h-4 lg:w-4 mr-1 lg:mr-2" />
-                  <span className="hidden lg:inline">Sign Out</span>
-                  <span className="lg:hidden">Out</span>
-                </Button>
-                <Button 
-                  onClick={() => navigate("/dashboard")}
-                  size="sm"
-                  className="text-xs lg:text-sm"
-                >
-                  <span className="hidden lg:inline">Dashboard</span>
-                  <span className="lg:hidden">Dash</span>
+                  <LogOut className="h-4 w-4" />
                 </Button>
                 {isAdmin && (
                   <Button 
@@ -154,7 +145,7 @@ const Navigation = () => {
         {/* Mobile Navigation Menu */}
         {isMenuOpen && (
           <div className="md:hidden">
-            <div className="px-4 pt-4 pb-6 space-y-2 bg-[#A73728]/95 backdrop-blur-sm border-t border-[#F5F5DC]/20 shadow-xl">
+            <div className="px-4 pt-4 pb-6 space-y-2 bg-[#001F3F]/95 backdrop-blur-sm border-t border-[#F5F5DC]/20 shadow-xl">
               <button 
                 onClick={() => {
                   navigate("/");
@@ -199,16 +190,6 @@ const Navigation = () => {
                         <LogOut className="h-4 w-4 mr-2" />
                         Sign Out
                       </Button>
-                      <Button 
-                        onClick={() => {
-                          navigate("/dashboard");
-                          setIsMenuOpen(false);
-                        }}
-                        className="w-full text-sm h-10 bg-[#F5F5DC] text-[#A73728] hover:bg-white font-semibold"
-                        size="sm"
-                      >
-                        Dashboard
-                      </Button>
                       {isAdmin && (
                         <Button 
                           variant="outline"
@@ -242,7 +223,7 @@ const Navigation = () => {
                           document.getElementById('complaint-form')?.scrollIntoView({ behavior: 'smooth' });
                           setIsMenuOpen(false);
                         }}
-                        className="w-full text-sm h-10 bg-[#F5F5DC] text-[#A73728] hover:bg-white font-semibold"
+                        className="w-full text-sm h-10 bg-[#F5F5DC] text-[#001F3F] hover:bg-white font-semibold"
                         size="sm"
                       >
                         File Complaint

@@ -99,8 +99,8 @@ export const AuthCallback = () => {
             }
           }
 
-          // Redirect to dashboard
-          navigate('/dashboard');
+          // Redirect to communities
+          navigate('/communities');
         } else {
           // No session, redirect to home
           navigate('/');
