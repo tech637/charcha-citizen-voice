@@ -15,6 +15,7 @@ import AdminTest from "./components/AdminTest";
 import CommunityFeed from "./components/CommunityFeed";
 import IndiaCommunityFeed from "./components/IndiaCommunityFeed";
 import CommunityPage from "./components/CommunityPage";
+import JoinCommunities from "./components/JoinCommunities";
 
 const queryClient = new QueryClient();
 
@@ -31,6 +32,7 @@ const App = () => (
               <Route path="/" element={<Index />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/communities" element={<CommunityFeed />} />
+              <Route path="/join-communities" element={<JoinCommunities />} />
               <Route path="/communities/:communityName" element={<CommunityPage />} />
               <Route path="/india" element={<IndiaCommunityFeed />} />
               <Route path="/admin" element={<AdminPanel />} />

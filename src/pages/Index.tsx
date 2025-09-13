@@ -32,18 +32,18 @@ const Index = () => {
         <div className="absolute inset-0 bg-[#001F3F]/50 sm:bg-[#001F3F]/60 md:bg-[#001F3F]/70 z-10"></div>
         
         <div className="max-w-4xl mx-auto relative z-20 px-4">
-          <h1 className="text-6xl sm:text-8xl md:text-[132px] font-black text-[#001F3F] tracking-[0] leading-[normal] mb-2 sm:mb-4" style={{fontFamily: 'Montserrat-Black, Helvetica'}}>
+          <h1 className="text-6xl sm:text-8xl md:text-[132px] font-black text-[#E2EEF9] tracking-[0] leading-[normal] mb-2 sm:mb-4" style={{fontFamily: 'Montserrat-Black, Helvetica'}}>
             Charcha
           </h1>
           
           {/* Decorative line */}
           <div className="w-48 sm:w-80 md:w-[666px] h-px bg-[#001F3F] mx-auto mb-2 sm:mb-4"></div>
           
-          <p className="text-lg sm:text-2xl md:text-[38.4px] font-black text-[#001F3F] tracking-[0] leading-[normal] mb-4 sm:mb-8" style={{fontFamily: 'Montserrat-Black, Helvetica'}}>
+          <p className="text-lg sm:text-2xl md:text-[38.4px] font-black text-[#E2EEF9] tracking-[0] leading-[normal] mb-4 sm:mb-8" style={{fontFamily: 'Montserrat-Black, Helvetica'}}>
             Raise Your Voice. Fix Your City.
           </p>
           
-          <p className="text-sm sm:text-lg md:text-xl font-bold text-[#001F3F] tracking-[0] leading-[normal] mb-6 sm:mb-12" style={{fontFamily: 'Montserrat-Bold, Helvetica'}}>
+          <p className="text-sm sm:text-lg md:text-xl font-bold text-[#E2EEF9] tracking-[0] leading-[normal] mb-6 sm:mb-12" style={{fontFamily: 'Montserrat-Bold, Helvetica'}}>
             COMMUNITY FIRST PLATFORM
           </p>
           

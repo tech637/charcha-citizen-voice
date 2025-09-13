@@ -151,14 +151,14 @@ const Navigation = () => {
                   navigate("/");
                   setIsMenuOpen(false);
                 }}
-                className="text-[#F5F5DC] hover:text-white hover:bg-white/20 block px-4 py-3 rounded-lg text-base font-semibold transition-all duration-200 w-full text-left"
+                className="text-[#F5F5DC] hover:text-white hover:bg-white/20 block px-4 py-3 rounded-lg text-base font-semibold transition-all duration-200 w-full text-center"
               >
                 Home
               </button>
               <a 
                 href="#how-it-works" 
                 onClick={() => setIsMenuOpen(false)}
-                className="text-[#F5F5DC]/90 hover:text-white hover:bg-white/20 block px-4 py-3 rounded-lg text-base font-semibold transition-all duration-200"
+                className="text-[#F5F5DC]/90 hover:text-white hover:bg-white/20 block px-4 py-3 rounded-lg text-base font-semibold transition-all duration-200 w-full text-center"
               >
                 How It Works
               </a>
@@ -167,15 +167,26 @@ const Navigation = () => {
                   navigate("/communities");
                   setIsMenuOpen(false);
                 }}
-                className="text-[#F5F5DC]/90 hover:text-white hover:bg-white/20 block px-4 py-3 rounded-lg text-base font-semibold transition-all duration-200 w-full text-left"
+                className="text-[#F5F5DC]/90 hover:text-white hover:bg-white/20 block px-4 py-3 rounded-lg text-base font-semibold transition-all duration-200 w-full text-center"
               >
                 Communities
               </button>
+              {user && (
+                <button 
+                  onClick={() => {
+                    navigate("/dashboard");
+                    setIsMenuOpen(false);
+                  }}
+                  className="text-[#F5F5DC]/90 hover:text-white hover:bg-white/20 block px-4 py-3 rounded-lg text-base font-semibold transition-all duration-200 w-full text-center"
+                >
+                  Track Complaint
+                </button>
+              )}
               <div className="pt-4 pb-2 border-t border-[#F5F5DC]/20">
                 <div className="flex flex-col space-y-3">
                   {user ? (
                     <>
-                      <div className="text-sm text-[#F5F5DC]/80 px-4 py-2 truncate bg-white/10 rounded-lg">
+                      <div className="text-sm text-[#F5F5DC]/80 px-4 py-2 text-center bg-white/10 rounded-lg">
                         {user.user_metadata?.full_name || user.email}
                       </div>
                       <Button 
@@ -184,7 +195,7 @@ const Navigation = () => {
                           handleSignOut();
                           setIsMenuOpen(false);
                         }}
-                        className="w-full text-sm h-10 bg-white/10 border-[#F5F5DC]/30 text-[#F5F5DC] hover:bg-white/20 hover:border-[#F5F5DC]"
+                        className="w-full text-sm h-10 bg-white/10 border-[#F5F5DC]/30 text-[#F5F5DC] hover:bg-white/20 hover:border-[#F5F5DC] justify-center"
                         size="sm"
                       >
                         <LogOut className="h-4 w-4 mr-2" />
@@ -197,7 +208,7 @@ const Navigation = () => {
                             navigate("/admin");
                             setIsMenuOpen(false);
                           }}
-                          className="w-full flex items-center gap-2 text-sm h-10 bg-white/10 border-[#F5F5DC]/30 text-[#F5F5DC] hover:bg-white/20 hover:border-[#F5F5DC]"
+                          className="w-full flex items-center justify-center gap-2 text-sm h-10 bg-white/10 border-[#F5F5DC]/30 text-[#F5F5DC] hover:bg-white/20 hover:border-[#F5F5DC]"
                           size="sm"
                         >
                           <Shield className="h-4 w-4" />
@@ -213,7 +224,7 @@ const Navigation = () => {
                           setIsLoginOpen(true);
                           setIsMenuOpen(false);
                         }}
-                        className="w-full text-sm h-10 bg-white/10 border-[#F5F5DC]/30 text-[#F5F5DC] hover:bg-white/20 hover:border-[#F5F5DC]"
+                        className="w-full text-sm h-10 bg-white/10 border-[#F5F5DC]/30 text-[#F5F5DC] hover:bg-white/20 hover:border-[#F5F5DC] justify-center"
                         size="sm"
                       >
                         Login / Sign Up
@@ -223,7 +234,7 @@ const Navigation = () => {
                           document.getElementById('complaint-form')?.scrollIntoView({ behavior: 'smooth' });
                           setIsMenuOpen(false);
                         }}
-                        className="w-full text-sm h-10 bg-[#F5F5DC] text-[#001F3F] hover:bg-white font-semibold"
+                        className="w-full text-sm h-10 bg-[#F5F5DC] text-[#001F3F] hover:bg-white font-semibold justify-center"
                         size="sm"
                       >
                         File Complaint

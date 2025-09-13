@@ -131,7 +131,7 @@ const ComplaintNotification = ({
         // animation styles
         "transition-all duration-500 ease-out hover:scale-[102%] hover:shadow-lg",
         // styling to match website theme
-        "bg-[#F5F5DC]/95 backdrop-blur-sm border border-[#F5F5DC]/20",
+        "bg-white/95 backdrop-blur-sm border border-[#001F3F]/20",
         "shadow-md hover:shadow-xl",
         // new complaint animation
         isNew && "animate-slide-in-from-top"
@@ -164,7 +164,7 @@ const ComplaintNotification = ({
             {description}
           </p>
           <div className="flex items-center gap-3 text-xs">
-            <span className="px-3 py-1 rounded-full bg-[#A73728]/10 text-[#A73728] font-medium border border-[#A73728]/20">
+            <span className="px-3 py-1 rounded-full bg-[#001F3F]/10 text-[#001F3F] font-medium border border-[#001F3F]/20">
               {category}
             </span>
             <span className="text-gray-500">•</span>
@@ -255,10 +255,10 @@ export function ComplaintNotificationsDemo({
         </div>
       </div>
 
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-[#A73728]/70 to-transparent"></div>
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-[#001F3F]/20 to-transparent"></div>
       
       {/* Live indicator */}
-      <div className="absolute top-4 right-4 flex items-center gap-2 text-sm text-[#F5F5DC]/80">
+      <div className="absolute top-4 right-4 flex items-center gap-2 text-sm text-[#001F3F]/80">
         <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
         <span>Live</span>
       </div>

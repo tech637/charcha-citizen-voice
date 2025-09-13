@@ -261,15 +261,15 @@ const ComplaintForm = () => {
   };
 
   return (
-    <Card className="w-full max-w-2xl mx-auto bg-white border border-gray-200 rounded-2xl shadow-lg">
+    <Card className="w-full max-w-2xl mx-auto bg-[#E2EEF9] border border-[#001F3F]/20 rounded-2xl shadow-lg">
       <CardHeader className="pb-4 sm:pb-6 px-4 sm:px-8 pt-6 sm:pt-8">
-        <CardTitle className="text-2xl sm:text-3xl text-center font-bold text-[#333]" style={{fontFamily: 'Montserrat-Bold, Helvetica'}}>File Your Complaint</CardTitle>
+        <CardTitle className="text-2xl sm:text-3xl text-center font-bold text-[#001F3F]" style={{fontFamily: 'Montserrat-Bold, Helvetica'}}>File Your Complaint</CardTitle>
       </CardHeader>
       <CardContent className="px-4 sm:px-8 pb-6 sm:pb-8">
         <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
           {/* Step 1: Category Selection */}
           <div className="space-y-3 sm:space-y-4">
-            <Label className="text-base sm:text-lg font-semibold text-[#8A1F11]" style={{fontFamily: 'Montserrat-Bold, Helvetica'}}>Select Complaint Category</Label>
+            <Label className="text-base sm:text-lg font-semibold text-[#001F3F]" style={{fontFamily: 'Montserrat-Bold, Helvetica'}}>Select Complaint Category</Label>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-3">
               {categories.map((category) => {
                 const IconComponent = category.icon;
@@ -280,8 +280,8 @@ const ComplaintForm = () => {
                     onClick={() => setSelectedCategory(category.id)}
                     className={`p-2 sm:p-4 rounded-lg border-2 text-xs sm:text-sm font-medium transition-all duration-300 flex flex-col items-center gap-1 sm:gap-2 ${
                       selectedCategory === category.id
-                        ? "border-[#9E2C1C] bg-[#9E2C1C] text-white shadow-lg"
-                        : "border-gray-300 bg-white hover:border-[#9E2C1C] hover:shadow-md text-[#333]"
+                        ? "border-[#001F3F] bg-[#001F3F] text-white shadow-lg"
+                        : "border-[#001F3F]/30 bg-white hover:border-[#001F3F] hover:shadow-md text-[#001F3F]"
                     }`}
                   >
                     <IconComponent className="h-4 w-4 sm:h-6 sm:w-6" />
@@ -294,7 +294,7 @@ const ComplaintForm = () => {
 
           {/* Step 2: Description */}
           <div className="space-y-2 sm:space-y-3">
-            <Label htmlFor="description" className="text-base sm:text-lg font-semibold text-[#8A1F11]" style={{fontFamily: 'Montserrat-Bold, Helvetica'}}>
+            <Label htmlFor="description" className="text-base sm:text-lg font-semibold text-[#001F3F]" style={{fontFamily: 'Montserrat-Bold, Helvetica'}}>
               Complaint Description
             </Label>
             <Textarea
@@ -303,7 +303,7 @@ const ComplaintForm = () => {
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Describe the issue in detail..."
               maxLength={300}
-              className="min-h-[100px] sm:min-h-[120px] rounded-lg border-gray-300 focus:border-[#9E2C1C] focus:ring-[#9E2C1C] placeholder:text-gray-400 text-[#333] text-sm sm:text-base"
+              className="min-h-[100px] sm:min-h-[120px] rounded-lg border-[#001F3F]/30 focus:border-[#001F3F] focus:ring-[#001F3F] placeholder:text-gray-400 text-[#001F3F] text-sm sm:text-base"
             />
             <div className="text-xs sm:text-sm text-gray-500 text-right">
               {description.length}/300 characters
@@ -312,14 +312,14 @@ const ComplaintForm = () => {
 
           {/* Step 3: File Upload */}
           <div className="space-y-2 sm:space-y-3">
-            <Label className="text-base sm:text-lg font-semibold text-[#8A1F11]" style={{fontFamily: 'Montserrat-Bold, Helvetica'}}>Upload Photos/Videos</Label>
+            <Label className="text-base sm:text-lg font-semibold text-[#001F3F]" style={{fontFamily: 'Montserrat-Bold, Helvetica'}}>Upload Photos/Videos</Label>
             <div className="space-y-2 sm:space-y-3">
               <Input
                 type="file"
                 multiple
                 accept="image/*,video/*"
                 onChange={handleFileUpload}
-                className="cursor-pointer rounded-lg border-gray-300 focus:border-[#9E2C1C] focus:ring-[#9E2C1C] text-sm sm:text-base"
+                className="cursor-pointer rounded-lg border-[#001F3F]/30 focus:border-[#001F3F] focus:ring-[#001F3F] text-sm sm:text-base"
               />
               {files.length > 0 && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
@@ -327,16 +327,16 @@ const ComplaintForm = () => {
                     <div key={index} className="relative">
                       <Badge
                         variant="secondary"
-                        className="w-full justify-between p-2 sm:p-3 h-auto bg-white border border-gray-300 rounded-lg"
+                        className="w-full justify-between p-2 sm:p-3 h-auto bg-white border border-[#001F3F]/30 rounded-lg"
                       >
                         <div className="flex items-center gap-1 sm:gap-2 min-w-0">
-                          <Camera className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0 text-[#9E2C1C]" />
-                          <span className="truncate text-xs text-gray-700">{file.name}</span>
+                          <Camera className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0 text-[#001F3F]" />
+                          <span className="truncate text-xs text-[#001F3F]">{file.name}</span>
                         </div>
                         <button
                           type="button"
                           onClick={() => removeFile(index)}
-                          className="ml-1 sm:ml-2 text-gray-500 hover:text-red-500 transition-colors text-sm sm:text-base"
+                          className="ml-1 sm:ml-2 text-gray-500 hover:text-[#001F3F] transition-colors text-sm sm:text-base"
                         >
                           ×
                         </button>
@@ -350,12 +350,12 @@ const ComplaintForm = () => {
 
           {/* Step 4: Location */}
           <div className="space-y-2 sm:space-y-3">
-            <Label className="text-base sm:text-lg font-semibold text-[#8A1F11]" style={{fontFamily: 'Montserrat-Bold, Helvetica'}}>Location</Label>
+            <Label className="text-base sm:text-lg font-semibold text-[#001F3F]" style={{fontFamily: 'Montserrat-Bold, Helvetica'}}>Location</Label>
             <div className="space-y-2 sm:space-y-3">
               <Button
                 type="button"
                 variant="outline"
-                className="w-full rounded-lg border-gray-300 hover:border-[#9E2C1C] hover:bg-[#9E2C1C]/10 text-[#333] text-sm sm:text-base py-2 sm:py-3"
+                className="w-full rounded-lg border-[#001F3F]/30 hover:border-[#001F3F] hover:bg-[#001F3F]/10 text-[#001F3F] text-sm sm:text-base py-2 sm:py-3"
                 onClick={handleLocationDetection}
               >
                 <MapPin className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
@@ -365,7 +365,7 @@ const ComplaintForm = () => {
                 placeholder="Or enter address manually..." 
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
-                className="rounded-lg border-gray-300 focus:border-[#9E2C1C] focus:ring-[#9E2C1C] placeholder:text-gray-400 text-[#333] text-sm sm:text-base"
+                className="rounded-lg border-[#001F3F]/30 focus:border-[#001F3F] focus:ring-[#001F3F] placeholder:text-gray-400 text-[#001F3F] text-sm sm:text-base"
               />
               {(latitude && longitude) && (
                 <p className="text-xs sm:text-sm text-gray-500">
@@ -377,13 +377,13 @@ const ComplaintForm = () => {
 
           {/* Step 5: Visibility / Community Selection */}
           <div className="space-y-2 sm:space-y-3">
-            <Label className="text-base sm:text-lg font-semibold text-[#8A1F11]" style={{fontFamily: 'Montserrat-Bold, Helvetica'}}>Visibility / Community</Label>
+            <Label className="text-base sm:text-lg font-semibold text-[#001F3F]" style={{fontFamily: 'Montserrat-Bold, Helvetica'}}>Visibility / Community</Label>
             <Select 
               value={selectedVisibility} 
               onValueChange={setSelectedVisibility}
               disabled={loadingCommunities}
             >
-              <SelectTrigger className="w-full rounded-lg border-gray-300 focus:border-[#9E2C1C] focus:ring-[#9E2C1C] text-[#333] text-sm sm:text-base">
+              <SelectTrigger className="w-full rounded-lg border-[#001F3F]/30 focus:border-[#001F3F] focus:ring-[#001F3F] text-[#001F3F] text-sm sm:text-base">
                 <SelectValue placeholder={loadingCommunities ? "Loading communities..." : "Select visibility option"} />
               </SelectTrigger>
               <SelectContent>
@@ -410,7 +410,7 @@ const ComplaintForm = () => {
           {/* Submit Button */}
           <Button 
             type="submit" 
-            className="w-full bg-[#9E2C1C] hover:bg-[#8A1F11] text-white font-bold py-2 sm:py-3 rounded-lg shadow-lg transition-all duration-300 disabled:opacity-50 text-sm sm:text-base"
+            className="w-full bg-[#001F3F] hover:bg-[#001F3F]/90 text-white font-bold py-2 sm:py-3 rounded-lg shadow-lg transition-all duration-300 disabled:opacity-50 text-sm sm:text-base"
             disabled={!selectedCategory || !description.trim() || isSubmitting}
             style={{fontFamily: 'Montserrat-Bold, Helvetica'}}
           >
