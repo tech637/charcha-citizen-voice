@@ -75,9 +75,9 @@ const Index = () => {
       </div>
 
       {/* Live Complaints Section */}
-      <div className="py-6 sm:py-8 md:py-16 px-4 bg-[#E2EEF9]">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-6 sm:mb-8 md:mb-12">
+      <div className="min-h-screen bg-[#E2EEF9]">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="text-center mb-6 sm:mb-8 md:mb-12 pt-6 sm:pt-8 md:pt-16">
             <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-center mb-6 sm:mb-8 md:mb-12 text-[#001F3F]" style={{fontFamily: 'Montserrat-Bold, Helvetica'}}>
               Live Community Activity
             </h2>
@@ -86,8 +86,8 @@ const Index = () => {
             </p>
           </div>
           
-          <div className="bg-[#001F3F]/20 rounded-2xl p-4 sm:p-6 backdrop-blur-sm border border-[#001F3F]/10">
-            <ComplaintNotificationsDemo className="h-[500px]" />
+          <div className="h-[calc(100vh-150px)]">
+            <ComplaintNotificationsDemo className="h-full" />
           </div>
         </div>
       </div>

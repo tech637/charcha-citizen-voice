@@ -6,17 +6,17 @@ import { cn } from "@/lib/utils";
 
 const HowItWorks = () => {
   const complaintCategories = [
-    { name: "Water Issues", icon: "💧", description: "Water logging, supply problems" },
-    { name: "Garbage", icon: "🗑️", description: "Waste collection, dumping" },
-    { name: "Electricity", icon: "⚡", description: "Power cuts, street lights" },
+    { name: "Water Issues", icon: "", description: "Water logging, supply problems" },
+    { name: "Garbage", icon: "", description: "Waste collection, dumping" },
+    { name: "Electricity", icon: "", description: "Power cuts, street lights" },
     { name: "Roads", icon: "🛣️", description: "Potholes, maintenance" },
     { name: "Sewage", icon: "🚰", description: "Drainage, sanitation" },
     { name: "Other", icon: "📝", description: "Other civic issues" }
   ];
 
   const statusUpdates = [
-    { status: "Submitted", icon: "📝", color: "text-blue-500" },
-    { status: "In Review", icon: "👀", color: "text-yellow-500" },
+    { status: "Submitted", icon: "", color: "text-blue-500" },
+    { status: "In Review", icon: "", color: "text-yellow-500" },
     { status: "In Progress", icon: "⚙️", color: "text-orange-500" },
     { status: "Resolved", icon: "✅", color: "text-green-500" },
     { status: "Closed", icon: "🔒", color: "text-gray-500" }
@@ -37,7 +37,7 @@ const HowItWorks = () => {
               key={idx}
               className="flex items-center gap-1 sm:gap-2 px-2 py-1 sm:px-3 sm:py-2 rounded-full bg-white/90 dark:bg-gray-800/90 shadow-sm border border-gray-200 dark:border-gray-700"
             >
-              <span className="text-sm sm:text-lg">{category.icon}</span>
+              {category.icon && <span className="text-sm sm:text-lg">{category.icon}</span>}
               <span className="text-xs font-medium text-gray-700 dark:text-gray-300 hidden sm:inline">{category.name}</span>
             </div>
           ))}
@@ -55,7 +55,7 @@ const HowItWorks = () => {
         <div className="absolute bottom-2 right-2 sm:bottom-4 sm:right-4 flex flex-col gap-1 sm:gap-2">
           {statusUpdates.slice(0, 2).map((update, idx) => (
             <div key={idx} className="flex items-center gap-1 sm:gap-2 px-2 py-1 sm:px-3 sm:py-2 rounded-full bg-white/90 dark:bg-gray-800/90 shadow-sm border border-gray-200 dark:border-gray-700">
-              <span className="text-sm sm:text-lg">{update.icon}</span>
+              {update.icon && <span className="text-sm sm:text-lg">{update.icon}</span>}
               <span className={`text-xs font-medium ${update.color} hidden sm:inline`}>{update.status}</span>
             </div>
           ))}
@@ -72,16 +72,14 @@ const HowItWorks = () => {
       background: (
         <div className="absolute bottom-2 right-2 sm:bottom-4 sm:right-4 flex flex-col gap-1 sm:gap-2 max-w-[150px] sm:max-w-[250px]">
           <div className="flex items-center gap-1 sm:gap-2 px-2 py-1 sm:px-3 sm:py-2 rounded-lg bg-white/90 dark:bg-gray-800/90 shadow-sm border border-gray-200 dark:border-gray-700">
-            <MapPin className="h-3 w-3 sm:h-4 sm:w-4 text-blue-500" />
             <div className="flex-1 min-w-0">
-              <div className="text-xs font-medium text-gray-900 dark:text-gray-100 truncate">Water logging near Metro</div>
+              <div className="text-xs font-medium text-gray-900 dark:text-gray-100 truncate">Road maintenance near Metro</div>
               <div className="text-xs text-gray-600 dark:text-gray-300 hidden sm:block">2h ago • 5 likes</div>
             </div>
           </div>
           <div className="flex items-center gap-1 sm:gap-2 px-2 py-1 sm:px-3 sm:py-2 rounded-lg bg-white/90 dark:bg-gray-800/90 shadow-sm border border-gray-200 dark:border-gray-700">
-            <MessageSquare className="h-3 w-3 sm:h-4 sm:w-4 text-green-500" />
             <div className="flex-1 min-w-0">
-              <div className="text-xs font-medium text-gray-900 dark:text-gray-100 truncate">Garbage collection delayed</div>
+              <div className="text-xs font-medium text-gray-900 dark:text-gray-100 truncate">Sewage system repair</div>
               <div className="text-xs text-gray-600 dark:text-gray-300 hidden sm:block">4h ago • 3 likes</div>
             </div>
           </div>

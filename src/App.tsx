@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ComplaintProvider } from "@/contexts/ComplaintContext";
 import { FileProvider } from "@/contexts/FileContext";
+import { ThoughtProvider } from "@/contexts/ThoughtContext";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Dashboard from "./components/Dashboard";
@@ -24,7 +25,8 @@ const App = () => (
     <AuthProvider>
       <ComplaintProvider>
         <FileProvider>
-          <TooltipProvider>
+          <ThoughtProvider>
+            <TooltipProvider>
           <Toaster />
           <Sonner />
           <BrowserRouter>
@@ -42,7 +44,8 @@ const App = () => (
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
-          </TooltipProvider>
+            </TooltipProvider>
+          </ThoughtProvider>
         </FileProvider>
       </ComplaintProvider>
     </AuthProvider>

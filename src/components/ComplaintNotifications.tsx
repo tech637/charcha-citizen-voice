@@ -1,7 +1,8 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
+import { useThoughts, Thought } from "@/contexts/ThoughtContext";
 
 interface ComplaintItem {
   id: string;
@@ -176,6 +177,74 @@ const ComplaintNotification = ({
   );
 };
 
+const ThoughtNotification = ({ 
+  thought,
+  isNew = false
+}: { 
+  thought: Thought;
+  isNew?: boolean;
+}) => {
+  const formatTime = (timestamp: Date) => {
+    const now = new Date();
+    const diffInMinutes = Math.floor((now.getTime() - timestamp.getTime()) / (1000 * 60));
+    
+    if (diffInMinutes < 1) return "Just now";
+    if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
+    
+    const diffInHours = Math.floor(diffInMinutes / 60);
+    if (diffInHours < 24) return `${diffInHours}h ago`;
+    
+    const diffInDays = Math.floor(diffInHours / 24);
+    return `${diffInDays}d ago`;
+  };
+
+  return (
+    <div
+      className={cn(
+        "relative mx-auto min-h-fit w-full max-w-[500px] cursor-pointer overflow-hidden rounded-xl p-4 mb-3",
+        // animation styles
+        "transition-all duration-500 ease-out hover:scale-[102%] hover:shadow-lg",
+        // styling to match website theme
+        "bg-white/95 backdrop-blur-sm border border-[#001F3F]/20",
+        "shadow-md hover:shadow-xl",
+        // new thought animation
+        isNew && "animate-slide-in-from-top"
+      )}
+    >
+      {isNew && (
+        <div className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 rounded-full animate-pulse"></div>
+      )}
+      <div className="flex flex-row items-start gap-4">
+        <div className="flex size-12 items-center justify-center rounded-xl flex-shrink-0 shadow-sm bg-gradient-to-br from-blue-500 to-blue-600">
+          <span className="text-xl">💭</span>
+        </div>
+        <div className="flex flex-col overflow-hidden flex-1">
+          <div className="flex flex-row items-center gap-2 mb-2">
+            <h3 className="text-base font-bold text-gray-900">Community Thought</h3>
+            {isNew && (
+              <span className="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full font-medium">
+                NEW
+              </span>
+            )}
+            <span className="text-gray-400">•</span>
+            <span className="text-sm text-gray-600">{formatTime(thought.timestamp)}</span>
+          </div>
+          <p className="text-sm text-gray-700 mb-3 leading-relaxed">
+            {thought.text}
+          </p>
+          <div className="flex items-center gap-3 text-xs">
+            <span className="px-3 py-1 rounded-full bg-blue-100 text-blue-800 font-medium border border-blue-200">
+              Thought
+            </span>
+            <span className="text-gray-500">•</span>
+            <span className="text-gray-600 font-medium">by {thought.author}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export function ComplaintNotificationsDemo({
   className,
 }: {
@@ -183,6 +252,52 @@ export function ComplaintNotificationsDemo({
 }) {
   const [complaints, setComplaints] = useState<ComplaintItem[]>([]);
   const [isRunning, setIsRunning] = useState(true);
+  
+  const { thoughts } = useThoughts();
+
+  // Create a combined array of complaints and thoughts, sorted by time
+  const allItems = React.useMemo(() => {
+    const complaintItems = complaints.map(complaint => ({
+      ...complaint,
+      type: 'complaint' as const,
+      timestamp: new Date() // complaints don't have real timestamps, so use current time
+    }));
+    
+    const thoughtItems = thoughts.map(thought => ({
+      id: thought.id,
+      name: 'Community Thought',
+      description: thought.text,
+      icon: '💭',
+      color: '#3B82F6',
+      time: formatTime(thought.timestamp),
+      location: `by ${thought.author}`,
+      category: 'Thought',
+      isNew: thought.isNew,
+      type: 'thought' as const,
+      timestamp: thought.timestamp
+    }));
+    
+    // Combine and sort by timestamp (newest first)
+    return [...thoughtItems, ...complaintItems].sort((a, b) => 
+      b.timestamp.getTime() - a.timestamp.getTime()
+    );
+  }, [complaints, thoughts]);
+
+  // Helper function to format time
+  const formatTime = (timestamp: Date) => {
+    const now = new Date();
+    const diffInMinutes = Math.floor((now.getTime() - timestamp.getTime()) / (1000 * 60));
+    
+    if (diffInMinutes < 1) return "Just now";
+    if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
+    
+    const diffInHours = Math.floor(diffInMinutes / 60);
+    if (diffInHours < 24) return `${diffInHours}h ago`;
+    
+    const diffInDays = Math.floor(diffInHours / 24);
+    return `${diffInDays}d ago`;
+  };
+
 
   // Generate a random complaint
   const generateRandomComplaint = (): ComplaintItem => {
@@ -243,15 +358,36 @@ export function ComplaintNotificationsDemo({
   return (
     <div
       className={cn(
-        "relative flex h-[500px] w-full flex-col overflow-hidden",
-        className,
+        "relative flex w-full flex-col overflow-hidden",
+        className || "h-[500px]",
       )}
     >
       <div className="relative h-full overflow-y-auto">
         <div className="space-y-3 px-2">
-          {complaints.map((complaint) => (
-            <ComplaintNotification {...complaint} key={complaint.id} />
-          ))}
+          {allItems.map((item) => {
+            if (item.type === 'thought') {
+              return (
+                <ThoughtNotification 
+                  thought={{
+                    id: item.id,
+                    text: item.description,
+                    author: item.location.replace('by ', ''),
+                    timestamp: item.timestamp,
+                    isNew: item.isNew
+                  }}
+                  key={`thought-${item.id}`} 
+                  isNew={item.isNew}
+                />
+              );
+            } else {
+              return (
+                <ComplaintNotification 
+                  {...item} 
+                  key={`complaint-${item.id}`} 
+                />
+              );
+            }
+          })}
         </div>
       </div>
 

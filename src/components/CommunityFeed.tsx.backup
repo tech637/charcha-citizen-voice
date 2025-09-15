@@ -351,11 +351,92 @@ const LocationDisplay: React.FC<{
   );
 };
 
+// Thought card component
+const ThoughtCard: React.FC<{
+  thought: {
+    id: string;
+    text: string;
+    author: string;
+    timestamp: Date;
+    isNew?: boolean;
+  };
+}> = ({ thought }) => {
+  const formatTime = (timestamp: Date) => {
+    const now = new Date();
+    const diffInMinutes = Math.floor((now.getTime() - timestamp.getTime()) / (1000 * 60));
+    
+    if (diffInMinutes < 1) return "Just now";
+    if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
+    
+    const diffInHours = Math.floor(diffInMinutes / 60);
+    if (diffInHours < 24) return `${diffInHours}h ago`;
+    
+    const diffInDays = Math.floor(diffInHours / 24);
+    return `${diffInDays}d ago`;
+  };
+
+  return (
+    <Card className="hover:shadow-xl transition-all duration-300 border border-blue-200 shadow-lg hover:border-blue-300 bg-blue-50/30">
+      <CardContent className="p-4 sm:p-6">
+        {/* Header */}
+        <div className="flex items-start justify-between mb-3 sm:mb-4">
+          <div className="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
+            <div className="h-6 w-6 sm:h-8 sm:w-8 flex-shrink-0 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+              <span className="text-white text-xs sm:text-sm">💭</span>
+            </div>
+            <div className="min-w-0 flex-1">
+              <h3 className="font-semibold text-xs sm:text-sm text-gray-900 truncate">
+                {thought.author}
+              </h3>
+              <p className="text-xs text-gray-500 flex items-center gap-1">
+                <Calendar className="h-3 w-3 flex-shrink-0" />
+                <span className="truncate">{formatTime(thought.timestamp)}</span>
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0 ml-2">
+            <Badge variant="outline" className="text-xs px-1.5 py-0.5 bg-blue-100 text-blue-800 border-blue-200">
+              Thought
+            </Badge>
+            {thought.isNew && (
+              <Badge className="text-xs px-1.5 py-0.5 bg-green-100 text-green-800">
+                NEW
+              </Badge>
+            )}
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="mb-3 sm:mb-4">
+          <p className="text-sm sm:text-base text-gray-800 leading-relaxed">
+            {thought.text}
+          </p>
+        </div>
+
+        {/* Footer */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 sm:gap-4">
+            <button className="flex items-center gap-1 text-xs text-gray-500 hover:text-gray-700 transition-colors">
+              <ThumbsUp className="h-3 w-3" />
+              <span>Like</span>
+            </button>
+            <button className="flex items-center gap-1 text-xs text-gray-500 hover:text-gray-700 transition-colors">
+              <MessageSquare className="h-3 w-3" />
+              <span>Comment</span>
+            </button>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
 const CommunityFeed = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { thoughts, addThought, clearNewThoughts } = useThoughts();
+  
+  const { addThought, thoughts } = useThoughts();
   const [communities, setCommunities] = useState<Community[]>([]);
   const [loading, setLoading] = useState(true);
   const [memberCounts, setMemberCounts] = useState<Record<string, number>>({});
@@ -378,6 +459,29 @@ const CommunityFeed = () => {
   const [isSubmittingThought, setIsSubmittingThought] = useState(false);
   const [showWritingModal, setShowWritingModal] = useState(false);
   const [isWritingMode, setIsWritingMode] = useState(false);
+
+  // Create combined feed with complaints and thoughts
+  const combinedFeed = React.useMemo(() => {
+    const complaintItems = complaints.map(complaint => ({
+      ...complaint,
+      type: 'complaint' as const,
+      timestamp: new Date(complaint.created_at)
+    }));
+    
+    const thoughtItems = thoughts.map(thought => ({
+      id: thought.id,
+      type: 'thought' as const,
+      timestamp: thought.timestamp,
+      text: thought.text,
+      author: thought.author,
+      isNew: thought.isNew
+    }));
+    
+    // Combine and sort by timestamp (newest first)
+    return [...thoughtItems, ...complaintItems].sort((a, b) => 
+      b.timestamp.getTime() - a.timestamp.getTime()
+    );
+  }, [complaints, thoughts]);
 
   useEffect(() => {
     fetchCommunities();
@@ -575,24 +679,22 @@ const CommunityFeed = () => {
     try {
       setIsSubmittingThought(true);
       
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Add thought to the context
+      addThought(thoughtText, user.user_metadata?.full_name || user.email || 'Anonymous');
       
-      // Add thought to context
-      const authorName = user.user_metadata?.full_name || user.email || 'Anonymous';
-      addThought(thoughtText.trim(), authorName);
-      
-      // Show success message only after thought is added
-      toast({
-        title: "Success!",
-        description: "Your thought has been shared successfully.",
-        variant: "default",
-      });
-      
-      // Clear the form and close modals
+      // Clear the form and close modals immediately
       setThoughtText('');
       setShowWritingModal(false);
       setIsWritingMode(false);
+      
+      // Show success message after a brief delay to ensure thought is added
+      setTimeout(() => {
+        toast({
+          title: "Success!",
+          description: "Your thought has been shared successfully.",
+          variant: "default",
+        });
+      }, 100);
       
     } catch (error) {
       console.error('Error submitting thought:', error);
@@ -766,27 +868,6 @@ const CommunityFeed = () => {
     }
   };
 
-  // Combine complaints and thoughts for the feed
-  const getCombinedFeed = (complaintsList: CommunityComplaint[]) => {
-    const combinedItems = [
-      ...complaintsList.map(complaint => ({
-        id: complaint.id,
-        type: 'complaint' as const,
-        data: complaint,
-        timestamp: new Date(complaint.created_at)
-      })),
-      ...thoughts.map(thought => ({
-        id: thought.id,
-        type: 'thought' as const,
-        data: thought,
-        timestamp: thought.timestamp
-      }))
-    ];
-    
-    // Sort by timestamp (newest first)
-    return combinedItems.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
-  };
-
   const handleJoinCommunity = async (communityId: string, communityName: string) => {
     if (!user) {
       toast({
@@ -871,23 +952,16 @@ const CommunityFeed = () => {
         <CommunitiesNavigation />
         <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8">
         {/* Header - Mobile Optimized */}
-        <div className="text-center mb-4 sm:mb-8">
-          <h1 className="text-xl sm:text-3xl font-bold text-[#001F3F] mb-2 sm:mb-4" style={{fontFamily: 'Montserrat-Bold, Helvetica'}}>
-            Communities
-          </h1>
-          <p className="text-[#001F3F]/80 max-w-2xl mx-auto text-sm sm:text-base px-2 mb-4">
-            Join communities to connect with others and share local issues. India community is public and available to everyone.
-          </p>
-        </div>
+        
 
         {/* Single Column Layout for Mobile, Two Column for Desktop */}
         <div className="w-full max-w-6xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Left Column - Track Complaints & Share Thoughts (Desktop Only) */}
-            <div className="hidden lg:block lg:col-span-1 space-y-6">
+            <div className="hidden lg:block lg:col-span-1">
               {/* Track My Complaints Button */}
               {user && (
-                <div>
+                <div className="mb-8">
                   <Button
                     onClick={() => navigate('/dashboard')}
                     className="w-full bg-gradient-to-r from-[#001F3F] to-[#001F3F]/90 hover:from-[#001F3F]/90 hover:to-[#001F3F] text-white py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
@@ -900,7 +974,7 @@ const CommunityFeed = () => {
               )}
 
               {/* Share Your Thoughts Section - Desktop Only */}
-              <div className="bg-white rounded-lg border border-[#001F3F]/20 shadow-lg p-6 sticky top-4 z-20">
+              <div className="bg-white rounded-lg border border-[#001F3F]/20 shadow-lg p-6 relative z-10 mb-8">
                 <div className="flex flex-col items-center text-center mb-6">
                   <div className="w-12 h-12 bg-gradient-to-br from-[#001F3F] to-[#001F3F]/80 rounded-full flex items-center justify-center shadow-md mb-4">
                     <PenTool className="h-6 w-6 text-white" />
@@ -969,7 +1043,7 @@ const CommunityFeed = () => {
               </div>
 
               {/* Join Communities Section - Desktop Only */}
-              <div className="bg-white rounded-lg border border-[#001F3F]/20 shadow-lg p-6">
+              <div className="bg-white rounded-lg border border-[#001F3F]/20 shadow-lg p-6 relative z-20 mt-4">
                 <div className="flex flex-col items-center text-center mb-6">
                   <div className="w-12 h-12 bg-gradient-to-br from-[#001F3F] to-[#001F3F]/80 rounded-full flex items-center justify-center shadow-md mb-4">
                     <Building2 className="h-6 w-6 text-white" />
@@ -1012,7 +1086,7 @@ const CommunityFeed = () => {
                       <Eye className="h-4 w-4 mr-2" />
                       <span>My Feed</span>
                       <span className="ml-2 bg-[#001F3F]/10 text-[#001F3F] px-2 py-0.5 rounded-full text-xs font-medium">
-                        {complaints.length + thoughts.length}
+                        {complaints.length}
                       </span>
                     </TabsTrigger>
                     <TabsTrigger 
@@ -1035,186 +1109,266 @@ const CommunityFeed = () => {
                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#001F3F] mx-auto mb-4"></div>
                         <p className="text-[#001F3F]/70" style={{fontFamily: 'Montserrat-SemiBold, Helvetica'}}>Loading your feed...</p>
                       </div>
-                    ) : (() => {
-                      const combinedFeed = getCombinedFeed(complaints);
-                      return combinedFeed.length === 0 ? (
-                        <div className="bg-white rounded-lg border border-[#001F3F]/20 shadow-lg p-8 text-center">
-                          <Eye className="h-12 w-12 text-[#001F3F]/50 mx-auto mb-4" />
-                          <h3 className="text-lg font-semibold mb-2 text-[#001F3F]" style={{fontFamily: 'Montserrat-Bold, Helvetica'}}>No Posts Yet</h3>
-                          <p className="text-[#001F3F]/70" style={{fontFamily: 'Montserrat-SemiBold, Helvetica'}}>
-                            No complaints or thoughts in your joined communities yet. Be the first to share something!
-                          </p>
-                        </div>
-                      ) : (
-                        <div className="space-y-4">
-                          {combinedFeed.map((item) => {
-                            if (item.type === 'complaint') {
-                              const complaint = item.data as CommunityComplaint;
-                              return (
-                                <Card key={complaint.id} className="hover:shadow-xl transition-all duration-300 border border-[#001F3F]/20 shadow-lg hover:border-[#001F3F]/30">
-                                  <CardContent className="p-4 sm:p-6">
-                                    {/* Header - Mobile Optimized */}
-                                    <div className="flex items-start justify-between mb-3 sm:mb-4">
-                                      <div className="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
-                                        <Avatar className="h-6 w-6 sm:h-8 sm:w-8 flex-shrink-0">
-                                          <AvatarFallback className="text-xs">
-                                            {getInitials(complaint.users?.full_name)}
-                                          </AvatarFallback>
-                                        </Avatar>
-                                        <div className="min-w-0 flex-1">
-                                          <h3 className="font-semibold text-xs sm:text-sm text-gray-900 truncate">
-                                            {complaint.users?.full_name || 'Anonymous User'}
-                                          </h3>
-                                          <p className="text-xs text-gray-500 flex items-center gap-1">
-                                            <Calendar className="h-3 w-3 flex-shrink-0" />
-                                            <span className="truncate">{formatDate(complaint.created_at)}</span>
-                                          </p>
-                                        </div>
-                                      </div>
-                                      <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0 ml-2">
-                                        <Badge variant="outline" className="text-xs px-1.5 py-0.5">
-                                          {complaint.category.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                                        </Badge>
-                                        <Badge className={`${getStatusColor(complaint.status)} text-xs px-1.5 py-0.5`}>
-                                          {getStatusText(complaint.status)}
-                                        </Badge>
-                                      </div>
-                                    </div>
-
-                                    {/* Content - Mobile Optimized */}
-                                    <div className="space-y-2 sm:space-y-3">
-                                      {/* Location */}
-                                      <LocationDisplay 
-                                        location_address={complaint.location_address}
-                                        latitude={complaint.latitude}
-                                        longitude={complaint.longitude}
-                                      />
-
-                                      {/* Description */}
-                                      <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
-                                        <h4 className="text-xs font-medium text-gray-600 mb-2">COMPLAINT DESCRIPTION</h4>
-                                        <p className="text-xs sm:text-sm text-gray-900 leading-relaxed">
-                                          {complaint.description}
+                    ) : complaints.length === 0 ? (
+                      <div className="bg-white rounded-lg border border-[#001F3F]/20 shadow-lg p-8 text-center">
+                        <Eye className="h-12 w-12 text-[#001F3F]/50 mx-auto mb-4" />
+                        <h3 className="text-lg font-semibold mb-2 text-[#001F3F]" style={{fontFamily: 'Montserrat-Bold, Helvetica'}}>No Complaints Yet</h3>
+                        <p className="text-[#001F3F]/70" style={{fontFamily: 'Montserrat-SemiBold, Helvetica'}}>
+                          No complaints in your joined communities yet. Be the first to share an issue!
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {combinedFeed.map((item) => {
+                          if (item.type === 'thought') {
+                            return (
+                              <ThoughtCard 
+                                key={`thought-${item.id}`}
+                                thought={item}
+                              />
+                            );
+                          } else {
+                            return (
+                              <Card key={item.id} className="hover:shadow-xl transition-all duration-300 border border-[#001F3F]/20 shadow-lg hover:border-[#001F3F]/30">
+                                <CardContent className="p-4 sm:p-6">
+                                  {/* Header - Mobile Optimized */}
+                                  <div className="flex items-start justify-between mb-3 sm:mb-4">
+                                    <div className="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
+                                      <Avatar className="h-6 w-6 sm:h-8 sm:w-8 flex-shrink-0">
+                                        <AvatarFallback className="text-xs">
+                                          {getInitials(item.users?.full_name)}
+                                        </AvatarFallback>
+                                      </Avatar>
+                                      <div className="min-w-0 flex-1">
+                                        <h3 className="font-semibold text-xs sm:text-sm text-gray-900 truncate">
+                                          {item.users?.full_name || 'Anonymous User'}
+                                        </h3>
+                                        <p className="text-xs text-gray-500 flex items-center gap-1">
+                                          <Calendar className="h-3 w-3 flex-shrink-0" />
+                                          <span className="truncate">{formatDate(item.created_at)}</span>
                                         </p>
                                       </div>
-
-                                      {/* Media Files */}
-                                      {complaint.complaint_files && complaint.complaint_files.length > 0 && (
-                                        <div className="space-y-2">
-                                          <h4 className="text-xs font-medium text-gray-600">ATTACHMENTS</h4>
-                                          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
-                                            {complaint.complaint_files.map((file) => (
-                                              <div key={file.id} className="relative">
-                                                {file.file_type.startsWith('image/') ? (
-                                                  <img
-                                                    src={file.file_url}
-                                                    alt={file.file_name}
-                                                    className="w-full h-16 sm:h-20 object-cover rounded-md border"
-                                                    onError={(e) => {
-                                                      e.currentTarget.style.display = 'none';
-                                                    }}
-                                                  />
-                                                ) : (
-                                                  <div className="w-full h-16 sm:h-20 bg-gray-100 rounded-md border flex items-center justify-center">
-                                                    <span className="text-xs text-gray-500 truncate px-1">
-                                                      {file.file_name}
-                                                    </span>
-                                                  </div>
-                                                )}
-                                              </div>
-                                            ))}
-                                          </div>
-                                        </div>
-                                      )}
-
-                                      {/* Action Buttons - Mobile Optimized */}
-                                      <div className="flex items-center justify-between pt-2 sm:pt-3 border-t border-gray-200">
-                                        <div className="flex items-center space-x-1 sm:space-x-2">
-                                          <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            onClick={() => handleLike(complaint.id)}
-                                            className={`flex items-center space-x-1 text-xs h-7 ${
-                                              likedComplaints.has(complaint.id) 
-                                                ? 'text-green-600 bg-green-50' 
-                                                : 'text-gray-600 hover:bg-green-50 hover:text-green-600'
-                                            }`}
-                                          >
-                                            <ThumbsUp className="h-3 w-3" />
-                                            <span className="hidden sm:inline">Like</span>
-                                          </Button>
-                                          <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            onClick={() => handleDislike(complaint.id)}
-                                            className={`flex items-center space-x-1 text-xs h-7 ${
-                                              dislikedComplaints.has(complaint.id) 
-                                                ? 'text-red-600 bg-red-50' 
-                                                : 'text-gray-600 hover:bg-red-50 hover:text-red-600'
-                                            }`}
-                                          >
-                                            <ThumbsDown className="h-3 w-3" />
-                                            <span className="hidden sm:inline">Dislike</span>
-                                          </Button>
-                                        </div>
-                                      </div>
                                     </div>
-                                  </CardContent>
-                                </Card>
-                              );
-                            } else {
-                              const thought = item.data as any; // Thought type
-                              return (
-                                <Card key={thought.id} className="hover:shadow-xl transition-all duration-300 border border-[#001F3F]/20 shadow-lg hover:border-[#001F3F]/30">
-                                  <CardContent className="p-4 sm:p-6">
-                                    {/* Header - Mobile Optimized */}
-                                    <div className="flex items-start justify-between mb-3 sm:mb-4">
-                                      <div className="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
-                                        <Avatar className="h-6 w-6 sm:h-8 sm:w-8 flex-shrink-0">
-                                          <AvatarFallback className="text-xs">
-                                            {getInitials(thought.author)}
-                                          </AvatarFallback>
-                                        </Avatar>
-                                        <div className="min-w-0 flex-1">
-                                          <h3 className="font-semibold text-xs sm:text-sm text-gray-900 truncate">
-                                            {thought.author}
-                                          </h3>
-                                          <p className="text-xs text-gray-500 flex items-center gap-1">
-                                            <Calendar className="h-3 w-3 flex-shrink-0" />
-                                            <span className="truncate">{formatDate(thought.timestamp.toISOString())}</span>
-                                          </p>
+                                    <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0 ml-2">
+                                      <Badge variant="outline" className="text-xs px-1.5 py-0.5">
+                                        {item.category.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                                      </Badge>
+                                      <Badge 
+                                        variant="outline" 
+                                        className={`text-xs px-1.5 py-0.5 ${
+                                          item.status === 'resolved' ? 'bg-green-100 text-green-800 border-green-200' :
+                                          item.status === 'in_progress' ? 'bg-yellow-100 text-yellow-800 border-yellow-200' :
+                                          item.status === 'rejected' ? 'bg-red-100 text-red-800 border-red-200' :
+                                          'bg-gray-100 text-gray-800 border-gray-200'
+                                        }`}
+                                      >
+                                        {item.status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                                      </Badge>
+                                    </div>
+                                  </div>
+
+                                  {/* Content - Mobile Optimized */}
+                                  <div className="space-y-2 sm:space-y-3">
+                                    {/* Location */}
+                                    <LocationDisplay 
+                                      location_address={item.location_address}
+                                      latitude={item.latitude}
+                                      longitude={item.longitude}
+                                    />
+
+                                    {/* Description */}
+                                    <div className="text-sm sm:text-base text-gray-800 leading-relaxed">
+                                      {item.description}
+                                    </div>
+
+                                    {/* Files */}
+                                    {item.complaint_files && item.complaint_files.length > 0 && (
+                                      <div className="space-y-2">
+                                        <h4 className="text-xs font-medium text-gray-700">Attachments:</h4>
+                                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                                          {item.complaint_files.map((file) => (
+                                            <div key={file.id} className="relative group">
+                                              {file.file_type.startsWith('image/') ? (
+                                                <img
+                                                  src={file.file_url}
+                                                  alt={file.file_name}
+                                                  className="w-full h-20 sm:h-24 object-cover rounded-lg border border-gray-200 cursor-pointer hover:opacity-90 transition-opacity"
+                                                  onClick={() => window.open(file.file_url, '_blank')}
+                                                />
+                                              ) : (
+                                                <div 
+                                                  className="w-full h-20 sm:h-24 bg-gray-100 rounded-lg border border-gray-200 flex items-center justify-center cursor-pointer hover:bg-gray-200 transition-colors"
+                                                  onClick={() => window.open(file.file_url, '_blank')}
+                                                >
+                                                  <FileText className="h-6 w-6 text-gray-500" />
+                                                </div>
+                                              )}
+                                              <p className="text-xs text-gray-600 truncate mt-1">{file.file_name}</p>
+                                            </div>
+                                          ))}
                                         </div>
                                       </div>
-                                      <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0 ml-2">
-                                        <Badge variant="outline" className="text-xs px-1.5 py-0.5 bg-blue-50 text-blue-700 border-blue-200">
-                                          Thought
-                                        </Badge>
-                                        {thought.isNew && (
-                                          <Badge className="text-xs px-1.5 py-0.5 bg-green-100 text-green-800">
-                                            New
-                                          </Badge>
+                                    )}
+
+                                    {/* Community Info */}
+                                    {item.communities && (
+                                      <div className="flex items-center space-x-2 text-xs text-gray-600 bg-gray-50 rounded-md px-2 py-1">
+                                        <Building2 className="h-3 w-3 text-gray-500 flex-shrink-0" />
+                                        <span className="font-medium">{item.communities.name}</span>
+                                        {item.communities.location && (
+                                          <span className="text-gray-500">• {item.communities.location}</span>
                                         )}
                                       </div>
-                                    </div>
+                                    )}
+                                  </div>
 
-                                    {/* Content - Mobile Optimized */}
-                                    <div className="space-y-2 sm:space-y-3">
-                                      {/* Thought Content */}
-                                      <div className="bg-blue-50 rounded-lg p-3 sm:p-4">
-                                        <h4 className="text-xs font-medium text-blue-600 mb-2">SHARED THOUGHT</h4>
-                                        <p className="text-xs sm:text-sm text-gray-900 leading-relaxed">
-                                          {thought.text}
-                                        </p>
-                                      </div>
+                                  {/* Actions - Mobile Optimized */}
+                                  <div className="flex items-center justify-between pt-2 sm:pt-3 border-t border-gray-200">
+                                    <div className="flex items-center space-x-1 sm:space-x-2">
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => handleLike(item.id)}
+                                        className={`flex items-center space-x-1 text-xs h-7 ${
+                                          likedComplaints.has(item.id) 
+                                            ? 'text-green-600 bg-green-50' 
+                                            : 'text-gray-600 hover:bg-green-50 hover:text-green-600'
+                                        }`}
+                                      >
+                                        <ThumbsUp className="h-3 w-3" />
+                                        <span className="hidden sm:inline">Like</span>
+                                      </Button>
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => handleDislike(item.id)}
+                                        className={`flex items-center space-x-1 text-xs h-7 ${
+                                          dislikedComplaints.has(item.id) 
+                                            ? 'text-red-600 bg-red-50' 
+                                            : 'text-gray-600 hover:bg-red-50 hover:text-red-600'
+                                        }`}
+                                      >
+                                        <ThumbsDown className="h-3 w-3" />
+                                        <span className="hidden sm:inline">Dislike</span>
+                                      </Button>
                                     </div>
-                                  </CardContent>
-                                </Card>
-                              );
-                            }
-                          })}
-                        </div>
-                      );
-                    })()}
+                                  </div>
+                                </CardContent>
+                              </Card>
+                            );
+                          }
+                        })}
+                              {/* Header - Mobile Optimized */}
+                              <div className="flex items-start justify-between mb-3 sm:mb-4">
+                                <div className="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
+                                  <Avatar className="h-6 w-6 sm:h-8 sm:w-8 flex-shrink-0">
+                                    <AvatarFallback className="text-xs">
+                                      {getInitials(complaint.users?.full_name)}
+                                    </AvatarFallback>
+                                  </Avatar>
+                                  <div className="min-w-0 flex-1">
+                                    <h3 className="font-semibold text-xs sm:text-sm text-gray-900 truncate">
+                                      {complaint.users?.full_name || 'Anonymous User'}
+                                    </h3>
+                                    <p className="text-xs text-gray-500 flex items-center gap-1">
+                                      <Calendar className="h-3 w-3 flex-shrink-0" />
+                                      <span className="truncate">{formatDate(complaint.created_at)}</span>
+                                    </p>
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0 ml-2">
+                                  <Badge variant="outline" className="text-xs px-1.5 py-0.5">
+                                    {complaint.category.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                                  </Badge>
+                                  <Badge className={`${getStatusColor(complaint.status)} text-xs px-1.5 py-0.5`}>
+                                    {getStatusText(complaint.status)}
+                      </Badge>
+                    </div>
+                              </div>
+
+                              {/* Content - Mobile Optimized */}
+                              <div className="space-y-2 sm:space-y-3">
+                                {/* Location */}
+                                <LocationDisplay 
+                                  location_address={complaint.location_address}
+                                  latitude={complaint.latitude}
+                                  longitude={complaint.longitude}
+                                />
+
+                                {/* Description */}
+                                <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
+                                  <h4 className="text-xs font-medium text-gray-600 mb-2">COMPLAINT DESCRIPTION</h4>
+                                  <p className="text-xs sm:text-sm text-gray-900 leading-relaxed">
+                                    {complaint.description}
+                                  </p>
+                                </div>
+
+                                {/* Media Files */}
+                                {complaint.complaint_files && complaint.complaint_files.length > 0 && (
+                                  <div className="space-y-2">
+                                    <h4 className="text-xs font-medium text-gray-600">ATTACHMENTS</h4>
+                                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                                      {complaint.complaint_files.map((file) => (
+                                        <div key={file.id} className="relative">
+                                          {file.file_type.startsWith('image/') ? (
+                                            <img
+                                              src={file.file_url}
+                                              alt={file.file_name}
+                                              className="w-full h-16 sm:h-20 object-cover rounded-md border"
+                                              onError={(e) => {
+                                                e.currentTarget.style.display = 'none';
+                                              }}
+                                            />
+                                          ) : (
+                                            <div className="w-full h-16 sm:h-20 bg-gray-100 rounded-md border flex items-center justify-center">
+                                              <span className="text-xs text-gray-500 truncate px-1">
+                                                {file.file_name}
+                                              </span>
+                                            </div>
+                                          )}
+                                        </div>
+                                      ))}
+                                    </div>
+                      </div>
+                    )}
+
+                                {/* Action Buttons - Mobile Optimized */}
+                                <div className="flex items-center justify-between pt-2 sm:pt-3 border-t border-gray-200">
+                                  <div className="flex items-center space-x-1 sm:space-x-2">
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => handleLike(complaint.id)}
+                                      className={`flex items-center space-x-1 text-xs h-7 ${
+                                        likedComplaints.has(complaint.id) 
+                                          ? 'text-green-600 bg-green-50' 
+                                          : 'text-gray-600 hover:bg-green-50 hover:text-green-600'
+                                      }`}
+                                    >
+                                      <ThumbsUp className="h-3 w-3" />
+                                      <span className="hidden sm:inline">Like</span>
+                                    </Button>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => handleDislike(complaint.id)}
+                                      className={`flex items-center space-x-1 text-xs h-7 ${
+                                        dislikedComplaints.has(complaint.id) 
+                                          ? 'text-red-600 bg-red-50' 
+                                          : 'text-gray-600 hover:bg-red-50 hover:text-red-600'
+                                      }`}
+                                    >
+                                      <ThumbsDown className="h-3 w-3" />
+                                      <span className="hidden sm:inline">Dislike</span>
+                                    </Button>
+                                  </div>
+                                </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                        ))}
+                      </div>
+                    )}
                   </TabsContent>
 
                   <TabsContent value="discover">
