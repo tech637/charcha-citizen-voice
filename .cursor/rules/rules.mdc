@@ -1,0 +1,18 @@
+---
+description: >
+  Maintain context.md as the single source of truth for the project’s current
+  state. It should be short, updated, and easy for newcomers to grasp.  and also refer to context.md before doing next agent job to know whats int our prject so far.For full
+  details, always refer to PRD.md.
+
+globs:
+  - context.md
+
+alwaysApply: true
+
+rules:
+  - Keep only the latest, relevant info. Remove outdated details.
+  - Replace sections instead of appending notes.
+  - Structure context.md with: Overview, Core Features, User Flows, Rules, Tech Stack, Pending.
+  - Write clearly so anyone can understand project basics quickly.
+  - Use PRD.md for in-depth requirements and background.
+---

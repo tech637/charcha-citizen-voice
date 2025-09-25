@@ -15,8 +15,9 @@ import { useComplaint } from "@/contexts/ComplaintContext";
 import { useFiles } from "@/contexts/FileContext";
 import { LoginDialog } from "./LoginDialog";
 import { createComplaint, createComplaintData } from "@/lib/complaints";
-import { getAllCommunities } from "@/lib/communities";
+import { getUserApprovedCommunities } from "@/lib/communities";
 import { getIndiaCommunityId } from "@/lib/india-community";
+import { reverseGeocode } from "@/lib/geocoding";
 import { 
   Trash, 
   Droplets, 
@@ -67,31 +68,25 @@ const ComplaintForm = () => {
     { id: "other", label: "Other", icon: AlertTriangle },
   ];
 
-  // Load communities on component mount
+  // Load approved communities for the current user
   useEffect(() => {
     const loadCommunities = async () => {
+      if (!user) {
+        setCommunities([]);
+        return;
+      }
       setLoadingCommunities(true);
       try {
-        const { data, error } = await getAllCommunities();
-        if (error) {
-          console.error('Error loading communities:', error);
-          toast({
-            title: "Error",
-            description: "Failed to load communities. Using private mode only.",
-            variant: "destructive",
-          });
-        } else {
-          setCommunities(data || []);
-        }
+        const { data } = await getUserApprovedCommunities(user.id);
+        setCommunities(data || []);
       } catch (error) {
-        console.error('Error loading communities:', error);
+        console.error('Error loading approved communities:', error);
       } finally {
         setLoadingCommunities(false);
       }
     };
-
     loadCommunities();
-  }, [toast]);
+  }, [user]);
 
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -108,22 +103,32 @@ const ComplaintForm = () => {
   const handleLocationDetection = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setLatitude(position.coords.latitude);
-          setLongitude(position.coords.longitude);
-          toast({
-            title: "Location Detected",
-            description: `Location: ${position.coords.latitude.toFixed(4)}, ${position.coords.longitude.toFixed(4)}`,
-          });
+        async (position) => {
+          const lat = position.coords.latitude;
+          const lon = position.coords.longitude;
+          setLatitude(lat);
+          setLongitude(lon);
+          // Reverse geocode to get a human-friendly address
+          try {
+            const result = await reverseGeocode(lat, lon);
+            setLocation(result.address);
+            toast({ title: "Location Detected", description: result.address });
+          } catch (e) {
+            toast({
+              title: "Location Detected",
+              description: `${lat.toFixed(4)}, ${lon.toFixed(4)}`,
+            });
+          }
         },
         (error) => {
           console.error("Location error:", error);
           toast({
             title: "Location Error",
-            description: "Unable to detect location. Please enable location services or enter address manually.",
+            description: "Unable to detect a precise location. You can try again or enter address manually.",
             variant: "destructive",
           });
-        }
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
       );
     } else {
       toast({
@@ -367,9 +372,9 @@ const ComplaintForm = () => {
                 onChange={(e) => setLocation(e.target.value)}
                 className="rounded-lg border-[#001F3F]/30 focus:border-[#001F3F] focus:ring-[#001F3F] placeholder:text-gray-400 text-[#001F3F] text-sm sm:text-base"
               />
-              {(latitude && longitude) && (
+              {(location || (latitude && longitude)) && (
                 <p className="text-xs sm:text-sm text-gray-500">
-                  Location: {latitude.toFixed(4)}, {longitude.toFixed(4)}
+                  Location: {location || `${latitude?.toFixed(4)}, ${longitude?.toFixed(4)}`}
                 </p>
               )}
             </div>

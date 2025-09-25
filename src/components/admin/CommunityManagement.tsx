@@ -6,8 +6,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { createCommunity, getAllCommunities } from '@/lib/communities';
+import { createCommunity, getAllCommunities, deleteCommunity, getPendingMembershipRequests, updateMembershipStatus, assignCommunityPresident } from '@/lib/communities';
 import { useAuth } from '@/contexts/AuthContext';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { 
   Plus, 
   MapPin, 
@@ -40,6 +41,22 @@ const CommunityManagement = () => {
   const [loading, setLoading] = useState(true);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [requestModalOpen, setRequestModalOpen] = useState(false);
+  const [activeCommunity, setActiveCommunity] = useState<Community | null>(null);
+  const [loadingRequests, setLoadingRequests] = useState(false);
+  const [pendingRequests, setPendingRequests] = useState<Array<{
+    id: string;
+    user_id: string;
+    role: string;
+    address?: string;
+    block_name?: string;
+    blocks?: { name: string } | null;
+    users?: { full_name?: string | null; email?: string | null } | null;
+  }>>([]);
+  const [updatingRequestId, setUpdatingRequestId] = useState<string | null>(null);
+  const [presidentEmails, setPresidentEmails] = useState<{ [key: string]: string }>({});
+  const [assigningPresidentId, setAssigningPresidentId] = useState<string | null>(null);
   
   // Form state
   const [formData, setFormData] = useState({
@@ -47,7 +64,11 @@ const CommunityManagement = () => {
     description: '',
     location: '',
     latitude: '',
-    longitude: ''
+    longitude: '',
+    leader_name: '',
+    leader_email: '',
+    leader_mobile: '',
+    leader_address: ''
   });
 
   useEffect(() => {
@@ -71,6 +92,66 @@ const CommunityManagement = () => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDeleteCommunity = async (communityId: string, communityName: string) => {
+    if (!user) {
+      toast({ title: 'Error', description: 'You must be logged in', variant: 'destructive' });
+      return;
+    }
+
+    const confirmed = window.confirm(`Remove community "${communityName}"? This will hide it from users.`);
+    if (!confirmed) return;
+
+    try {
+      setDeletingId(communityId);
+      const { data, error } = await deleteCommunity(communityId, user.id);
+      if (error) throw error as any;
+      toast({ title: 'Community removed', description: `${communityName} is now inactive.` });
+      fetchCommunities();
+    } catch (error: any) {
+      console.error('Delete community error:', error);
+      toast({ title: 'Error', description: error.message || 'Failed to remove community', variant: 'destructive' });
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  const openRequests = async (community: Community) => {
+    if (!user) {
+      toast({ title: 'Error', description: 'You must be logged in', variant: 'destructive' });
+      return;
+    }
+    setActiveCommunity(community);
+    setRequestModalOpen(true);
+    setLoadingRequests(true);
+    try {
+      const { data, error } = await getPendingMembershipRequests(community.id, user.id);
+      if (error) throw error as any;
+      // data already includes users and blocks per lib function
+      setPendingRequests((data as any) || []);
+    } catch (error: any) {
+      console.error('Load requests error:', error);
+      toast({ title: 'Error', description: error.message || 'Failed to load requests', variant: 'destructive' });
+    } finally {
+      setLoadingRequests(false);
+    }
+  };
+
+  const handleRequestUpdate = async (membershipId: string, status: 'approved' | 'rejected') => {
+    if (!user || !activeCommunity) return;
+    try {
+      setUpdatingRequestId(membershipId);
+      const { error } = await updateMembershipStatus(membershipId, status, user.id);
+      if (error) throw error as any;
+      toast({ title: `Request ${status}`, description: `Membership set to ${status}.` });
+      setPendingRequests(prev => prev.filter(r => r.id !== membershipId));
+    } catch (error: any) {
+      console.error('Update request error:', error);
+      toast({ title: 'Error', description: error.message || 'Failed to update request', variant: 'destructive' });
+    } finally {
+      setUpdatingRequestId(null);
     }
   };
 
@@ -111,7 +192,11 @@ const CommunityManagement = () => {
         description: formData.description.trim() || undefined,
         location: formData.location.trim() || undefined,
         latitude: formData.latitude ? parseFloat(formData.latitude) : undefined,
-        longitude: formData.longitude ? parseFloat(formData.longitude) : undefined
+        longitude: formData.longitude ? parseFloat(formData.longitude) : undefined,
+        leader_name: formData.leader_name.trim() || undefined,
+        leader_email: formData.leader_email.trim() || undefined,
+        leader_mobile: formData.leader_mobile.trim() || undefined,
+        leader_address: formData.leader_address.trim() || undefined
       };
 
       const { data, error } = await createCommunity(communityData, user.id);
@@ -131,7 +216,11 @@ const CommunityManagement = () => {
         description: '',
         location: '',
         latitude: '',
-        longitude: ''
+        longitude: '',
+        leader_name: '',
+        leader_email: '',
+        leader_mobile: '',
+        leader_address: ''
       });
       setShowCreateForm(false);
       fetchCommunities();
@@ -145,6 +234,27 @@ const CommunityManagement = () => {
       });
     } finally {
       setIsCreating(false);
+    }
+  };
+
+  const handleAssignPresident = async (communityId: string) => {
+    if (!user) return;
+    const presidentEmail = presidentEmails[communityId] || '';
+    if (!presidentEmail.trim()) {
+      toast({ title: 'President email required', variant: 'destructive' });
+      return;
+    }
+    try {
+      setAssigningPresidentId(communityId);
+      const { error } = await assignCommunityPresident(communityId, presidentEmail.trim(), user.id);
+      if (error) throw error as any;
+      toast({ title: 'President Assigned', description: `Assigned ${presidentEmail}` });
+      setPresidentEmails(prev => ({ ...prev, [communityId]: '' }));
+      fetchCommunities();
+    } catch (e: any) {
+      toast({ title: 'Error', description: e.message || 'Failed to assign president', variant: 'destructive' });
+    } finally {
+      setAssigningPresidentId(null);
     }
   };
 
@@ -228,6 +338,61 @@ const CommunityManagement = () => {
                   placeholder="Describe the community and its purpose..."
                   rows={3}
                 />
+              </div>
+
+              {/* Leader Information */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="leader_name" className="text-sm font-medium">
+                    Leader Name
+                  </Label>
+                  <Input
+                    id="leader_name"
+                    name="leader_name"
+                    value={formData.leader_name}
+                    onChange={handleInputChange}
+                    placeholder="e.g., Ramesh Kumar"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="leader_email" className="text-sm font-medium">
+                    Leader Email
+                  </Label>
+                  <Input
+                    id="leader_email"
+                    name="leader_email"
+                    type="email"
+                    value={formData.leader_email}
+                    onChange={handleInputChange}
+                    placeholder="leader@example.com"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="leader_mobile" className="text-sm font-medium">
+                    Leader Mobile
+                  </Label>
+                  <Input
+                    id="leader_mobile"
+                    name="leader_mobile"
+                    value={formData.leader_mobile}
+                    onChange={handleInputChange}
+                    placeholder="+91XXXXXXXXXX"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="leader_address" className="text-sm font-medium">
+                    Leader Address
+                  </Label>
+                  <Input
+                    id="leader_address"
+                    name="leader_address"
+                    value={formData.leader_address}
+                    onChange={handleInputChange}
+                    placeholder="Leader office/residence"
+                  />
+                </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -356,7 +521,7 @@ const CommunityManagement = () => {
                     </div>
                   )}
 
-                  <div className="flex items-center justify-between text-xs text-muted-foreground">
+                <div className="flex items-center justify-between text-xs text-muted-foreground">
                     <div className="flex items-center gap-1">
                       <Calendar className="h-3 w-3" />
                       <span>Created {formatDate(community.created_at)}</span>
@@ -367,22 +532,105 @@ const CommunityManagement = () => {
                     </div>
                   </div>
 
-                  <div className="flex gap-2 mt-4">
+                <div className="flex gap-2 mt-4">
                     <Button size="sm" variant="outline" className="flex-1">
                       <Edit className="h-3 w-3 mr-1" />
                       Edit
                     </Button>
-                    <Button size="sm" variant="outline" className="flex-1">
-                      <Trash2 className="h-3 w-3 mr-1" />
-                      Delete
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      className="flex-1"
+                      onClick={() => openRequests(community)}
+                    >
+                      Pending Requests
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      className="flex-1"
+                      disabled={deletingId === community.id}
+                      onClick={() => handleDeleteCommunity(community.id, community.name)}
+                    >
+                      {deletingId === community.id ? (
+                        <>
+                          <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-current mr-1" />
+                          Removing...
+                        </>
+                      ) : (
+                        <>
+                          <Trash2 className="h-3 w-3 mr-1" />
+                          Remove
+                        </>
+                      )}
                     </Button>
                   </div>
+
+                {/* Assign President */}
+                <div className="mt-3 border-t pt-3">
+                  <div className="text-xs font-medium mb-1">Assign/Replace President</div>
+                  <div className="flex gap-2">
+                    <Input
+                      type="email"
+                      placeholder="president@example.com"
+                      value={presidentEmails[community.id] || ''}
+                      onChange={(e) => setPresidentEmails(prev => ({...prev, [community.id]: e.target.value}))}
+                      className="flex-1"
+                    />
+                    <Button
+                      size="sm"
+                      onClick={() => handleAssignPresident(community.id)}
+                      disabled={assigningPresidentId === community.id}
+                    >
+                      {assigningPresidentId === community.id ? 'Assigning…' : 'Assign'}
+                    </Button>
+                  </div>
+                </div>
                 </CardContent>
               </Card>
             ))}
           </div>
         )}
       </div>
+
+      {/* Pending Requests Dialog */}
+      <Dialog open={requestModalOpen} onOpenChange={setRequestModalOpen}>
+        <DialogContent className="sm:max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Pending Join Requests {activeCommunity ? `– ${activeCommunity.name}` : ''}</DialogTitle>
+            <p className="sr-only" id="pending-requests-desc">Review and manage pending membership requests.</p>
+          </DialogHeader>
+          {loadingRequests ? (
+            <div className="text-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+              <p className="text-muted-foreground">Loading requests...</p>
+            </div>
+          ) : pendingRequests.length === 0 ? (
+            <div className="text-center py-6 text-muted-foreground">No pending requests.</div>
+          ) : (
+            <div className="space-y-3">
+              {pendingRequests.map((req) => (
+                <div key={req.id} className="flex items-start justify-between border rounded-md p-3">
+                  <div>
+                    <div className="font-medium">{req.users?.full_name || req.users?.email || 'User'}</div>
+                    <div className="text-sm text-muted-foreground">
+                      Block: {req.block_name || req.blocks?.name || '—'} • Role: {req.role} {req.address ? `• ${req.address}` : ''}
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button size="sm" variant="outline" disabled={updatingRequestId === req.id} onClick={() => handleRequestUpdate(req.id, 'rejected')}>
+                      {updatingRequestId === req.id ? '...' : 'Reject'}
+                    </Button>
+                    <Button size="sm" disabled={updatingRequestId === req.id} onClick={() => handleRequestUpdate(req.id, 'approved')}>
+                      {updatingRequestId === req.id ? '...' : 'Approve'}
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

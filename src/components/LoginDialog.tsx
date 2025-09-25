@@ -15,9 +15,10 @@ import { Chrome } from "lucide-react";
 interface LoginDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onSuccess?: () => void;
 }
 
-export const LoginDialog = ({ open, onOpenChange }: LoginDialogProps) => {
+export const LoginDialog = ({ open, onOpenChange, onSuccess }: LoginDialogProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -110,6 +111,7 @@ export const LoginDialog = ({ open, onOpenChange }: LoginDialogProps) => {
         title: "Login Successful",
         description: "Welcome back! You can now join communities and track complaints.",
       });
+      onSuccess?.();
       onOpenChange(false);
       navigate("/communities");
       // Don't close dialog here - let useEffect handle pending complaint submission
@@ -144,6 +146,7 @@ export const LoginDialog = ({ open, onOpenChange }: LoginDialogProps) => {
         title: "Account Created",
         description: "Your account has been created successfully. Please check your email to verify your account.",
       });
+      onSuccess?.();
       onOpenChange(false);
       navigate("/communities");
     }

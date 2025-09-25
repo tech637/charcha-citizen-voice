@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import Navigation from "@/components/Navigation";
-import ComplaintForm from "@/components/ComplaintForm";
+import JoinCommunityForm from "@/components/JoinCommunityForm";
 import HowItWorks from "@/components/HowItWorks";
 import { ComplaintNotificationsDemo } from "@/components/ComplaintNotifications";
 
@@ -29,15 +29,15 @@ const Index = () => {
         </video>
         
         {/* Dark overlay for better text readability - lighter on mobile */}
-        <div className="absolute inset-0 bg-[#001F3F]/50 sm:bg-[#001F3F]/60 md:bg-[#001F3F]/70 z-10"></div>
+        {/* <div className="absolute inset-0 bg-[#001F3F]/50 sm:bg-[#001F3F]/60 md:bg-[#001F3F]/70 z-10"></div> */}
         
         <div className="max-w-4xl mx-auto relative z-20 px-4">
-          <h1 className="text-6xl sm:text-8xl md:text-[132px] font-black text-[#E2EEF9] tracking-[0] leading-[normal] mb-2 sm:mb-4" style={{fontFamily: 'Montserrat-Black, Helvetica'}}>
+          <h1 className="text-6xl sm:text-8xl md:text-[132px] font-black text-[#1f2768] tracking-[0] leading-[normal] mb-2 sm:mb-4" style={{fontFamily: 'Montserrat-Black, Helvetica'}}>
             Charcha
-          </h1>
+          </h1> 
           
           {/* Decorative line */}
-          <div className="w-48 sm:w-80 md:w-[666px] h-px bg-[#001F3F] mx-auto mb-2 sm:mb-4"></div>
+          <div className="w-48 sm:w-80 md:w-[666px] h-px bg-[#90a3b5] mx-auto mb-2 sm:mb-4"></div>
           
           <p className="text-lg sm:text-2xl md:text-[38.4px] font-black text-[#E2EEF9] tracking-[0] leading-[normal] mb-4 sm:mb-8" style={{fontFamily: 'Montserrat-Black, Helvetica'}}>
             Raise Your Voice. Fix Your City.
@@ -47,19 +47,20 @@ const Index = () => {
             COMMUNITY FIRST PLATFORM
           </p>
           
-          {/* File Complaint Button */}
+          {/* Join Community Button */}
           <div className="flex justify-center">
             <button 
               className="inline-flex items-center gap-2 px-4 py-2 sm:px-6 sm:py-3 bg-[#001F3F] border border-[#001F3F] rounded-lg text-white font-medium hover:bg-[#001F3F]/90 transition-colors text-sm sm:text-base"
               onClick={() => {
-                document.getElementById('complaint-form')?.scrollIntoView({ behavior: 'smooth' });
+                document.getElementById('join-community-form')?.scrollIntoView({ behavior: 'smooth' });
               }}
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                <polyline points="14,2 14,8 20,8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <circle cx="9" cy="7" r="4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="m22 21-3-3m0 0a2 2 0 1 0-2.828-2.828l2.828 2.828Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
-              File a Complaint
+              Join Your Community
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none">
                 <path d="m6 9 6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
@@ -68,9 +69,9 @@ const Index = () => {
         </div>
       </div>
 
-      {/* Complaint Form Section */}
-      <div id="complaint-form" className="py-6 sm:py-8 md:py-16 px-4 bg-[#E2EEF9]">
-        <ComplaintForm />
+      {/* Join Community Form Section */}
+      <div id="join-community-form" className="py-6 sm:py-8 md:py-16 px-4 bg-[#E2EEF9]">
+        <JoinCommunityForm />
         <HowItWorks />
       </div>
 

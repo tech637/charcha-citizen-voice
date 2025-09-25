@@ -1,17 +1,20 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/contexts/AuthContext";
 import { useComplaint } from "@/contexts/ComplaintContext";
 import { getUserComplaints, createComplaint } from "@/lib/complaints";
 import { Complaint } from "@/lib/supabase";
 import { useToast } from "@/hooks/use-toast";
-import { FileText, Clock, CheckCircle, AlertCircle, Plus, LogOut, MapPin } from "lucide-react";
+import { FileText, Clock, CheckCircle, AlertCircle, Plus, LogOut, MapPin, Users } from "lucide-react";
+import ComplaintForm from "./ComplaintForm";
 import { hasLocationData } from "@/lib/locationUtils";
 import { useLocationFormat } from "@/hooks/useLocationFormat";
 import Navigation from "./Navigation";
+import JoinRequestsTab from "./JoinRequestsTab";
 
 // Location display component for Dashboard
 const LocationDisplay: React.FC<{
@@ -42,9 +45,20 @@ const Dashboard = () => {
   const { user, signOut } = useAuth();
   const { pendingComplaint, clearPendingComplaint } = useComplaint();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [complaints, setComplaints] = useState<Complaint[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState("complaints");
+  const [hasApprovedMembership, setHasApprovedMembership] = useState(false);
   const { toast } = useToast();
+
+  // Initialize tab from URL parameters
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab === 'requests') {
+      setActiveTab('requests');
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     if (!user) {
@@ -60,6 +74,17 @@ const Dashboard = () => {
           console.error("Error fetching complaints:", complaintsError);
         } else {
           setComplaints(complaintsData || []);
+        }
+
+        // Check approved membership
+        const { data: memberships, error: membershipsError } = await supabase
+          .from('user_communities')
+          .select('status')
+          .eq('user_id', user.id)
+          .eq('status', 'approved')
+          .limit(1);
+        if (!membershipsError) {
+          setHasApprovedMembership((memberships || []).length > 0);
         }
 
       } catch (error) {
@@ -180,27 +205,50 @@ const Dashboard = () => {
           </Card>
         </div>
 
-        {/* Quick Actions */}
-        <div className="mb-8">
-          <h2 className="text-xl font-semibold mb-4">Quick Actions</h2>
-          <div className="flex flex-col sm:flex-row gap-4">
-            <Button 
-              onClick={() => navigate("/")}
-              className="flex items-center gap-2"
-            >
-              <Plus className="w-4 h-4" />
-              File New Complaint
-            </Button>
-            <Button variant="outline">
-              Track Existing Complaint
-            </Button>
-          </div>
-        </div>
+        {/* Tabs */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-2 mb-8">
+            <TabsTrigger value="complaints" className="flex items-center gap-2">
+              <FileText className="h-4 w-4" />
+              My Complaints
+            </TabsTrigger>
+            <TabsTrigger value="requests" className="flex items-center gap-2">
+              <Users className="h-4 w-4" />
+              Join Requests
+            </TabsTrigger>
+          </TabsList>
 
+          <TabsContent value="complaints" className="space-y-6">
+            {/* Quick Actions */}
+            <div>
+              <h2 className="text-xl font-semibold mb-4">Quick Actions</h2>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Button 
+                  onClick={() => navigate("/")}
+                  className="flex items-center gap-2"
+                  disabled={!hasApprovedMembership}
+                  title={hasApprovedMembership ? undefined : 'Join request must be approved to file a complaint'}
+                >
+                  <Plus className="w-4 h-4" />
+                  File New Complaint
+                </Button>
+                <Button variant="outline">
+                  Track Existing Complaint
+                </Button>
+              </div>
+            </div>
 
-        {/* Recent Complaints */}
-        <div>
-          <h2 className="text-xl font-semibold mb-4">My Complaints</h2>
+            {/* Quick file for approved users */}
+            {hasApprovedMembership && (
+              <div>
+                <h2 className="text-xl font-semibold mb-4">File a Complaint</h2>
+                <ComplaintForm />
+              </div>
+            )}
+
+            {/* Recent Complaints */}
+            <div>
+              <h2 className="text-xl font-semibold mb-4">My Complaints</h2>
           {loading ? (
             <div className="text-center py-8">
               <p className="text-muted-foreground">Loading your complaints...</p>
@@ -262,7 +310,13 @@ const Dashboard = () => {
               ))}
             </div>
           )}
-        </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="requests">
+            <JoinRequestsTab />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

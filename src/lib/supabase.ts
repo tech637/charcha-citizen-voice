@@ -85,8 +85,21 @@ export interface UserCommunity {
   id: string
   user_id: string
   community_id: string
-  role: 'member' | 'moderator' | 'admin'
+  block_id?: string
+  block_name?: string
+  role: 'member' | 'moderator' | 'admin' | 'tenant' | 'owner'
+  address?: string
+  status: 'pending' | 'approved' | 'rejected'
   joined_at: string
+}
+
+export interface Block {
+  id: string
+  name: string
+  community_id: string
+  description?: string
+  created_at: string
+  updated_at: string
 }
 
 export interface Profile {

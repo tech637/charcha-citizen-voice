@@ -71,6 +71,14 @@ const Navigation = () => {
               >
                 Communities
               </button>
+              {user && (
+                <button 
+                  onClick={() => navigate("/dashboard")}
+                  className="text-gray-200 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                >
+                  Dashboard
+                </button>
+              )}
             </div>
           </div>
 
@@ -179,9 +187,18 @@ const Navigation = () => {
                   }}
                   className="text-[#F5F5DC]/90 hover:text-white hover:bg-white/20 block px-4 py-3 rounded-lg text-base font-semibold transition-all duration-200 w-full text-center"
                 >
-                  Track Complaint
+                  Dashboard
                 </button>
               )}
+              <button 
+                onClick={() => {
+                  document.getElementById('complaint-form')?.scrollIntoView({ behavior: 'smooth' });
+                  setIsMenuOpen(false);
+                }}
+                className="text-[#F5F5DC]/90 hover:text-white hover:bg-white/20 block px-4 py-3 rounded-lg text-base font-semibold transition-all duration-200 w-full text-center"
+              >
+                Track Complaint
+              </button>
               <div className="pt-4 pb-2 border-t border-[#F5F5DC]/20">
                 <div className="flex flex-col space-y-3">
                   {user ? (

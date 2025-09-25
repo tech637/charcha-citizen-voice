@@ -5,8 +5,10 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { ThumbsUp, ThumbsDown, MapPin, Calendar, Eye, RefreshCw, AlertCircle, ArrowLeft, Building2, Users, Flag } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { getPublicComplaints, getCommunityComplaints, getAllCommunityComplaints } from '@/lib/complaints';
-import { getAllCommunities, getCommunityMembers, isUserMemberOfCommunity, joinCommunity } from '@/lib/communities';
+import { getPublicComplaints, getCommunityComplaints, getAllCommunityComplaints, updateComplaintStatus } from '@/lib/complaints';
+import { getAllCommunities, getCommunityMembers, isUserMemberOfCommunity, isUserAdmin, getPendingMembershipRequests, updateMembershipStatus, updateCommunity } from '@/lib/communities';
+import { supabase } from '@/lib/supabase';
+import { getCommunityFinanceSummary, getCommunityTransactions, addCommunityTransaction } from '@/lib/finance';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { hasLocationData } from '@/lib/locationUtils';
@@ -82,6 +84,17 @@ const CommunityPage: React.FC = () => {
   const [memberCount, setMemberCount] = useState(0);
   const [isUserMember, setIsUserMember] = useState<boolean | null>(null);
   const [membershipLoading, setMembershipLoading] = useState(false);
+  const [president, setPresident] = useState<{ full_name?: string | null; email?: string | null; phone?: string | null } | null>(null);
+  const [finance, setFinance] = useState<{ collected: number; spent: number; balance: number }>({ collected: 0, spent: 0, balance: 0 });
+  const [recentTx, setRecentTx] = useState<Array<{ id: string; type: 'income'|'expense'; amount: number; note?: string|null; created_at: string }>>([]);
+  const [isPresidentOrAdmin, setIsPresidentOrAdmin] = useState(false);
+  const [pendingRequests, setPendingRequests] = useState<any[]>([]);
+  const [requestsLoading, setRequestsLoading] = useState(false);
+  const [updatingReqId, setUpdatingReqId] = useState<string | null>(null);
+  const [updatingComplaintId, setUpdatingComplaintId] = useState<string | null>(null);
+  const [isAddingTx, setIsAddingTx] = useState(false);
+  const [txForm, setTxForm] = useState<{ type: 'income'|'expense'; amount: string; note: string }>({ type: 'income', amount: '', note: '' });
+  const [profileForm, setProfileForm] = useState<{ description: string; location: string }>({ description: '', location: '' });
   const { user } = useAuth();
   const { toast } = useToast();
 
@@ -125,15 +138,32 @@ const CommunityPage: React.FC = () => {
 
       // Get member count for this community
       try {
-        const { data: members, error: membersError } = await getCommunityMembers(foundCommunity.id);
-        if (membersError) {
-          setMemberCount(0);
-        } else {
-          setMemberCount(members?.length || 0);
-        }
+        // Count only approved members
+        const { data: approved, error: approvedErr } = await supabase
+          .from('user_communities')
+          .select('id')
+          .eq('community_id', foundCommunity.id)
+          .eq('status', 'approved');
+        if (approvedErr) setMemberCount(0); else setMemberCount((approved || []).length);
       } catch (error) {
         setMemberCount(0);
       }
+
+      // Load president user details
+      try {
+        const { data: presidentUser, error: presidentErr } = await supabase
+          .from('users')
+          .select('full_name, email, phone')
+          .eq('id', foundCommunity.admin_id)
+          .single();
+        if (!presidentErr) setPresident(presidentUser as any);
+      } catch {}
+
+      // Load finance summary
+      try {
+        const { data: summary } = await getCommunityFinanceSummary(foundCommunity.id);
+        if (summary) setFinance(summary);
+      } catch {}
 
       // Check if current user is a member of this community
       if (user) {
@@ -147,8 +177,17 @@ const CommunityPage: React.FC = () => {
         } finally {
           setMembershipLoading(false);
         }
+        // Determine president/global admin access
+        try {
+          const global = await isUserAdmin(user.id);
+          setIsPresidentOrAdmin(global || user.id === foundCommunity.admin_id);
+          setProfileForm({ description: foundCommunity.description, location: foundCommunity.location });
+        } catch {
+          setIsPresidentOrAdmin(user.id === foundCommunity.admin_id);
+        }
       } else {
         setIsUserMember(false);
+        setIsPresidentOrAdmin(false);
       }
 
       // Get complaints based on community type using new visibility system
@@ -306,46 +345,10 @@ const CommunityPage: React.FC = () => {
     }
   };
 
-  // Join community function
-  const handleJoinCommunity = async () => {
-    if (!user || !community) {
-      toast({
-        title: "Login Required",
-        description: "Please login to join communities",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    try {
-      setMembershipLoading(true);
-      
-      const { data, error } = await joinCommunity(community.id, user.id);
-      
-      if (error) {
-        throw error;
-      }
-
-      // Update membership status
-      setIsUserMember(true);
-      
-      // Update member count
-      setMemberCount(prev => prev + 1);
-
-      toast({
-        title: "Successfully Joined!",
-        description: `You've joined the ${community.name} community`,
-      });
-    } catch (error: any) {
-      console.error('Error joining community:', error);
-      toast({
-        title: "Error Joining Community",
-        description: error.message || "Failed to join community. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setMembershipLoading(false);
-    }
+  // Request to Join navigation
+  const handleRequestToJoin = () => {
+    if (!community) return;
+    navigate(`/join-communities?communityId=${community.id}`);
   };
 
   const formatDate = (dateString: string) => {
@@ -370,6 +373,86 @@ const CommunityPage: React.FC = () => {
     } catch (error) {
       console.error('Error getting initials for name:', name, error);
       return 'U';
+    }
+  };
+
+  // President Panel actions
+  const loadPendingRequests = async () => {
+    if (!community || !user) return;
+    try {
+      setRequestsLoading(true);
+      const { data, error } = await getPendingMembershipRequests(community.id, user.id);
+      if (!error) setPendingRequests(data || []);
+    } finally {
+      setRequestsLoading(false);
+    }
+  };
+
+  const handleUpdateRequest = async (membershipId: string, status: 'approved'|'rejected') => {
+    if (!user) return;
+    try {
+      setUpdatingReqId(membershipId);
+      const { error } = await updateMembershipStatus(membershipId, status, user.id);
+      if (error) throw error as any;
+      setPendingRequests(prev => prev.filter(r => r.id !== membershipId));
+      toast({ title: 'Request updated', description: `Set to ${status}` });
+      await fetchCommunityAndComplaints();
+    } catch (e: any) {
+      toast({ title: 'Error', description: e.message || 'Failed to update request', variant: 'destructive' });
+    } finally {
+      setUpdatingReqId(null);
+    }
+  };
+
+  const handleUpdateComplaintStatus = async (complaintId: string, status: 'pending'|'in_progress'|'resolved'|'rejected') => {
+    try {
+      setUpdatingComplaintId(complaintId);
+      const { error } = await updateComplaintStatus(complaintId, status);
+      if (error) throw error as any;
+      setComplaints(prev => prev.map(c => c.id === complaintId ? { ...c, status } : c));
+      toast({ title: 'Updated', description: 'Complaint status updated' });
+    } catch (e: any) {
+      toast({ title: 'Error', description: e.message || 'Failed to update status', variant: 'destructive' });
+    } finally {
+      setUpdatingComplaintId(null);
+    }
+  };
+
+  const handleAddTransaction = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!community || !user) return;
+    const amount = Number(txForm.amount);
+    if (!amount || amount <= 0) {
+      toast({ title: 'Invalid amount', variant: 'destructive' });
+      return;
+    }
+    try {
+      setIsAddingTx(true);
+      const { error } = await addCommunityTransaction({ communityId: community.id, type: txForm.type, amount, note: txForm.note || undefined }, user.id);
+      if (error) throw error as any;
+      setTxForm({ type: 'income', amount: '', note: '' });
+      const { data: summary } = await getCommunityFinanceSummary(community.id);
+      if (summary) setFinance(summary);
+      const { data: tx } = await getCommunityTransactions(community.id, 5);
+      setRecentTx(tx || []);
+      toast({ title: 'Transaction added' });
+    } catch (e: any) {
+      toast({ title: 'Error', description: e.message || 'Failed to add transaction', variant: 'destructive' });
+    } finally {
+      setIsAddingTx(false);
+    }
+  };
+
+  const handleUpdateProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!community || !user) return;
+    try {
+      const { error } = await updateCommunity(community.id, { description: profileForm.description, location: profileForm.location }, user.id);
+      if (error) throw error as any;
+      toast({ title: 'Profile updated' });
+      await fetchCommunityAndComplaints();
+    } catch (e: any) {
+      toast({ title: 'Error', description: e.message || 'Failed to update profile', variant: 'destructive' });
     }
   };
 
@@ -466,7 +549,7 @@ const CommunityPage: React.FC = () => {
                 </div>
               </div>
               
-              {/* Membership Status and Join Button */}
+              {/* Membership Status and Request to Join Button */}
               {community.name.toLowerCase() !== 'india' && user && (
                 <div className="flex items-center gap-2">
                   {membershipLoading ? (
@@ -479,17 +562,26 @@ const CommunityPage: React.FC = () => {
                   ) : (
                     <Button
                       size="sm"
-                      onClick={handleJoinCommunity}
+                      onClick={handleRequestToJoin}
                       disabled={membershipLoading}
                       className="flex items-center gap-2"
                     >
                       <Users className="h-4 w-4" />
-                      Join Community
+                      Request to Join
                     </Button>
                   )}
                 </div>
               )}
               
+              {/* Raise Complaint */}
+              <Button
+                size="sm"
+                onClick={() => navigate('/dashboard')}
+                className="flex items-center gap-2"
+              >
+                File Complaint
+              </Button>
+
               <Button
                 variant="outline"
                 size="sm"
@@ -500,6 +592,40 @@ const CommunityPage: React.FC = () => {
                 <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
                 Refresh
               </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* President and Finance Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <div className="bg-white rounded-lg border p-4 md:col-span-2">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-sm font-semibold text-gray-800">President</h3>
+              <Badge>President</Badge>
+            </div>
+            {president ? (
+              <div className="flex items-center gap-3">
+                <Avatar className="h-10 w-10">
+                  <AvatarFallback>{getInitials(president.full_name || president.email || 'U')}</AvatarFallback>
+                </Avatar>
+                <div>
+                  <div className="text-sm font-medium text-gray-900">{president.full_name || 'N/A'}</div>
+                  <div className="text-xs text-gray-600">{president.email || '—'}</div>
+                  {president.phone && (
+                    <div className="text-xs text-gray-600">{president.phone}</div>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div className="text-sm text-gray-500">Loading president details…</div>
+            )}
+          </div>
+          <div className="bg-white rounded-lg border p-4">
+            <h3 className="text-sm font-semibold text-gray-800 mb-2">Finance</h3>
+            <div className="space-y-1 text-sm">
+              <div className="flex justify-between"><span>Collected</span><span>₹ {finance.collected.toLocaleString()}</span></div>
+              <div className="flex justify-between"><span>Spent</span><span>₹ {finance.spent.toLocaleString()}</span></div>
+              <div className="flex justify-between font-semibold"><span>Balance</span><span>₹ {finance.balance.toLocaleString()}</span></div>
             </div>
           </div>
         </div>
@@ -531,6 +657,121 @@ const CommunityPage: React.FC = () => {
             <div className="text-xs md:text-sm text-gray-600">Resolved</div>
           </div>
         </div>
+
+        {/* President Panel */}
+        {isPresidentOrAdmin && (
+          <div className="bg-white rounded-lg border p-4 md:p-6 mb-6">
+            <h3 className="text-base font-semibold text-gray-900 mb-3">President Panel</h3>
+            <Tabs defaultValue="requests" className="w-full">
+              <TabsList className="grid w-full grid-cols-4 mb-4">
+                <TabsTrigger value="requests">Requests</TabsTrigger>
+                <TabsTrigger value="complaints">Complaints</TabsTrigger>
+                <TabsTrigger value="finance">Finance</TabsTrigger>
+                <TabsTrigger value="profile">Profile</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="requests">
+                <div className="flex items-center justify-between mb-3">
+                  <Button size="sm" variant="outline" onClick={loadPendingRequests}>
+                    Load Pending Requests
+                  </Button>
+                  <div className="text-sm text-gray-600">{pendingRequests.length} pending</div>
+                </div>
+                {requestsLoading ? (
+                  <div className="text-sm text-gray-500">Loading…</div>
+                ) : pendingRequests.length === 0 ? (
+                  <div className="text-sm text-gray-600">No pending requests.</div>
+                ) : (
+                  <div className="space-y-2">
+                    {pendingRequests.map((req: any) => (
+                      <div key={req.id} className="flex items-center justify-between border rounded-md p-3">
+                        <div className="text-sm">
+                          <div className="font-medium">{req.users?.full_name || req.users?.email || 'User'}</div>
+                          <div className="text-gray-600 text-xs">Role: {req.role} • Block: {req.block_name || req.blocks?.name || '—'}</div>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button size="sm" variant="outline" disabled={updatingReqId===req.id} onClick={() => handleUpdateRequest(req.id, 'rejected')}>Reject</Button>
+                          <Button size="sm" disabled={updatingReqId===req.id} onClick={() => handleUpdateRequest(req.id, 'approved')}>Approve</Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </TabsContent>
+
+              <TabsContent value="complaints">
+                <div className="space-y-3">
+                  {complaints.length === 0 ? (
+                    <div className="text-sm text-gray-600">No complaints.</div>
+                  ) : (
+                    complaints.map(c => (
+                      <div key={c.id} className="flex items-center justify-between border rounded-md p-3">
+                        <div className="text-sm">
+                          <div className="font-medium">{c.category.replace('-', ' ')}</div>
+                          <div className="text-gray-600 text-xs">{c.description.slice(0,90)}{c.description.length>90?'…':''}</div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <select
+                            className="border rounded px-2 py-1 text-sm"
+                            value={c.status}
+                            onChange={e => handleUpdateComplaintStatus(c.id, e.target.value as any)}
+                            disabled={updatingComplaintId===c.id}
+                          >
+                            <option value="pending">pending</option>
+                            <option value="in_progress">in_progress</option>
+                            <option value="resolved">resolved</option>
+                            <option value="rejected">rejected</option>
+                          </select>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </TabsContent>
+
+              <TabsContent value="finance">
+                <form onSubmit={handleAddTransaction} className="grid grid-cols-1 md:grid-cols-4 gap-2 mb-4">
+                  <select className="border rounded px-2 py-1 text-sm" value={txForm.type} onChange={e=>setTxForm(prev=>({...prev, type: e.target.value as any}))}>
+                    <option value="income">Income</option>
+                    <option value="expense">Expense</option>
+                  </select>
+                  <input className="border rounded px-2 py-1 text-sm" type="number" step="0.01" placeholder="Amount" value={txForm.amount} onChange={e=>setTxForm(prev=>({...prev, amount: e.target.value}))} />
+                  <input className="border rounded px-2 py-1 text-sm md:col-span-2" placeholder="Note (optional)" value={txForm.note} onChange={e=>setTxForm(prev=>({...prev, note: e.target.value}))} />
+                  <Button type="submit" size="sm" disabled={isAddingTx}>Add</Button>
+                </form>
+                <div className="text-sm font-medium mb-2">Recent Transactions</div>
+                {recentTx.length === 0 ? (
+                  <div className="text-sm text-gray-600">No transactions yet.</div>
+                ) : (
+                  <div className="space-y-2">
+                    {recentTx.map(tx => (
+                      <div key={tx.id} className="flex items-center justify-between border rounded-md p-3 text-sm">
+                        <div className="capitalize {tx.type==='expense'?'text-red-700':'text-green-700'}">{tx.type}</div>
+                        <div>₹ {tx.amount.toLocaleString()}</div>
+                        <div className="text-gray-600 truncate max-w-[50%]">{tx.note || '—'}</div>
+                        <div className="text-gray-600">{new Date(tx.created_at).toLocaleDateString()}</div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </TabsContent>
+
+              <TabsContent value="profile">
+                <form onSubmit={handleUpdateProfile} className="space-y-2 max-w-xl">
+                  <div>
+                    <label className="block text-sm text-gray-700 mb-1">Description</label>
+                    <textarea className="w-full border rounded px-3 py-2 text-sm" rows={3} value={profileForm.description} onChange={e=>setProfileForm(prev=>({...prev, description: e.target.value}))} />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-gray-700 mb-1">Location</label>
+                    <input className="w-full border rounded px-3 py-2 text-sm" value={profileForm.location} onChange={e=>setProfileForm(prev=>({...prev, location: e.target.value}))} />
+                  </div>
+                  <Button type="submit" size="sm">Save</Button>
+                </form>
+              </TabsContent>
+            </Tabs>
+          </div>
+        )}
 
         {/* Tabs for filtering complaints */}
         <Tabs defaultValue="in_progress" className="w-full">
