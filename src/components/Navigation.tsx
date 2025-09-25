@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, LogOut, Shield } from "lucide-react";
+import { Menu, X, LogOut, Shield, User } from "lucide-react";
 import { LoginDialog } from "./LoginDialog";
 import { useAuth } from "@/contexts/AuthContext";
 import { isUserAdmin } from "@/lib/communities";
@@ -71,14 +71,7 @@ const Navigation = () => {
               >
                 Communities
               </button>
-              {user && (
-                <button 
-                  onClick={() => navigate("/dashboard")}
-                  className="text-gray-200 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors"
-                >
-                  Dashboard
-                </button>
-              )}
+              {/* Dashboard link removed from top navbar */}
             </div>
           </div>
 
@@ -86,9 +79,16 @@ const Navigation = () => {
           <div className="hidden md:block">
             {user ? (
               <div className="flex items-center gap-2 lg:gap-4">
-                <span className="text-xs lg:text-sm text-gray-200 truncate max-w-32 lg:max-w-none">
-                  {user.user_metadata?.full_name || user.email}
-                </span>
+                {/* Dashboard icon button */}
+                <Button 
+                  variant="outline" 
+                  onClick={() => navigate("/dashboard")}
+                  size="icon"
+                  className="h-8 w-8"
+                  title="User Dashboard"
+                >
+                  <User className="h-4 w-4" />
+                </Button>
                 <Button 
                   variant="outline" 
                   onClick={handleSignOut}
@@ -179,17 +179,7 @@ const Navigation = () => {
               >
                 Communities
               </button>
-              {user && (
-                <button 
-                  onClick={() => {
-                    navigate("/dashboard");
-                    setIsMenuOpen(false);
-                  }}
-                  className="text-[#F5F5DC]/90 hover:text-white hover:bg-white/20 block px-4 py-3 rounded-lg text-base font-semibold transition-all duration-200 w-full text-center"
-                >
-                  Dashboard
-                </button>
-              )}
+              {/* Dashboard removed from mobile list; access via top icon */}
               <button 
                 onClick={() => {
                   document.getElementById('complaint-form')?.scrollIntoView({ behavior: 'smooth' });

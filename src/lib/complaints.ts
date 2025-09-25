@@ -381,12 +381,107 @@ export const updateComplaintStatus = async (complaintId: string, status: string)
       .update({ status, updated_at: new Date().toISOString() })
       .eq('id', complaintId)
       .select()
-      .single()
+      .maybeSingle()
 
     if (error) {
       throw error
     }
 
+    return { data, error: null }
+  } catch (error) {
+    return { data: null, error }
+  }
+}
+
+// ===== Social: Votes =====
+export const upsertComplaintVote = async (complaintId: string, userId: string, vote: 'up' | 'down') => {
+  try {
+    const { error } = await supabase
+      .from('complaint_votes')
+      .upsert({ complaint_id: complaintId, user_id: userId, vote_type: vote }, { onConflict: 'complaint_id,user_id' })
+
+    if (error) throw error
+    return { data: true, error: null }
+  } catch (error) {
+    return { data: null, error }
+  }
+}
+
+export const removeComplaintVote = async (complaintId: string, userId: string) => {
+  try {
+    const { error } = await supabase
+      .from('complaint_votes')
+      .delete()
+      .eq('complaint_id', complaintId)
+      .eq('user_id', userId)
+
+    if (error) throw error
+    return { data: true, error: null }
+  } catch (error) {
+    return { data: null, error }
+  }
+}
+
+export const getComplaintVoteSummary = async (complaintId: string) => {
+  try {
+    const { data, error } = await supabase
+      .from('complaint_votes')
+      .select('vote_type')
+      .eq('complaint_id', complaintId)
+
+    if (error) throw error
+    const up = (data || []).filter(v => v.vote_type === 'up').length
+    const down = (data || []).filter(v => v.vote_type === 'down').length
+    return { data: { up, down }, error: null }
+  } catch (error) {
+    return { data: { up: 0, down: 0 }, error }
+  }
+}
+
+export const getUserVoteForComplaint = async (complaintId: string, userId: string) => {
+  try {
+    const { data, error } = await supabase
+      .from('complaint_votes')
+      .select('vote_type')
+      .eq('complaint_id', complaintId)
+      .eq('user_id', userId)
+      .maybeSingle()
+
+    if (error && (error as any).code !== 'PGRST116') throw error
+    return { data: (data?.vote_type as 'up' | 'down' | undefined) || null, error: null }
+  } catch (error) {
+    return { data: null, error }
+  }
+}
+
+// ===== Social: Comments =====
+export const listComplaintComments = async (complaintId: string) => {
+  try {
+    const { data, error } = await supabase
+      .from('complaint_comments')
+      .select('*, users(full_name)')
+      .eq('complaint_id', complaintId)
+      .order('created_at', { ascending: false })
+
+    if (error) throw error
+    return { data, error: null }
+  } catch (error) {
+    return { data: [], error }
+  }
+}
+
+export const addComplaintComment = async (complaintId: string, userId: string, content: string) => {
+  try {
+    const trimmed = content.trim()
+    if (!trimmed) throw new Error('Comment cannot be empty')
+
+    const { data, error } = await supabase
+      .from('complaint_comments')
+      .insert({ complaint_id: complaintId, user_id: userId, content: trimmed })
+      .select()
+      .single()
+
+    if (error) throw error
     return { data, error: null }
   } catch (error) {
     return { data: null, error }

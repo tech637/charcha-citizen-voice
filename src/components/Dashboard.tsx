@@ -10,6 +10,7 @@ import { getUserComplaints, createComplaint } from "@/lib/complaints";
 import { Complaint } from "@/lib/supabase";
 import { useToast } from "@/hooks/use-toast";
 import { FileText, Clock, CheckCircle, AlertCircle, Plus, LogOut, MapPin, Users } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 import ComplaintForm from "./ComplaintForm";
 import { hasLocationData } from "@/lib/locationUtils";
 import { useLocationFormat } from "@/hooks/useLocationFormat";
@@ -95,6 +96,19 @@ const Dashboard = () => {
     };
 
     fetchData();
+
+    // Realtime updates for user's own complaints
+    const channel = supabase
+      .channel(`complaints_user_${user.id}`)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'complaints', filter: `user_id=eq.${user.id}` }, async () => {
+        const { data } = await getUserComplaints(user.id);
+        setComplaints(data || []);
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [user, navigate]);
 
   // Handle pending complaint for OAuth users
@@ -147,7 +161,7 @@ const Dashboard = () => {
     switch (status) {
       case "pending":
         return <Badge variant="secondary"><Clock className="w-3 h-3 mr-1" />Pending</Badge>;
-      case "in-progress":
+      case "in_progress":
         return <Badge className="bg-orange-500"><AlertCircle className="w-3 h-3 mr-1" />In Progress</Badge>;
       case "resolved":
         return <Badge className="bg-green-500"><CheckCircle className="w-3 h-3 mr-1" />Resolved</Badge>;
@@ -165,6 +179,13 @@ const Dashboard = () => {
           <div>
             <h1 className="text-3xl font-bold text-foreground mb-2">Dashboard</h1>
             <p className="text-muted-foreground">Welcome back, {user.user_metadata?.full_name || user.email}</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              {user.user_metadata?.full_name && (
+                <>
+                  <span className="font-medium">Email:</span> {user.email}
+                </>
+              )}
+            </p>
           </div>
           <Button variant="outline" onClick={handleSignOut}>
             <LogOut className="h-4 w-4 mr-2" />

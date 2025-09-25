@@ -33,7 +33,12 @@ import {
   MapPin
 } from "lucide-react";
 
-const ComplaintForm = () => {
+interface ComplaintFormProps {
+  onSubmitted?: (complaint: any) => void;
+  stayOnPage?: boolean;
+}
+
+const ComplaintForm = ({ onSubmitted, stayOnPage = false }: ComplaintFormProps) => {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [description, setDescription] = useState("");
   const [files, setFiles] = useState<File[]>([]);
@@ -251,9 +256,14 @@ const ComplaintForm = () => {
       setLocation("");
       setLatitude(undefined);
       setLongitude(undefined);
-
-      // Redirect to dashboard
-      navigate("/dashboard");
+      
+      // Inform parent and optionally stay on page
+      if (onSubmitted) {
+        onSubmitted(data);
+      }
+      if (!stayOnPage) {
+        navigate("/dashboard");
+      }
     } catch (error: any) {
       toast({
         title: "Submission Failed",

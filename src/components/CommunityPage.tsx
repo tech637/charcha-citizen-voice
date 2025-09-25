@@ -5,8 +5,12 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { ThumbsUp, ThumbsDown, MapPin, Calendar, Eye, RefreshCw, AlertCircle, ArrowLeft, Building2, Users, Flag } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { getPublicComplaints, getCommunityComplaints, getAllCommunityComplaints, updateComplaintStatus } from '@/lib/complaints';
+import { getPublicComplaints, getCommunityComplaints, getAllCommunityComplaints, updateComplaintStatus, getComplaintVoteSummary, upsertComplaintVote, removeComplaintVote, listComplaintComments, addComplaintComment } from '@/lib/complaints';
 import { getAllCommunities, getCommunityMembers, isUserMemberOfCommunity, isUserAdmin, getPendingMembershipRequests, updateMembershipStatus, updateCommunity } from '@/lib/communities';
+import ComplaintForm from './ComplaintForm';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { supabase } from '@/lib/supabase';
 import { getCommunityFinanceSummary, getCommunityTransactions, addCommunityTransaction } from '@/lib/finance';
 import { useAuth } from '@/contexts/AuthContext';
@@ -97,12 +101,64 @@ const CommunityPage: React.FC = () => {
   const [profileForm, setProfileForm] = useState<{ description: string; location: string }>({ description: '', location: '' });
   const { user } = useAuth();
   const { toast } = useToast();
+  const [membershipStatus, setMembershipStatus] = useState<'none' | 'pending' | 'approved' | 'rejected'>('none');
+  const isMobile = useIsMobile();
+  const [complaintOpen, setComplaintOpen] = useState(false);
+  const [voteSummary, setVoteSummary] = useState<Record<string, { up: number; down: number }>>({});
+  const [userVote, setUserVote] = useState<Record<string, 'up' | 'down' | null>>({});
+  const [openComments, setOpenComments] = useState<Set<string>>(new Set());
+  const [commentsById, setCommentsById] = useState<Record<string, Array<{ id: string; content: string; created_at: string; users?: { full_name?: string } }>>>({});
+  const [commentDraft, setCommentDraft] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (communityName) {
       fetchCommunityAndComplaints();
     }
-  }, [communityName]);
+  }, [communityName, user?.id]);
+
+  // Realtime: refresh complaints when any record for this community changes
+  useEffect(() => {
+    if (!community) return;
+    const channel = supabase
+      .channel(`complaints_community_${community.id}`)
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'complaints',
+        filter: `community_id=eq.${community.id}`,
+      }, () => {
+        // Refresh complaints and counts
+        fetchCommunityAndComplaints();
+      })
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [community?.id]);
+
+  // Load current user's vote state after complaints are loaded
+  useEffect(() => {
+    const loadMyVotes = async () => {
+      if (!user || complaints.length === 0) return;
+      const votes: Record<string, 'up' | 'down' | null> = {};
+      const summaries: Record<string, { up: number; down: number }> = { ...voteSummary };
+      const { getUserVoteForComplaint } = await import('@/lib/complaints');
+      await Promise.all(
+        complaints.map(async (c: any) => {
+          const { data: myVote } = await getUserVoteForComplaint(c.id, user.id);
+          votes[c.id] = myVote || null;
+          // also ensure summary is present
+          if (!summaries[c.id]) {
+            const { data } = await getComplaintVoteSummary(c.id);
+            summaries[c.id] = data || { up: 0, down: 0 };
+          }
+        })
+      );
+      setUserVote(votes);
+      setVoteSummary(summaries);
+    };
+    loadMyVotes();
+  }, [user?.id, complaints]);
 
   const fetchCommunityAndComplaints = async () => {
     try {
@@ -135,6 +191,14 @@ const CommunityPage: React.FC = () => {
       }
 
       setCommunity(foundCommunity);
+      // Seed president details from community profile fields so non-admin viewers still see info
+      if (foundCommunity.leader_name || foundCommunity.leader_email || foundCommunity.leader_mobile) {
+        setPresident({
+          full_name: (foundCommunity as any).leader_name || null,
+          email: (foundCommunity as any).leader_email || null,
+          phone: (foundCommunity as any).leader_mobile || null,
+        });
+      }
 
       // Get member count for this community
       try {
@@ -149,14 +213,16 @@ const CommunityPage: React.FC = () => {
         setMemberCount(0);
       }
 
-      // Load president user details
+      // Load president user details (may be restricted by RLS for non-admins)
       try {
-        const { data: presidentUser, error: presidentErr } = await supabase
+        const { data: presidentUser } = await supabase
           .from('users')
           .select('full_name, email, phone')
           .eq('id', foundCommunity.admin_id)
-          .single();
-        if (!presidentErr) setPresident(presidentUser as any);
+          .maybeSingle();
+        if (presidentUser) {
+          setPresident(presidentUser as any);
+        }
       } catch {}
 
       // Load finance summary
@@ -171,9 +237,21 @@ const CommunityPage: React.FC = () => {
         try {
           const isMember = await isUserMemberOfCommunity(user.id, foundCommunity.id);
           setIsUserMember(isMember);
+          // Fetch raw membership status to handle "pending" state
+          const { data: membershipRow } = await supabase
+            .from('user_communities')
+            .select('status')
+            .eq('user_id', user.id)
+            .eq('community_id', foundCommunity.id)
+            .maybeSingle();
+          if (membershipRow?.status === 'approved' || isMember) setMembershipStatus('approved');
+          else if (membershipRow?.status === 'pending') setMembershipStatus('pending');
+          else if (membershipRow?.status === 'rejected') setMembershipStatus('rejected');
+          else setMembershipStatus('none');
         } catch (error) {
           console.error('Error checking membership:', error);
           setIsUserMember(false);
+          setMembershipStatus('none');
         } finally {
           setMembershipLoading(false);
         }
@@ -214,7 +292,26 @@ const CommunityPage: React.FC = () => {
       }
 
       setComplaints(communityComplaints);
-      
+      // Fetch vote summaries and current user's vote for each complaint
+      try {
+        const summaries: Record<string, { up: number; down: number }> = {};
+        const votes: Record<string, 'up' | 'down' | null> = {};
+        await Promise.all((communityComplaints || []).map(async (c: any) => {
+          const { data } = await getComplaintVoteSummary(c.id);
+          summaries[c.id] = data || { up: 0, down: 0 };
+          if (user) {
+            const { getUserVoteForComplaint } = await import('@/lib/complaints');
+            const { data: myVote } = await getUserVoteForComplaint(c.id, user.id);
+            votes[c.id] = myVote || null;
+          }
+        }));
+        setVoteSummary(summaries);
+        if (user) setUserVote(votes);
+      } catch (e) {
+        // ignore
+      }
+      // Preload comments count by fetching first page if open later; optional
+       
     } catch (err: any) {
       console.error('Error fetching community data:', err);
       const errorMessage = err.message || 'Failed to fetch community data';
@@ -411,6 +508,8 @@ const CommunityPage: React.FC = () => {
       if (error) throw error as any;
       setComplaints(prev => prev.map(c => c.id === complaintId ? { ...c, status } : c));
       toast({ title: 'Updated', description: 'Complaint status updated' });
+      // Ensure all views (counts/tabs) reflect the latest state
+      await fetchCommunityAndComplaints();
     } catch (e: any) {
       toast({ title: 'Error', description: e.message || 'Failed to update status', variant: 'destructive' });
     } finally {
@@ -453,6 +552,69 @@ const CommunityPage: React.FC = () => {
       await fetchCommunityAndComplaints();
     } catch (e: any) {
       toast({ title: 'Error', description: e.message || 'Failed to update profile', variant: 'destructive' });
+    }
+  };
+
+  const handleVote = async (complaintId: string, vote: 'up' | 'down') => {
+    if (!user || membershipStatus !== 'approved') return;
+    const current = userVote[complaintId] || null;
+    try {
+      if (current === vote) {
+        // remove vote
+        await removeComplaintVote(complaintId, user.id);
+        setUserVote(prev => ({ ...prev, [complaintId]: null }));
+        setVoteSummary(prev => ({
+          ...prev,
+          [complaintId]: {
+            up: (prev[complaintId]?.up || 0) - (vote === 'up' ? 1 : 0),
+            down: (prev[complaintId]?.down || 0) - (vote === 'down' ? 1 : 0),
+          },
+        }));
+      } else {
+        await upsertComplaintVote(complaintId, user.id, vote);
+        setUserVote(prev => ({ ...prev, [complaintId]: vote }));
+        setVoteSummary(prev => ({
+          ...prev,
+          [complaintId]: {
+            up: (prev[complaintId]?.up || 0) + (vote === 'up' ? 1 : 0) - (current === 'up' ? 1 : 0),
+            down: (prev[complaintId]?.down || 0) + (vote === 'down' ? 1 : 0) - (current === 'down' ? 1 : 0),
+          },
+        }));
+      }
+    } catch (e: any) {
+      toast({ title: 'Error', description: e.message || 'Failed to vote', variant: 'destructive' });
+    }
+  };
+
+  const toggleComments = async (complaintId: string) => {
+    const open = new Set(openComments);
+    if (open.has(complaintId)) {
+      open.delete(complaintId);
+      setOpenComments(open);
+      return;
+    }
+    open.add(complaintId);
+    setOpenComments(open);
+    if (!commentsById[complaintId]) {
+      const { data } = await listComplaintComments(complaintId);
+      setCommentsById(prev => ({ ...prev, [complaintId]: data || [] }));
+    }
+  };
+
+  const submitComment = async (complaintId: string) => {
+    if (!user || membershipStatus !== 'approved') return;
+    const text = (commentDraft[complaintId] || '').trim();
+    if (!text) return;
+    try {
+      const { data, error } = await addComplaintComment(complaintId, user.id, text);
+      if (error) throw error as any;
+      setCommentsById(prev => ({
+        ...prev,
+        [complaintId]: [data, ...(prev[complaintId] || [])],
+      }));
+      setCommentDraft(prev => ({ ...prev, [complaintId]: '' }));
+    } catch (e: any) {
+      toast({ title: 'Error', description: e.message || 'Failed to add comment', variant: 'destructive' });
     }
   };
 
@@ -554,10 +716,12 @@ const CommunityPage: React.FC = () => {
                 <div className="flex items-center gap-2">
                   {membershipLoading ? (
                     <div className="text-sm text-gray-500">Checking...</div>
-                  ) : isUserMember ? (
-                    <div className="flex items-center gap-1 text-green-600 text-sm">
+                  ) : membershipStatus === 'approved' ? (
+                    <></>
+                  ) : membershipStatus === 'pending' ? (
+                    <div className="flex items-center gap-1 text-amber-600 text-sm">
                       <Users className="h-4 w-4" />
-                      <span>You're a Member</span>
+                      <span>Request Sent • Pending Approval</span>
                     </div>
                   ) : (
                     <Button
@@ -572,15 +736,17 @@ const CommunityPage: React.FC = () => {
                   )}
                 </div>
               )}
-              
-              {/* Raise Complaint */}
-              <Button
-                size="sm"
-                onClick={() => navigate('/dashboard')}
-                className="flex items-center gap-2"
-              >
-                File Complaint
-              </Button>
+ 
+              {/* Raise Complaint (approved members only) */}
+              {membershipStatus === 'approved' && (
+                <Button
+                  size="sm"
+                  onClick={() => setComplaintOpen(true)}
+                  className="flex items-center gap-2"
+                >
+                  File Complaint
+                </Button>
+              )}
 
               <Button
                 variant="outline"
@@ -711,17 +877,22 @@ const CommunityPage: React.FC = () => {
                           <div className="text-gray-600 text-xs">{c.description.slice(0,90)}{c.description.length>90?'…':''}</div>
                         </div>
                         <div className="flex items-center gap-2">
-                          <select
-                            className="border rounded px-2 py-1 text-sm"
-                            value={c.status}
-                            onChange={e => handleUpdateComplaintStatus(c.id, e.target.value as any)}
-                            disabled={updatingComplaintId===c.id}
-                          >
-                            <option value="pending">pending</option>
-                            <option value="in_progress">in_progress</option>
-                            <option value="resolved">resolved</option>
-                            <option value="rejected">rejected</option>
-                          </select>
+                          <Badge variant="outline" className="text-xs">{c.category.replace('-', ' ').replace(/\b\w/g, (l) => l.toUpperCase())}</Badge>
+                          {isPresidentOrAdmin ? (
+                            <select
+                              className="border rounded px-2 py-1 text-xs"
+                              value={c.status}
+                              onChange={(e) => handleUpdateComplaintStatus(c.id, e.target.value as any)}
+                              disabled={updatingComplaintId === c.id}
+                            >
+                              <option value="pending">Pending</option>
+                              <option value="in_progress">In Progress</option>
+                              <option value="resolved">Resolved</option>
+                              <option value="rejected">Rejected</option>
+                            </select>
+                          ) : (
+                            <Badge className={`${getStatusColor(c.status)} text-xs`}>{getStatusText(c.status)}</Badge>
+                          )}
                         </div>
                       </div>
                     ))
@@ -790,124 +961,99 @@ const CommunityPage: React.FC = () => {
                 <div className="col-span-full bg-white rounded-lg border p-8 text-center">
                   <Eye className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                   <h3 className="text-lg font-semibold mb-2 text-gray-900">No In Progress Complaints</h3>
-                  <p className="text-gray-600 mb-4">
-                    No pending or in-progress complaints in {community.name} community.
-                  </p>
+                  <p className="text-gray-600 mb-4">No pending or in-progress complaints in {community.name} community.</p>
                 </div>
               ) : (
-                complaints.filter(c => c.status === 'pending' || c.status === 'in_progress').map((complaint) => (
-                  <div key={complaint.id} className="bg-white rounded-lg border shadow-sm hover:shadow-md transition-shadow">
-                    <div className="p-4 md:p-6">
-                      {/* Header Row */}
-                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-4">
-                        <div className="flex items-center space-x-3">
-                          <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
-                            <span className="text-sm font-medium text-primary">
-                              {getInitials(complaint.users?.full_name)}
-                            </span>
-                          </div>
-                          <div>
-                            <h3 className="font-semibold text-gray-900 text-sm md:text-base">
-                              {complaint.users?.full_name || 'Anonymous User'}
-                            </h3>
-                            <p className="text-xs text-gray-500 flex items-center gap-1">
-                              <Calendar className="h-3 w-3" />
-                              {formatDate(complaint.created_at)}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Badge variant="outline" className="text-xs">
-                            {complaint.category.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                          </Badge>
-                          <Badge className={`${getStatusColor(complaint.status)} text-xs`}>
-                            {getStatusText(complaint.status)}
-                          </Badge>
-                        </div>
-                      </div>
-
-                      {/* Content */}
-                      <div className="space-y-3">
-                        {/* Location */}
-                        <LocationDisplay 
-                          location_address={complaint.location_address}
-                          latitude={complaint.latitude}
-                          longitude={complaint.longitude}
-                        />
-
-                        {/* Description */}
-                        <div className="bg-gray-50 rounded-lg p-3 md:p-4">
-                          <h4 className="text-xs font-medium text-gray-600 mb-2">COMPLAINT DESCRIPTION</h4>
-                          <p className="text-sm text-gray-900 leading-relaxed">
-                            {complaint.description}
-                          </p>
-                        </div>
-
-                        {/* Media Files */}
-                        {complaint.complaint_files && complaint.complaint_files.length > 0 && (
-                          <div className="space-y-2">
-                            <h4 className="text-xs font-medium text-gray-600">ATTACHMENTS</h4>
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                              {complaint.complaint_files.map((file) => (
-                                <div key={file.id} className="relative">
-                                  {file.file_type.startsWith('image/') ? (
-                                    <img
-                                      src={file.file_url}
-                                      alt={file.file_name}
-                                      className="w-full h-20 md:h-24 object-cover rounded-md border"
-                                      onError={(e) => {
-                                        console.error('Image load error for file:', file.file_name);
-                                        e.currentTarget.style.display = 'none';
-                                      }}
-                                    />
-                                  ) : (
-                                    <div className="w-full h-20 md:h-24 bg-gray-100 rounded-md border flex items-center justify-center">
-                                      <span className="text-xs text-gray-500">
-                                        {file.file_name}
-                                      </span>
-                                    </div>
-                                  )}
-                                </div>
-                              ))}
+                complaints
+                  .filter(c => c.status === 'pending' || c.status === 'in_progress')
+                  .map((complaint) => (
+                    <div key={complaint.id} className="bg-white rounded-lg border shadow-sm hover:shadow-md transition-shadow">
+                      <div className="p-4 md:p-6">
+                        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-4">
+                          <div className="flex items-center space-x-3">
+                            <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
+                              <span className="text-sm font-medium text-primary">{getInitials(complaint.users?.full_name)}</span>
+                            </div>
+                            <div>
+                              <h3 className="font-semibold text-gray-900 text-sm md:text-base">{complaint.users?.full_name || 'Anonymous User'}</h3>
+                              <p className="text-xs text-gray-500 flex items-center gap-1"><Calendar className="h-3 w-3" />{formatDate(complaint.created_at)}</p>
                             </div>
                           </div>
-                        )}
-
-                        {/* Action Buttons */}
-                        <div className="flex items-center justify-between pt-3 border-t border-gray-200">
-                          <div className="flex items-center space-x-2">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleLike(complaint.id)}
-                              className={`flex items-center space-x-1 text-xs ${
-                                likedComplaints.has(complaint.id) 
-                                  ? 'text-green-600 bg-green-50' 
-                                  : 'text-gray-600 hover:bg-green-50 hover:text-green-600'
-                              }`}
-                            >
-                              <ThumbsUp className="h-3 w-3" />
-                              <span>Like</span>
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleDislike(complaint.id)}
-                              className={`flex items-center space-x-1 text-xs ${
-                                dislikedComplaints.has(complaint.id) 
-                                  ? 'text-red-600 bg-red-50' 
-                                  : 'text-gray-600 hover:bg-red-50 hover:text-red-600'
-                              }`}
-                            >
-                              <ThumbsDown className="h-3 w-3" />
-                              <span>Dislike</span>
-                            </Button>
+                          <div className="flex items-center gap-2">
+                            <Badge variant="outline" className="text-xs">{complaint.category.replace('-', ' ').replace(/\b\w/g, (l) => l.toUpperCase())}</Badge>
+                            {isPresidentOrAdmin ? (
+                              <select
+                                className="border rounded px-2 py-1 text-xs"
+                                value={complaint.status}
+                                onChange={(e) => handleUpdateComplaintStatus(complaint.id, e.target.value as any)}
+                                disabled={updatingComplaintId === complaint.id}
+                              >
+                                <option value="pending">Pending</option>
+                                <option value="in_progress">In Progress</option>
+                                <option value="resolved">Resolved</option>
+                                <option value="rejected">Rejected</option>
+                              </select>
+                            ) : (
+                              <Badge className={`${getStatusColor(complaint.status)} text-xs`}>{getStatusText(complaint.status)}</Badge>
+                            )}
                           </div>
+                        </div>
+
+                        <div className="space-y-3">
+                          <LocationDisplay location_address={complaint.location_address} latitude={complaint.latitude} longitude={complaint.longitude} />
+                          <div className="bg-gray-50 rounded-lg p-3 md:p-4">
+                            <h4 className="text-xs font-medium text-gray-600 mb-2">COMPLAINT DESCRIPTION</h4>
+                            <p className="text-sm text-gray-900 leading-relaxed">{complaint.description}</p>
+                          </div>
+                          {complaint.complaint_files && complaint.complaint_files.length > 0 && (
+                            <div className="space-y-2">
+                              <h4 className="text-xs font-medium text-gray-600">ATTACHMENTS</h4>
+                              <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                                {complaint.complaint_files.map((file) => (
+                                  <div key={file.id} className="relative">
+                                    {file.file_type.startsWith('image/') ? (
+                                      <img src={file.file_url} alt={file.file_name} className="w-full h-20 md:h-24 object-cover rounded-md border" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+                                    ) : (
+                                      <div className="w-full h-20 md:h-24 bg-gray-100 rounded-md border flex items-center justify-center"><span className="text-xs text-gray-500">{file.file_name}</span></div>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                          <div className="flex items-center justify-between pt-3 border-t border-gray-200">
+                            <div className="flex items-center space-x-2">
+                              <Button variant="ghost" size="sm" onClick={() => handleVote(complaint.id, 'up')} className={`flex items-center space-x-1 text-xs ${userVote[complaint.id] === 'up' ? 'text-green-600 bg-green-50' : 'text-gray-600 hover:bg-green-50 hover:text-green-600'}`}>
+                                <ThumbsUp className="h-3 w-3" />
+                                <span>{voteSummary[complaint.id]?.up || 0}</span>
+                              </Button>
+                              <Button variant="ghost" size="sm" onClick={() => handleVote(complaint.id, 'down')} className={`flex items-center space-x-1 text-xs ${userVote[complaint.id] === 'down' ? 'text-red-600 bg-red-50' : 'text-gray-600 hover:bg-red-50 hover:text-red-600'}`}>
+                                <ThumbsDown className="h-3 w-3" />
+                                <span>{voteSummary[complaint.id]?.down || 0}</span>
+                              </Button>
+                              <Button variant="ghost" size="sm" className="text-xs text-gray-600" onClick={() => toggleComments(complaint.id)}>Comments</Button>
+                            </div>
+                          </div>
+                          {openComments.has(complaint.id) && (
+                            <div className="mt-3 space-y-2">
+                              <div className="flex gap-2">
+                                <input className="flex-1 border rounded px-2 py-1 text-sm" placeholder="Write a comment" value={commentDraft[complaint.id] || ''} onChange={(e) => setCommentDraft((prev) => ({ ...prev, [complaint.id]: e.target.value }))} />
+                                <Button size="sm" onClick={() => submitComment(complaint.id)} disabled={!(commentDraft[complaint.id] || '').trim()}>Post</Button>
+                              </div>
+                              <div className="space-y-2">
+                                {(commentsById[complaint.id] || []).map((cm) => (
+                                  <div key={cm.id} className="text-sm border rounded p-2">
+                                    <div className="text-xs text-gray-600 mb-1">{cm.users?.full_name || 'User'} • {formatDate(cm.created_at)}</div>
+                                    <div>{cm.content}</div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
-                  </div>
-                ))
+                  ))
               )}
             </div>
           </TabsContent>
@@ -948,9 +1094,23 @@ const CommunityPage: React.FC = () => {
                           <Badge variant="outline" className="text-xs">
                             {complaint.category.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}
                           </Badge>
-                          <Badge className={`${getStatusColor(complaint.status)} text-xs`}>
-                            {getStatusText(complaint.status)}
-                          </Badge>
+                          {isPresidentOrAdmin ? (
+                            <select
+                              className="border rounded px-2 py-1 text-xs"
+                              value={complaint.status}
+                              onChange={(e) => handleUpdateComplaintStatus(complaint.id, e.target.value as any)}
+                              disabled={updatingComplaintId === complaint.id}
+                            >
+                              <option value="pending">Pending</option>
+                              <option value="in_progress">In Progress</option>
+                              <option value="resolved">Resolved</option>
+                              <option value="rejected">Rejected</option>
+                            </select>
+                          ) : (
+                            <Badge className={`${getStatusColor(complaint.status)} text-xs`}>
+                              {getStatusText(complaint.status)}
+                            </Badge>
+                          )}
                         </div>
                       </div>
 
@@ -1041,6 +1201,65 @@ const CommunityPage: React.FC = () => {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Access gate: block non-members from full content except India */}
+      {community && community.name.toLowerCase() !== 'india' && membershipStatus !== 'approved' && !loading && (
+        <div className="mt-6 p-4 border rounded-md bg-white">
+          <div className="text-sm text-gray-700">
+            {membershipStatus === 'pending' && 'Your request is pending approval. You will get access once approved.'}
+            {membershipStatus === 'rejected' && 'Your request was rejected. Contact the community president if you think this is a mistake.'}
+            {membershipStatus === 'none' && 'You are not a member of this community.'}
+          </div>
+        </div>
+      )}
+
+      {/* Floating mobile compose button for filing complaint (approved only) */}
+      {community && membershipStatus === 'approved' && (
+        <button
+          onClick={() => setComplaintOpen(true)}
+          className="fixed md:hidden bottom-6 right-6 h-14 w-14 rounded-full bg-primary text-white shadow-lg flex items-center justify-center z-50"
+          title="File Complaint"
+        >
+          <span className="text-3xl leading-none">+</span>
+        </button>
+      )}
+
+      {/* Complaint modal/drawer reusing ComplaintForm */}
+      {membershipStatus === 'approved' && (
+        isMobile ? (
+          <Drawer open={complaintOpen} onOpenChange={setComplaintOpen}>
+            <DrawerContent className="max-h-[85vh] overflow-y-auto">
+              <DrawerHeader>
+                <DrawerTitle>File a Complaint</DrawerTitle>
+              </DrawerHeader>
+              <div className="px-4 pb-6">
+                <ComplaintForm
+                  stayOnPage
+                  onSubmitted={async () => {
+                    setComplaintOpen(false);
+                    await handleRefresh();
+                  }}
+                />
+              </div>
+            </DrawerContent>
+          </Drawer>
+        ) : (
+          <Dialog open={complaintOpen} onOpenChange={setComplaintOpen}>
+            <DialogContent className="sm:max-w-xl max-h-[85vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>File a Complaint</DialogTitle>
+              </DialogHeader>
+              <ComplaintForm
+                stayOnPage
+                onSubmitted={async () => {
+                  setComplaintOpen(false);
+                  await handleRefresh();
+                }}
+              />
+            </DialogContent>
+          </Dialog>
+        )
+      )}
     </div>
   );
 };

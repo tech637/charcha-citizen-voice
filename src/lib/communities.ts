@@ -151,6 +151,7 @@ export const getUserCommunities = async (userId: string) => {
         communities (*)
       `)
       .eq('user_id', userId)
+      .eq('status', 'approved')
       .order('joined_at', { ascending: false })
 
     if (error) {
@@ -160,6 +161,24 @@ export const getUserCommunities = async (userId: string) => {
     return { data, error: null }
   } catch (error) {
     return { data: null, error }
+  }
+}
+
+export const getApprovedCommunitiesForUser = async (userId: string) => {
+  try {
+    const { data, error } = await supabase
+      .from('user_communities')
+      .select(`
+        communities!inner(*)
+      `)
+      .eq('user_id', userId)
+      .eq('status', 'approved')
+
+    if (error) throw error
+
+    return { data: (data || []).map((row: any) => row.communities), error: null }
+  } catch (error) {
+    return { data: [], error }
   }
 }
 
@@ -402,7 +421,8 @@ export const isUserMemberOfCommunity = async (userId: string, communityId: strin
       .select('id')
       .eq('user_id', userId)
       .eq('community_id', communityId)
-      .single()
+      .eq('status', 'approved')
+      .maybeSingle()
 
     if (error && error.code !== 'PGRST116') {
       console.error('Error checking community membership:', error)
@@ -562,16 +582,15 @@ export const updateMembershipStatus = async (
 
     const { data, error } = await supabase
       .from('user_communities')
-      .update({ status })
+      .update({ status, updated_at: new Date().toISOString() })
       .eq('id', membershipId)
-      .select()
-      .maybeSingle()
+      ;
 
     if (error) {
       throw error
     }
 
-    return { data, error: null }
+    return { data: null, error: null }
   } catch (error) {
     return { data: null, error }
   }

@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/contexts/AuthContext';
-import { getAllCommunities, getCommunityMembers, joinCommunityLegacy, getUserCommunities } from '@/lib/communities';
+import { getAllCommunities, getCommunityMembers, joinCommunity, getUserCommunities } from '@/lib/communities';
 import { getPublicComplaints, getAllCommunityComplaints, getCommunityComplaints } from '@/lib/complaints';
 import { getIndiaCommunityId } from '@/lib/india-community';
 import { useNavigate } from 'react-router-dom';
@@ -362,6 +362,7 @@ const CommunityFeed = () => {
   const [userCommunities, setUserCommunities] = useState<Set<string>>(new Set());
   const [memberships, setMemberships] = useState<Array<{ community_id: string; status: 'pending' | 'approved' | 'rejected'; community_name: string }>>([]);
   const [joiningCommunities, setJoiningCommunities] = useState<Set<string>>(new Set());
+  const [requestedCommunities, setRequestedCommunities] = useState<Set<string>>(new Set());
   
   // Complaint-related state
   const [complaints, setComplaints] = useState<CommunityComplaint[]>([]);
@@ -807,34 +808,18 @@ const CommunityFeed = () => {
     try {
       setJoiningCommunities(prev => new Set(prev).add(communityId));
       
-      const { data, error } = await joinCommunityLegacy(communityId, user.id);
+      const { data, error } = await joinCommunity({ communityId, userId: user.id, role: 'member' });
       
       if (error) {
         throw error;
       }
 
-      // Update user communities state
-      setUserCommunities(prev => new Set(prev).add(communityId));
-      
-      // Update member count
-      setMemberCounts(prev => ({
-        ...prev,
-        [communityId]: (prev[communityId] || 0) + 1
-      }));
-
-      // Set as selected community and show complaints
-      const community = communities.find(c => c.id === communityId);
-      if (community) {
-        setSelectedCommunity(community);
-        setShowComplaints(true);
-        await fetchComplaints(communityId);
-        // On mobile, switch to feed tab when joining community
-        setMobileTab('feed');
-      }
+      // Mark as requested (pending). Do NOT add to approved membership set.
+      setRequestedCommunities(prev => new Set(prev).add(communityId));
 
       toast({
-        title: "Successfully Joined!",
-        description: `You've joined the ${communityName} community`,
+        title: "Request Sent",
+        description: `Your request to join ${communityName} was sent for approval.`,
       });
     } catch (error: any) {
       console.error('Error joining community:', error);
@@ -934,34 +919,41 @@ const CommunityFeed = () => {
                     <div className="flex items-center gap-2">
                       <Calendar className="h-4 w-4 text-[#001F3F]/70" />
                       <span className="font-medium">{new Date(community.created_at).toLocaleDateString()}</span>
-                                    </div>
-                        </div>
+                                                  </div>
+                                              </div>
                   <div className="pt-2">
                     <div className="flex gap-2">
-                                    <Button
-                        className="flex-1 bg-gradient-to-r from-[#001F3F] to-[#001F3F]/90 hover:from-[#001F3F]/90 hover:to-[#001F3F] text-white text-sm h-10 shadow-md hover:shadow-lg transition-all duration-200" 
-                        onClick={() => navigate(`/communities/${encodeURIComponent(community.name)}`)}
-                        style={{fontFamily: 'Montserrat-SemiBold, Helvetica'}}
-                      >
-                        <Eye className="h-4 w-4 mr-2" />
-                        View Community
-                                    </Button>
-                      {!userCommunities.has(community.id) && (
+                      {(community.name.toLowerCase() === 'india' || userCommunities.has(community.id)) && (
+                                          <Button
+                          className="flex-1 bg-gradient-to-r from-[#001F3F] to-[#001F3F]/90 hover:from-[#001F3F]/90 hover:to-[#001F3F] text-white text-sm h-10 shadow-md hover:shadow-lg transition-all duration-200"
+                          onClick={() => navigate(`/communities/${encodeURIComponent(community.name)}`)}
+                          style={{ fontFamily: 'Montserrat-SemiBold, Helvetica' }}
+                        >
+                          <Eye className="h-4 w-4 mr-2" />
+                          View Community
+                                          </Button>
+                      )}
+                      {community.name.toLowerCase() !== 'india' && !userCommunities.has(community.id) && (
                                     <Button
                           variant="outline"
                           className="flex-1 text-[#001F3F] border-[#001F3F]/30"
                           onClick={() => handleJoinCommunity(community.id, community.name)}
-                          disabled={!community.is_active || isJoining(community.id)}
+                          disabled={!community.is_active || isJoining(community.id) || requestedCommunities.has(community.id)}
                         >
                           {isJoining(community.id) ? (
                             <>
                               <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                                          Joining...
+                              Sending...
+                            </>
+                          ) : requestedCommunities.has(community.id) ? (
+                            <>
+                              <Users className="h-4 w-4 mr-2" />
+                              Requested
                                         </>
                                       ) : (
                                         <>
                               <Users className="h-4 w-4 mr-2" />
-                                          Join
+                              Request to Join
                                         </>
                                       )}
                                     </Button>
@@ -979,3 +971,4 @@ const CommunityFeed = () => {
 };
 
 export default CommunityFeed;
+

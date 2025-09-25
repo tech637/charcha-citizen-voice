@@ -209,3 +209,97 @@ USING (
   )
   OR public.is_admin()
 );
+
+-- =============================================
+-- Ensure user_communities has updated_at and maintain it automatically
+-- =============================================
+ALTER TABLE public.user_communities
+  ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW();
+
+CREATE OR REPLACE FUNCTION public.set_updated_at()
+RETURNS trigger AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DO $$ BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_trigger
+    WHERE tgname = 'trg_user_communities_set_updated_at'
+  ) THEN
+    CREATE TRIGGER trg_user_communities_set_updated_at
+    BEFORE UPDATE ON public.user_communities
+    FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+  END IF;
+END $$;
+
+-- =============================================
+-- Social features: votes and comments for complaints
+-- =============================================
+
+-- complaint_votes: one vote per user per complaint
+CREATE TABLE IF NOT EXISTS public.complaint_votes (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  complaint_id UUID NOT NULL REFERENCES public.complaints(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+  vote_type TEXT NOT NULL CHECK (vote_type IN ('up','down')),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- prevent duplicate votes by same user on same complaint
+CREATE UNIQUE INDEX IF NOT EXISTS ux_complaint_votes_complaint_user
+  ON public.complaint_votes (complaint_id, user_id);
+
+CREATE INDEX IF NOT EXISTS idx_complaint_votes_complaint ON public.complaint_votes(complaint_id);
+CREATE INDEX IF NOT EXISTS idx_complaint_votes_user ON public.complaint_votes(user_id);
+
+ALTER TABLE public.complaint_votes ENABLE ROW LEVEL SECURITY;
+
+-- Read open to everyone; write allowed to authenticated users
+DROP POLICY IF EXISTS "Read complaint_votes" ON public.complaint_votes;
+CREATE POLICY "Read complaint_votes" ON public.complaint_votes
+FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Write complaint_votes (auth users)" ON public.complaint_votes;
+CREATE POLICY "Write complaint_votes (auth users)" ON public.complaint_votes
+FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Update own complaint_votes" ON public.complaint_votes;
+CREATE POLICY "Update own complaint_votes" ON public.complaint_votes
+FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Delete own complaint_votes" ON public.complaint_votes;
+CREATE POLICY "Delete own complaint_votes" ON public.complaint_votes
+FOR DELETE USING (auth.uid() = user_id);
+
+-- complaint_comments: simple threaded list (no parent id for now)
+CREATE TABLE IF NOT EXISTS public.complaint_comments (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  complaint_id UUID NOT NULL REFERENCES public.complaints(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+  content TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_complaint_comments_complaint ON public.complaint_comments(complaint_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_complaint_comments_user ON public.complaint_comments(user_id);
+
+ALTER TABLE public.complaint_comments ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Read complaint_comments" ON public.complaint_comments;
+CREATE POLICY "Read complaint_comments" ON public.complaint_comments
+FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Insert complaint_comments (auth users)" ON public.complaint_comments;
+CREATE POLICY "Insert complaint_comments (auth users)" ON public.complaint_comments
+FOR INSERT WITH CHECK (auth.uid() = user_id AND length(trim(content)) > 0);
+
+DROP POLICY IF EXISTS "Update own complaint_comments" ON public.complaint_comments;
+CREATE POLICY "Update own complaint_comments" ON public.complaint_comments
+FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Delete own complaint_comments" ON public.complaint_comments;
+CREATE POLICY "Delete own complaint_comments" ON public.complaint_comments
+FOR DELETE USING (auth.uid() = user_id OR public.is_admin());
