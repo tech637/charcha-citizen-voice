@@ -3,8 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ResponsiveContainer, ResponsiveSection } from '../responsive/ResponsiveLayout';
-import { Shield, ArrowLeft, Building2, Users, BarChart3, Settings } from 'lucide-react';
+import { Shield, ArrowLeft, Building2, Users, BarChart3 } from 'lucide-react';
 import { isUserAdmin } from '@/lib/communities';
 import { useAuth } from '@/contexts/AuthContext';
 import CommunityManagement from './CommunityManagement';
@@ -20,20 +19,15 @@ const AdminPanel = () => {
   useEffect(() => {
     const checkAdminAccess = async () => {
       if (!user) {
-        console.log('No user found, redirecting to home');
         navigate('/');
         return;
       }
 
-      console.log('Checking admin access for user:', user.id);
-      
       try {
         const adminStatus = await isUserAdmin(user.id);
-        console.log('Admin status:', adminStatus);
         setIsAdmin(adminStatus);
         
         if (!adminStatus) {
-          console.log('User is not admin, redirecting to home');
           navigate('/');
         }
       } catch (error) {
@@ -44,22 +38,16 @@ const AdminPanel = () => {
       }
     };
 
-    // Add a small delay to ensure user context is fully loaded
-    const timeoutId = setTimeout(checkAdminAccess, 100);
-    
-    return () => clearTimeout(timeoutId);
+    checkAdminAccess();
   }, [user, navigate]);
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Card className="w-96">
-          <CardContent className="p-8 text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-            <h3 className="text-lg font-semibold mb-2">Checking Admin Access</h3>
-            <p className="text-muted-foreground">Verifying your permissions...</p>
-          </CardContent>
-        </Card>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p>Checking admin access...</p>
+        </div>
       </div>
     );
   }
@@ -69,76 +57,60 @@ const AdminPanel = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <ResponsiveContainer className="py-6 lg:py-8">
-        {/* Modern Header */}
-        <ResponsiveSection
-          title="Admin Panel"
-          description="Welcome to the administrative dashboard"
-          spacing="lg"
-          action={
-            <Button
-              variant="outline"
-              onClick={() => navigate('/')}
-              className="flex items-center gap-2"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Back to Home
-            </Button>
-          }
-        >
-          <div className="flex items-center gap-3 mb-6">
-            <div className="p-3 bg-primary/10 rounded-xl">
-              <Shield className="h-8 w-8 text-primary" />
-            </div>
+    <div className="min-h-screen bg-gray-50">
+      <div className="container mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-3">
+            <Shield className="h-8 w-8 text-primary" />
             <div>
-              <h1 className="text-2xl lg:text-3xl font-bold">Admin Panel</h1>
-              <p className="text-muted-foreground">Manage communities, users, and analytics</p>
+              <h1 className="text-3xl font-bold text-gray-900">Admin Panel</h1>
+              <p className="text-gray-600">Welcome to the administrative dashboard</p>
             </div>
           </div>
-        </ResponsiveSection>
+          <Button
+            variant="outline"
+            onClick={() => navigate('/')}
+            className="flex items-center gap-2"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to Home
+          </Button>
+        </div>
 
-        {/* Enhanced Admin Tabs */}
-        <ResponsiveSection spacing="lg">
+        {/* Main Content */}
+        <div className="space-y-6">
+          {/* Admin Tabs */}
           <Tabs defaultValue="communities" className="w-full">
-            <TabsList className="grid w-full grid-cols-3 h-12 bg-muted/30">
-              <TabsTrigger 
-                value="communities" 
-                className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-              >
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="communities" className="flex items-center gap-2">
                 <Building2 className="h-4 w-4" />
-                <span className="hidden sm:inline">Communities</span>
+                Communities
               </TabsTrigger>
-              <TabsTrigger 
-                value="users" 
-                className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-              >
+              <TabsTrigger value="users" className="flex items-center gap-2">
                 <Users className="h-4 w-4" />
-                <span className="hidden sm:inline">Users</span>
+                Users
               </TabsTrigger>
-              <TabsTrigger 
-                value="analytics" 
-                className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-              >
+              <TabsTrigger value="analytics" className="flex items-center gap-2">
                 <BarChart3 className="h-4 w-4" />
-                <span className="hidden sm:inline">Analytics</span>
+                Analytics
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="communities" className="mt-8">
+            <TabsContent value="communities" className="mt-6">
               <CommunityManagement />
             </TabsContent>
 
-            <TabsContent value="users" className="mt-8">
+            <TabsContent value="users" className="mt-6">
               <UserManagement />
             </TabsContent>
 
-            <TabsContent value="analytics" className="mt-8">
+            <TabsContent value="analytics" className="mt-6">
               <Analytics />
             </TabsContent>
           </Tabs>
-        </ResponsiveSection>
-      </ResponsiveContainer>
+        </div>
+      </div>
     </div>
   );
 };
