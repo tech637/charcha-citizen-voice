@@ -39,8 +39,27 @@ export const getUserRole = async (userId: string): Promise<string | null> => {
 
 // Check if user is admin
 export const isUserAdmin = async (userId: string): Promise<boolean> => {
-  const role = await getUserRole(userId)
-  return role === 'admin'
+  try {
+    console.log('Checking if user is admin:', userId);
+    
+    const { data, error } = await supabase
+      .from('users')
+      .select('role')
+      .eq('id', userId)
+      .single()
+
+    if (error) {
+      console.error('Error fetching user role:', error);
+      return false;
+    }
+
+    const isAdmin = data?.role === 'admin';
+    console.log('User role:', data?.role, 'Is admin:', isAdmin);
+    return isAdmin;
+  } catch (error) {
+    console.error('Error in isUserAdmin:', error);
+    return false;
+  }
 }
 
 // Create a new community

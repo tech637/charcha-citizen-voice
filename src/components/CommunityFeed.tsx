@@ -4,6 +4,9 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ResponsiveContainer, ResponsiveSection, ResponsiveGrid, ResponsiveCard } from './responsive/ResponsiveLayout';
+import { EmptyState } from './ui/empty-state';
+import { FloatingActionButton } from './ui/floating-action-button';
 import { useAuth } from '@/contexts/AuthContext';
 import { getAllCommunities, getCommunityMembers, joinCommunity, getUserCommunities } from '@/lib/communities';
 import { getPublicComplaints, getAllCommunityComplaints, getCommunityComplaints } from '@/lib/complaints';
@@ -847,127 +850,153 @@ const CommunityFeed = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 py-8">
-        <div className="container mx-auto px-4">
+      <ResponsiveContainer className="py-8">
+        <ResponsiveSection spacing="lg">
           <div className="text-center py-8">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-            <p className="text-muted-foreground">Loading communities...</p>
+            <h3 className="text-lg font-semibold mb-2">Loading Communities</h3>
+            <p className="text-muted-foreground">Fetching community data...</p>
           </div>
-        </div>
-      </div>
+        </ResponsiveSection>
+      </ResponsiveContainer>
     );
   }
 
-    return (
-      <div className="min-h-screen bg-[#E2EEF9]">
-        <CommunitiesNavigation />
-        <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8">
-        {/* Header - Mobile Optimized */}
-        <div className="text-center mb-4 sm:mb-8">
-          <h1 className="text-xl sm:text-3xl font-bold text-[#001F3F] mb-2 sm:mb-4" style={{fontFamily: 'Montserrat-Bold, Helvetica'}}>
-            Communities
-          </h1>
-          <p className="text-[#001F3F]/80 max-w-2xl mx-auto text-sm sm:text-base px-2 mb-4">
+  return (
+    <div className="min-h-screen bg-background">
+      <CommunitiesNavigation />
+      <div className="container mx-auto px-4 py-8 max-w-7xl">
+        {/* Clean Header Section */}
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-foreground mb-4">Communities</h1>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             Join communities to connect with others and share local issues. India community is public and available to everyone.
           </p>
         </div>
 
-        {/* Single Column Layout - Present Communities */}
-        <div className="w-full max-w-6xl mx-auto">
-          {/* Your Communities / Applications (removed as requested) */}
-
-          {/* Communities Grid */}
+        {/* Communities Grid */}
+        {communities.length === 0 ? (
+          <div className="text-center py-16">
+            <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Building2 className="h-8 w-8 text-primary" />
+            </div>
+            <h3 className="text-xl font-semibold mb-2">No Communities Available</h3>
+            <p className="text-muted-foreground mb-6">There are no communities to join at the moment.</p>
+            <Button onClick={() => navigate('/join-communities')}>
+              <Plus className="h-4 w-4 mr-2" />
+              Create Community
+            </Button>
+          </div>
+        ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {communities.map((community) => (
-              <Card key={community.id} className="hover:shadow-xl transition-all duration-300 border border-[#001F3F]/20 shadow-lg hover:border-[#001F3F]/30">
-                <CardHeader className="pb-4">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 bg-gradient-to-br from-[#001F3F] to-[#001F3F]/80 rounded-full flex items-center justify-center shadow-md">
-                    <Building2 className="h-6 w-6 text-white" />
-                  </div>
-                      <div>
-                        <CardTitle className="text-lg text-[#001F3F]" style={{fontFamily: 'Montserrat-SemiBold, Helvetica'}}>
-                          {community.name}
-                        </CardTitle>
-                        <p className="text-sm text-[#001F3F]/70 mt-1">
-                          {community.location || '—'}
-                  </p>
-                </div>
-                </div>
-                    <Badge 
-                      variant={community.is_active ? 'default' : 'secondary'}
-                      className={`text-xs px-3 py-1 rounded-full ${
-                        community.is_active 
-                          ? 'bg-[#001F3F]/10 text-[#001F3F] border border-[#001F3F]/20' 
-                          : 'bg-gray-100 text-gray-600 border border-gray-200'
-                      }`}
-                    >
-                      {community.is_active ? 'Active' : 'Inactive'}
-                                        </Badge>
-                                      </div>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <p className="text-sm text-[#001F3F]/80 leading-relaxed">
-                    {community.description || 'Join this community to connect with others and share local issues.'}
-                  </p>
-                  <div className="flex items-center justify-between text-sm text-[#001F3F]/60 bg-gray-50/50 rounded-lg p-3">
-                    <div className="flex items-center gap-2">
-                      <Users className="h-4 w-4 text-[#001F3F]/70" />
-                      <span className="font-medium">{memberCounts[community.id] || 0} members</span>
-                                      </div>
-                    <div className="flex items-center gap-2">
-                      <Calendar className="h-4 w-4 text-[#001F3F]/70" />
-                      <span className="font-medium">{new Date(community.created_at).toLocaleDateString()}</span>
-                                                  </div>
-                                              </div>
-                  <div className="pt-2">
-                    <div className="flex gap-2">
-                      {(community.name.toLowerCase() === 'india' || userCommunities.has(community.id)) && (
-                                          <Button
-                          className="flex-1 bg-gradient-to-r from-[#001F3F] to-[#001F3F]/90 hover:from-[#001F3F]/90 hover:to-[#001F3F] text-white text-sm h-10 shadow-md hover:shadow-lg transition-all duration-200"
+              <Card key={community.id} className="group hover:shadow-xl transition-all duration-300 border-0 shadow-md">
+                <CardContent className="p-6">
+                  <div className="space-y-4">
+                    {/* Header with Icon and Status */}
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                          <Building2 className="h-6 w-6 text-primary" />
+                        </div>
+                        <div>
+                          <h3 className="font-semibold text-lg text-foreground group-hover:text-primary transition-colors">
+                            {community.name}
+                          </h3>
+                          <div className="flex items-center gap-1 text-sm text-muted-foreground mt-1">
+                            <MapPin className="h-3 w-3" />
+                            <span>{community.location || 'Location not specified'}</span>
+                          </div>
+                        </div>
+                      </div>
+                      <Badge 
+                        variant={community.is_active ? "default" : "secondary"}
+                        className={`text-xs px-2 py-1 ${
+                          community.is_active 
+                            ? 'bg-green-100 text-green-700 border-green-200' 
+                            : 'bg-gray-100 text-gray-600 border-gray-200'
+                        }`}
+                      >
+                        {community.is_active ? 'Active' : 'Inactive'}
+                      </Badge>
+                    </div>
+
+                    {/* Description */}
+                    <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3">
+                      {community.description || 'Join this community to connect with others and share local issues.'}
+                    </p>
+
+                    {/* Stats Section */}
+                    <div className="bg-muted/30 rounded-lg p-4">
+                      <div className="flex items-center justify-between text-sm">
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                          <Users className="h-4 w-4" />
+                          <span className="font-medium">{memberCounts[community.id] || 0} members</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                          <Calendar className="h-4 w-4" />
+                          <span className="font-medium">{new Date(community.created_at).toLocaleDateString()}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Action Button */}
+                    <div className="pt-2">
+                      {(community.name.toLowerCase() === 'india' || userCommunities.has(community.id)) ? (
+                        <Button
+                          className="w-full h-11 font-medium"
                           onClick={() => navigate(`/communities/${encodeURIComponent(community.name)}`)}
-                          style={{ fontFamily: 'Montserrat-SemiBold, Helvetica' }}
                         >
                           <Eye className="h-4 w-4 mr-2" />
                           View Community
-                                          </Button>
-                      )}
-                      {community.name.toLowerCase() !== 'india' && !userCommunities.has(community.id) && (
-                                    <Button
+                        </Button>
+                      ) : (
+                        <Button
                           variant="outline"
-                          className="flex-1 text-[#001F3F] border-[#001F3F]/30"
+                          className="w-full h-11 font-medium border-primary/20 hover:border-primary hover:bg-primary/5"
                           onClick={() => handleJoinCommunity(community.id, community.name)}
                           disabled={!community.is_active || isJoining(community.id) || requestedCommunities.has(community.id)}
                         >
                           {isJoining(community.id) ? (
                             <>
                               <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                              Sending...
+                              Sending Request...
                             </>
                           ) : requestedCommunities.has(community.id) ? (
                             <>
-                              <Users className="h-4 w-4 mr-2" />
-                              Requested
-                                        </>
-                                      ) : (
-                                        <>
+                              <CheckCircle className="h-4 w-4 mr-2" />
+                              Request Sent
+                            </>
+                          ) : (
+                            <>
                               <Users className="h-4 w-4 mr-2" />
                               Request to Join
-                                        </>
-                                      )}
-                                    </Button>
-                                  )}
-                                </div>
-                              </div>
-                            </CardContent>
-                          </Card>
-                        ))}
-                      </div>
-              </div>
-        </div>
+                            </>
+                          )}
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
       </div>
-    );
+
+      {/* Modern Floating Action Button */}
+      <div className="fixed bottom-6 right-6 z-50">
+        <Button
+          size="lg"
+          className="rounded-full w-14 h-14 shadow-lg hover:shadow-xl transition-all duration-300 bg-primary hover:bg-primary/90"
+          onClick={() => navigate('/join-communities')}
+          title="Join New Community"
+        >
+          <Plus className="h-6 w-6" />
+        </Button>
+      </div>
+    </div>
+  );
 };
 
 export default CommunityFeed;

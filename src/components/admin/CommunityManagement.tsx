@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
+import { ResponsiveContainer, ResponsiveSection, ResponsiveGrid, ResponsiveCard } from '../responsive/ResponsiveLayout';
 import { useToast } from '@/hooks/use-toast';
 import { createCommunity, getAllCommunities, deleteCommunity, getPendingMembershipRequests, updateMembershipStatus, assignCommunityPresident } from '@/lib/communities';
 import { useAuth } from '@/contexts/AuthContext';
@@ -18,7 +19,9 @@ import {
   Edit, 
   Trash2,
   CheckCircle,
-  AlertCircle
+  AlertCircle,
+  Crown,
+  Clock
 } from 'lucide-react';
 
 interface Community {
@@ -267,21 +270,22 @@ const CommunityManagement = () => {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">Community Management</h2>
-          <p className="text-gray-600">Create and manage communities for users to join</p>
-        </div>
-        <Button
-          onClick={() => setShowCreateForm(!showCreateForm)}
-          className="flex items-center gap-2"
-        >
-          <Plus className="h-4 w-4" />
-          {showCreateForm ? 'Cancel' : 'Create Community'}
-        </Button>
-      </div>
+    <ResponsiveContainer>
+      <ResponsiveSection
+        title="Community Management"
+        description="Create and manage communities for users to join"
+        spacing="lg"
+        action={
+          <Button
+            onClick={() => setShowCreateForm(!showCreateForm)}
+            size="lg"
+            className="flex items-center gap-2"
+          >
+            <Plus className="h-4 w-4" />
+            {showCreateForm ? 'Cancel' : 'Create Community'}
+          </Button>
+        }
+      />
 
       {/* Create Community Form */}
       {showCreateForm && (
@@ -459,11 +463,11 @@ const CommunityManagement = () => {
       )}
 
       {/* Communities List */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold">Existing Communities</h3>
-          <Badge variant="secondary" className="flex items-center gap-1">
-            <Building2 className="h-3 w-3" />
+      <ResponsiveSection spacing="lg">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-xl font-semibold">Existing Communities</h3>
+          <Badge variant="secondary" className="flex items-center gap-2 px-3 py-1">
+            <Building2 className="h-4 w-4" />
             {communities.length} Total
           </Badge>
         </div>
@@ -488,73 +492,82 @@ const CommunityManagement = () => {
             </CardContent>
           </Card>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <ResponsiveGrid mobile={1} tablet={2} desktop={3} gap="lg">
             {communities.map((community) => (
-              <Card key={community.id} className="hover:shadow-md transition-shadow">
-                <CardHeader className="pb-3">
+              <ResponsiveCard key={community.id} variant="elevated" padding="lg" className="h-full hover:shadow-card-hover transition-all duration-200">
+                <div className="space-y-4">
+                  {/* Header */}
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-2">
                       <Building2 className="h-5 w-5 text-primary" />
-                      <CardTitle className="text-base">{community.name}</CardTitle>
+                      <h4 className="font-semibold text-lg">{community.name}</h4>
                     </div>
-                    <Badge variant={community.is_active ? "default" : "secondary"}>
+                    <Badge variant={community.is_active ? "approved" : "default"}>
                       {community.is_active ? "Active" : "Inactive"}
                     </Badge>
                   </div>
+                  
                   {community.description && (
                     <p className="text-sm text-muted-foreground line-clamp-2">
                       {community.description}
                     </p>
                   )}
-                </CardHeader>
-                <CardContent className="pt-0">
-                  {community.location && (
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
-                      <MapPin className="h-3 w-3" />
-                      <span>{community.location}</span>
-                    </div>
-                  )}
-                  
-                  {community.latitude && community.longitude && (
-                    <div className="text-xs text-muted-foreground mb-3">
-                      Coordinates: {community.latitude.toFixed(4)}, {community.longitude.toFixed(4)}
-                    </div>
-                  )}
 
-                <div className="flex items-center justify-between text-xs text-muted-foreground">
-                    <div className="flex items-center gap-1">
-                      <Calendar className="h-3 w-3" />
-                      <span>Created {formatDate(community.created_at)}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Users className="h-3 w-3" />
-                      <span>0 members</span>
+                  {/* Details */}
+                  <div className="space-y-2">
+                    {community.location && (
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <MapPin className="h-4 w-4" />
+                        <span>{community.location}</span>
+                      </div>
+                    )}
+                    
+                    {community.latitude && community.longitude && (
+                      <div className="text-xs text-muted-foreground">
+                        Coordinates: {community.latitude.toFixed(4)}, {community.longitude.toFixed(4)}
+                      </div>
+                    )}
+
+                    <div className="flex items-center justify-between text-xs text-muted-foreground">
+                      <div className="flex items-center gap-1">
+                        <Calendar className="h-3 w-3" />
+                        <span>Created {formatDate(community.created_at)}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Users className="h-3 w-3" />
+                        <span>0 members</span>
+                      </div>
                     </div>
                   </div>
 
-                <div className="flex gap-2 mt-4">
-                    <Button size="sm" variant="outline" className="flex-1">
-                      <Edit className="h-3 w-3 mr-1" />
-                      Edit
-                    </Button>
+                  {/* Actions */}
+                  <div className="space-y-3 pt-4 border-t">
+                    <div className="grid grid-cols-2 gap-2">
+                      <Button size="sm" variant="outline" className="h-9">
+                        <Edit className="h-3 w-3 mr-1" />
+                        Edit
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="h-9"
+                        onClick={() => openRequests(community)}
+                      >
+                        <Clock className="h-3 w-3 mr-1" />
+                        Requests
+                      </Button>
+                    </div>
+                    
                     <Button 
+                      variant="destructive" 
                       size="sm" 
-                      variant="outline" 
-                      className="flex-1"
-                      onClick={() => openRequests(community)}
-                    >
-                      Pending Requests
-                    </Button>
-                    <Button 
-                      size="sm" 
-                      variant="outline" 
-                      className="flex-1"
+                      className="w-full h-9"
                       disabled={deletingId === community.id}
                       onClick={() => handleDeleteCommunity(community.id, community.name)}
                     >
                       {deletingId === community.id ? (
                         <>
-                          <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-current mr-1" />
+                          <div className="animate-spin rounded-full h-3 w-3 border-b border-white mr-1"></div>
                           Removing...
                         </>
                       ) : (
@@ -566,32 +579,38 @@ const CommunityManagement = () => {
                     </Button>
                   </div>
 
-                {/* Assign President */}
-                <div className="mt-3 border-t pt-3">
-                  <div className="text-xs font-medium mb-1">Assign/Replace President</div>
-                  <div className="flex gap-2">
-                    <Input
-                      type="email"
-                      placeholder="president@example.com"
-                      value={presidentEmails[community.id] || ''}
-                      onChange={(e) => setPresidentEmails(prev => ({...prev, [community.id]: e.target.value}))}
-                      className="flex-1"
-                    />
-                    <Button
-                      size="sm"
-                      onClick={() => handleAssignPresident(community.id)}
-                      disabled={assigningPresidentId === community.id}
-                    >
-                      {assigningPresidentId === community.id ? 'Assigning…' : 'Assign'}
-                    </Button>
+                  {/* President Assignment */}
+                  <div className="space-y-2 pt-4 border-t">
+                    <div className="flex items-center gap-2 text-sm font-medium">
+                      <Crown className="h-4 w-4 text-warning" />
+                      <span>Assign/Replace President</span>
+                    </div>
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="president@example.com"
+                        value={presidentEmails[community.id] || ''}
+                        onChange={(e) => setPresidentEmails(prev => ({
+                          ...prev,
+                          [community.id]: e.target.value
+                        }))}
+                        className="flex-1 h-9"
+                      />
+                      <Button
+                        size="sm"
+                        className="h-9"
+                        disabled={assigningPresidentId === community.id}
+                        onClick={() => handleAssignPresident(community.id)}
+                      >
+                        {assigningPresidentId === community.id ? 'Assigning…' : 'Assign'}
+                      </Button>
+                    </div>
                   </div>
                 </div>
-                </CardContent>
-              </Card>
+              </ResponsiveCard>
             ))}
-          </div>
+          </ResponsiveGrid>
         )}
-      </div>
+      </ResponsiveSection>
 
       {/* Pending Requests Dialog */}
       <Dialog open={requestModalOpen} onOpenChange={setRequestModalOpen}>
@@ -631,7 +650,7 @@ const CommunityManagement = () => {
           )}
         </DialogContent>
       </Dialog>
-    </div>
+    </ResponsiveContainer>
   );
 };
 
