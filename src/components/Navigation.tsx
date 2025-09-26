@@ -1,19 +1,16 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, LogOut, Shield, User } from "lucide-react";
+import { LogOut, Shield, User } from "lucide-react";
 import { LoginDialog } from "./LoginDialog";
 import { useAuth } from "@/contexts/AuthContext";
 import { isUserAdmin } from "@/lib/communities";
 
 const Navigation = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
-
-  const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
   // Check if user is admin
   useEffect(() => {
@@ -42,11 +39,11 @@ const Navigation = () => {
     <nav className="sticky top-0 z-50 bg-[#001F3F] shadow-lg backdrop-blur-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-14 sm:h-16 md:h-18">
-          {/* Logo */}
-          <div className="flex-shrink-0">
+          {/* Logo - Centered on mobile, left-aligned on desktop */}
+          <div className="flex-shrink-0 md:flex-shrink-0">
             <button 
               onClick={() => navigate("/")}
-              className="text-xl sm:text-2xl md:text-3xl font-black text-[#F5F5DC] hover:text-white transition-colors"
+              className="text-xl sm:text-2xl md:text-3xl font-black text-[#F5F5DC] hover:text-white transition-colors md:ml-0 mx-auto md:mx-0"
               style={{fontFamily: 'Montserrat-Black, Helvetica'}}
             >
               Charcha
@@ -62,7 +59,7 @@ const Navigation = () => {
               >
                 Home
               </button>
-              <a href="#how-it-works" className="text-gray-200 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
+              <a href="#how-it-works" className="text-gray-200 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">
                 How It Works
               </a>
               <button 
@@ -132,127 +129,43 @@ const Navigation = () => {
             )}
           </div>
 
-          {/* Mobile menu button */}
+          {/* Mobile Auth Buttons - Only show on mobile */}
           <div className="md:hidden">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleMenu}
-              aria-label="Toggle menu"
-              className="h-10 w-10 text-[#F5F5DC] hover:bg-white/20 hover:text-white transition-all duration-200"
-            >
-              {isMenuOpen ? (
-                <X className="h-5 w-5" />
-              ) : (
-                <Menu className="h-5 w-5" />
-              )}
-            </Button>
+            {user ? (
+              <div className="flex items-center gap-2">
+                <Button 
+                  variant="outline" 
+                  onClick={() => navigate("/dashboard")}
+                  size="icon"
+                  className="h-8 w-8 text-white border-white/30 hover:bg-white/20"
+                  title="User Dashboard"
+                >
+                  <User className="h-4 w-4" style={{ color: 'white', fill: 'white' }} />
+                </Button>
+                <Button 
+                  variant="outline" 
+                  onClick={handleSignOut}
+                  size="icon"
+                  className="h-8 w-8 text-white border-white/30 hover:bg-white/20"
+                  title="Sign Out"
+                >
+                  <LogOut className="h-4 w-4" style={{ color: 'white', fill: 'white' }} />
+                </Button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setIsLoginOpen(true)}
+                  size="sm"
+                  className="text-xs text-white border-white/30 hover:bg-white/20"
+                >
+                  Login
+                </Button>
+              </div>
+            )}
           </div>
         </div>
-
-        {/* Mobile Navigation Menu */}
-        {isMenuOpen && (
-          <div className="md:hidden">
-            <div className="px-4 pt-4 pb-6 space-y-2 bg-[#001F3F]/95 backdrop-blur-sm border-t border-[#F5F5DC]/20 shadow-xl">
-              <button 
-                onClick={() => {
-                  navigate("/");
-                  setIsMenuOpen(false);
-                }}
-                className="text-[#F5F5DC] hover:text-white hover:bg-white/20 block px-4 py-3 rounded-lg text-base font-semibold transition-all duration-200 w-full text-center"
-              >
-                Home
-              </button>
-              <a 
-                href="#how-it-works" 
-                onClick={() => setIsMenuOpen(false)}
-                className="text-[#F5F5DC]/90 hover:text-white hover:bg-white/20 block px-4 py-3 rounded-lg text-base font-semibold transition-all duration-200 w-full text-center"
-              >
-                How It Works
-              </a>
-              <button 
-                onClick={() => {
-                  navigate("/communities");
-                  setIsMenuOpen(false);
-                }}
-                className="text-[#F5F5DC]/90 hover:text-white hover:bg-white/20 block px-4 py-3 rounded-lg text-base font-semibold transition-all duration-200 w-full text-center"
-              >
-                Communities
-              </button>
-              {/* Dashboard removed from mobile list; access via top icon */}
-              <button 
-                onClick={() => {
-                  document.getElementById('complaint-form')?.scrollIntoView({ behavior: 'smooth' });
-                  setIsMenuOpen(false);
-                }}
-                className="text-[#F5F5DC]/90 hover:text-white hover:bg-white/20 block px-4 py-3 rounded-lg text-base font-semibold transition-all duration-200 w-full text-center"
-              >
-                Track Complaint
-              </button>
-              <div className="pt-4 pb-2 border-t border-[#F5F5DC]/20">
-                <div className="flex flex-col space-y-3">
-                  {user ? (
-                    <>
-                      <div className="text-sm text-[#F5F5DC]/80 px-4 py-2 text-center bg-white/10 rounded-lg">
-                        {user.user_metadata?.full_name || user.email}
-                      </div>
-                      <Button 
-                        variant="outline" 
-                        onClick={() => {
-                          handleSignOut();
-                          setIsMenuOpen(false);
-                        }}
-                        className="w-full text-sm h-10 bg-white/10 border-[#F5F5DC]/30 text-[#F5F5DC] hover:bg-white/20 hover:border-[#F5F5DC] justify-center"
-                        size="sm"
-                      >
-                        <LogOut className="h-4 w-4 mr-2" />
-                        Sign Out
-                      </Button>
-                      {isAdmin && (
-                        <Button 
-                          variant="outline"
-                          onClick={() => {
-                            navigate("/admin");
-                            setIsMenuOpen(false);
-                          }}
-                          className="w-full flex items-center justify-center gap-2 text-sm h-10 bg-white/10 border-[#F5F5DC]/30 text-[#F5F5DC] hover:bg-white/20 hover:border-[#F5F5DC]"
-                          size="sm"
-                        >
-                          <Shield className="h-4 w-4" />
-                          Admin Panel
-                        </Button>
-                      )}
-                    </>
-                  ) : (
-                    <>
-                      <Button 
-                        variant="outline" 
-                        onClick={() => {
-                          setIsLoginOpen(true);
-                          setIsMenuOpen(false);
-                        }}
-                        className="w-full text-sm h-10 bg-white/10 border-[#F5F5DC]/30 text-[#F5F5DC] hover:bg-white/20 hover:border-[#F5F5DC] justify-center"
-                        size="sm"
-                      >
-                        Login / Sign Up
-                      </Button>
-                      <Button 
-                        onClick={() => {
-                          document.getElementById('complaint-form')?.scrollIntoView({ behavior: 'smooth' });
-                          setIsMenuOpen(false);
-                        }}
-                        className="w-full text-sm h-10 bg-[#F5F5DC] text-[#001F3F] hover:bg-white font-semibold justify-center"
-                        size="sm"
-                      >
-                        File Complaint
-                      </Button>
-                    </>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
 
       <LoginDialog open={isLoginOpen} onOpenChange={setIsLoginOpen} />

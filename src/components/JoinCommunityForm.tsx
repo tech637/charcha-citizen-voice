@@ -209,37 +209,41 @@ const JoinCommunityForm = () => {
 
   return (
     <div className="max-w-2xl mx-auto">
-      <Card className="border-2 border-[#001F3F]/20 shadow-xl">
-        <CardHeader className="text-center bg-gradient-to-r from-[#001F3F] to-[#001F3F]/90 text-white rounded-t-lg">
-          <CardTitle className="text-2xl font-bold flex items-center justify-center gap-2">
-            <Users className="h-6 w-6" />
+      <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden">
+        {/* Header */}
+        <div className="bg-gradient-to-br from-[#001F3F] to-[#001F3F]/90 text-white p-8 md:p-10 text-center">
+          <div className="w-16 h-16 md:w-20 md:h-20 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4 md:mb-6">
+            <Users className="h-8 w-8 md:h-10 md:h-10 text-white" />
+          </div>
+          <h2 className="text-2xl md:text-3xl font-bold mb-3 md:mb-4" style={{fontFamily: 'Montserrat-Bold, Helvetica'}}>
             Join Your Community
-          </CardTitle>
-          <p className="text-[#E2EEF9] mt-2">
+          </h2>
+          <p className="text-white/90 text-base md:text-lg leading-relaxed">
             Connect with your neighbors and make your voice heard
           </p>
-        </CardHeader>
+        </div>
         
-        <CardContent className="p-6 space-y-6">
+        {/* Content */}
+        <div className="p-6 md:p-8 space-y-6 md:space-y-8">
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Community Selection */}
-            <div className="space-y-3">
-              <Label className="text-base font-semibold text-[#001F3F]">
+            <div className="space-y-4">
+              <Label className="text-lg font-bold text-[#001F3F]" style={{fontFamily: 'Montserrat-Bold, Helvetica'}}>
                 Select Community
               </Label>
               {isLoadingCommunities ? (
-                <div className="flex items-center gap-2 text-gray-500">
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  <span>Loading communities...</span>
+                <div className="flex items-center gap-3 text-gray-500 bg-gray-50 rounded-xl p-4">
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                  <span className="font-medium">Loading communities...</span>
                 </div>
               ) : (
                 <Select value={selectedCommunity?.id || ''} onValueChange={handleCommunitySelect}>
-                  <SelectTrigger className="h-12">
+                  <SelectTrigger className="h-14 bg-gray-50 border-2 border-gray-200 rounded-xl text-base font-medium">
                     <SelectValue placeholder="Choose your community" />
                   </SelectTrigger>
                   <SelectContent>
                     {communities.map((c) => (
-                      <SelectItem key={c.id} value={c.id}>
+                      <SelectItem key={c.id} value={c.id} className="text-base">
                         {c.name}
                       </SelectItem>
                     ))}
@@ -365,34 +369,35 @@ const JoinCommunityForm = () => {
 
             {/* Submit Button */}
             {selectedCommunity && (
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <Button
                   type="submit"
                   disabled={isSubmitting || !address.trim()}
-                  className="w-full h-12 bg-gradient-to-r from-[#001F3F] to-[#001F3F]/90 hover:from-[#001F3F]/90 hover:to-[#001F3F] text-white text-base font-semibold"
+                  className="w-full h-14 bg-gradient-to-r from-[#001F3F] to-[#001F3F]/90 hover:from-[#001F3F]/90 hover:to-[#001F3F] text-white text-lg font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                  style={{fontFamily: 'Montserrat-Bold, Helvetica'}}
                 >
                   {isSubmitting ? (
                     <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      <Loader2 className="h-5 w-5 mr-3 animate-spin" />
                       Submitting Request...
                     </>
                   ) : (
                     <>
-                      <Users className="h-4 w-4 mr-2" />
+                      <Users className="h-5 w-5 mr-3" />
                       Join {selectedCommunity.name}
                     </>
                   )}
                 </Button>
                 {!user && (
-                  <p className="text-xs text-center text-[#001F3F]/60">
+                  <p className="text-sm text-center text-[#001F3F]/70 font-medium">
                     You'll be asked to login or sign up when you submit
                   </p>
                 )}
               </div>
             )}
           </form>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
       
       <LoginDialog 
         open={showLoginDialog} 

@@ -26,10 +26,10 @@ import {
   ChevronDown,
   ChevronUp,
   PenTool,
-  X,
-  Menu,
   LogOut,
-  Shield
+  Shield,
+  Home,
+  User
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { hasLocationData } from '@/lib/locationUtils';
@@ -40,15 +40,60 @@ import { LoginDialog } from './LoginDialog';
 import { isUserAdmin } from '@/lib/communities';
 import { useThoughts } from '@/contexts/ThoughtContext';
 
+// Mobile Bottom Navigation Component
+const MobileBottomNavigation = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const isActive = (path: string) => {
+    return location.pathname === path;
+  };
+
+  return (
+    <div className="fixed bottom-0 left-0 right-0 z-40 md:hidden">
+      <div className="bg-white border-t border-gray-200 shadow-lg">
+        <div className="flex items-center justify-around py-2">
+          <button
+            onClick={() => navigate('/')}
+            className={`flex flex-col items-center justify-center py-2 px-4 rounded-lg transition-colors ${
+              isActive('/') ? 'text-blue-600' : 'text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            <Home className={`h-5 w-5 ${isActive('/') ? 'text-blue-600 fill-blue-600' : 'text-gray-500 fill-gray-500'}`} />
+            <span className="text-xs mt-1 font-medium">Home</span>
+          </button>
+          
+          <button
+            onClick={() => navigate('/communities')}
+            className={`flex flex-col items-center justify-center py-2 px-4 rounded-lg transition-colors ${
+              isActive('/communities') ? 'text-blue-600' : 'text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            <Building2 className={`h-5 w-5 ${isActive('/communities') ? 'text-blue-600 fill-blue-600' : 'text-gray-500 fill-gray-500'}`} />
+            <span className="text-xs mt-1 font-medium">Communities</span>
+          </button>
+          
+          <button
+            onClick={() => navigate('/dashboard')}
+            className={`flex flex-col items-center justify-center py-2 px-4 rounded-lg transition-colors ${
+              isActive('/dashboard') ? 'text-blue-600' : 'text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            <User className={`h-5 w-5 ${isActive('/dashboard') ? 'text-blue-600 fill-blue-600' : 'text-gray-500 fill-gray-500'}`} />
+            <span className="text-xs mt-1 font-medium">Dashboard</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // Custom Navigation component for Communities page
 const CommunitiesNavigation = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
-
-  const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
   // Check if user is admin
   useEffect(() => {
@@ -74,7 +119,7 @@ const CommunitiesNavigation = () => {
   };
 
   return (
-    <nav className="sticky top-0 z-50 bg-[#001F3F] shadow-lg backdrop-blur-sm">
+    <nav className="hidden md:block sticky top-0 z-50 bg-[#001F3F] shadow-lg backdrop-blur-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-14 sm:h-16 md:h-18">
           {/* Logo */}
@@ -113,9 +158,16 @@ const CommunitiesNavigation = () => {
           <div className="hidden md:block">
             {user ? (
               <div className="flex items-center gap-2 lg:gap-4">
-                <span className="text-xs lg:text-sm text-gray-200 truncate max-w-32 lg:max-w-none">
-                  {user.user_metadata?.full_name || user.email}
-                </span>
+                {/* Dashboard icon button */}
+                <Button 
+                  variant="outline" 
+                  onClick={() => navigate("/dashboard")}
+                  size="icon"
+                  className="h-8 w-8"
+                  title="User Dashboard"
+                >
+                  <User className="h-4 w-4" />
+                </Button>
                 <Button 
                   variant="outline" 
                   onClick={handleSignOut}
@@ -158,129 +210,7 @@ const CommunitiesNavigation = () => {
               </>
             )}
           </div>
-
-          {/* Mobile menu button */}
-          <div className="md:hidden">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleMenu}
-              aria-label="Toggle menu"
-              className="h-10 w-10 text-[#F5F5DC] hover:bg-white/20 hover:text-white transition-all duration-200 flex items-center justify-center"
-            >
-              {isMenuOpen ? (
-                <X className="h-5 w-5" />
-              ) : (
-                <Menu className="h-5 w-5" />
-              )}
-            </Button>
           </div>
-        </div>
-
-        {/* Mobile Navigation Menu */}
-        {isMenuOpen && (
-          <div className="md:hidden">
-            <div className="px-4 pt-4 pb-6 space-y-2 bg-[#001F3F]/95 border-t border-[#F5F5DC]/20 shadow-xl">
-              <button 
-                onClick={() => {
-                  navigate("/");
-                  setIsMenuOpen(false);
-                }}
-                className="text-[#F5F5DC] hover:text-white hover:bg-white/20 px-4 py-3 rounded-lg text-base font-semibold transition-all duration-200 w-full text-center flex items-center justify-center"
-              >
-                Home
-              </button>
-              <a 
-                href="#how-it-works" 
-                onClick={() => setIsMenuOpen(false)}
-                className="text-[#F5F5DC]/90 hover:text-white hover:bg-white/20 px-4 py-3 rounded-lg text-base font-semibold transition-all duration-200 w-full text-center flex items-center justify-center"
-              >
-                How It Works
-              </a>
-              <button 
-                onClick={() => {
-                  navigate("/join-communities");
-                  setIsMenuOpen(false);
-                }}
-                className="text-[#F5F5DC]/90 hover:text-white hover:bg-white/20 px-4 py-3 rounded-lg text-base font-semibold transition-all duration-200 w-full text-center flex items-center justify-center"
-              >
-                Join Communities
-              </button>
-              {user && (
-                <button 
-                  onClick={() => {
-                    navigate("/dashboard");
-                    setIsMenuOpen(false);
-                  }}
-                  className="text-[#F5F5DC]/90 hover:text-white hover:bg-white/20 px-4 py-3 rounded-lg text-base font-semibold transition-all duration-200 w-full text-center flex items-center justify-center"
-                >
-                  Track Complaint
-                </button>
-              )}
-              <div className="pt-4 pb-2 border-t border-[#F5F5DC]/20">
-                <div className="flex flex-col space-y-3">
-                  {user ? (
-                    <>
-                      <div className="text-sm text-[#F5F5DC]/80 px-4 py-2 text-center bg-white/10 rounded-lg">
-                        {user.user_metadata?.full_name || user.email}
-                      </div>
-                      <Button 
-                        variant="outline" 
-                        onClick={() => {
-                          handleSignOut();
-                          setIsMenuOpen(false);
-                        }}
-                        className="w-full text-sm h-10 bg-white/10 border-[#F5F5DC]/30 text-[#F5F5DC] hover:bg-white/20 hover:border-[#F5F5DC] justify-center"
-                        size="sm"
-                      >
-                        <LogOut className="h-4 w-4 mr-2" />
-                        Sign Out
-                      </Button>
-                      {isAdmin && (
-                        <Button 
-                          variant="outline"
-                          onClick={() => {
-                            navigate("/admin");
-                            setIsMenuOpen(false);
-                          }}
-                          className="w-full flex items-center justify-center gap-2 text-sm h-10 bg-white/10 border-[#F5F5DC]/30 text-[#F5F5DC] hover:bg-white/20 hover:border-[#F5F5DC]"
-                          size="sm"
-                        >
-                          <Shield className="h-4 w-4" />
-                          Admin Panel
-                        </Button>
-                      )}
-                    </>
-                  ) : (
-                    <>
-                      <Button 
-                        variant="outline" 
-                        onClick={() => {
-                          setIsLoginOpen(true);
-                          setIsMenuOpen(false);
-                        }}
-                        className="w-full text-sm h-10 bg-white/10 border-[#F5F5DC]/30 text-[#F5F5DC] hover:bg-white/20 hover:border-[#F5F5DC] justify-center"
-                        size="sm"
-                      >
-                        Login / Sign Up
-                      </Button>
-                      <Button 
-                        onClick={() => {
-                          document.getElementById('complaint-form')?.scrollIntoView({ behavior: 'smooth' });
-                          setIsMenuOpen(false);
-                        }}
-                        className="w-full text-sm h-10 bg-[#F5F5DC] text-[#001F3F] hover:bg-white font-semibold justify-center"
-                        size="sm"
-                      >
-                        File Complaint
-                      </Button>
-                    </>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
 
       <LoginDialog open={isLoginOpen} onOpenChange={setIsLoginOpen} />
@@ -847,59 +777,68 @@ const CommunityFeed = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 py-8">
-        <div className="container mx-auto px-4">
-          <div className="text-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-            <p className="text-muted-foreground">Loading communities...</p>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+        <CommunitiesNavigation />
+        <div className="container mx-auto px-4 py-16">
+          <div className="text-center">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-white rounded-full shadow-lg mb-6">
+              <div className="animate-spin rounded-full h-8 w-8 border-2 border-blue-200 border-t-blue-600"></div>
           </div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Loading Communities</h3>
+            <p className="text-gray-600">Please wait while we fetch the latest communities...</p>
         </div>
+        </div>
+        <MobileBottomNavigation />
       </div>
     );
   }
 
     return (
-      <div className="min-h-screen bg-[#E2EEF9]">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 pb-20 md:pb-8">
         <CommunitiesNavigation />
-        <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8">
-        {/* Header - Mobile Optimized */}
-        <div className="text-center mb-4 sm:mb-8">
-          <h1 className="text-xl sm:text-3xl font-bold text-[#001F3F] mb-2 sm:mb-4" style={{fontFamily: 'Montserrat-Bold, Helvetica'}}>
+      
+      {/* Main Content */}
+      <div className="container mx-auto px-4 py-8">
+        {/* Header Section */}
+        <div className="text-center mb-12">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-white rounded-2xl shadow-lg mb-6">
+            <Building2 className="h-8 w-8 text-blue-600" />
+          </div>
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
             Communities
           </h1>
-          <p className="text-[#001F3F]/80 max-w-2xl mx-auto text-sm sm:text-base px-2 mb-4">
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
             Join communities to connect with others and share local issues. India community is public and available to everyone.
           </p>
         </div>
 
-        {/* Single Column Layout - Present Communities */}
-        <div className="w-full max-w-6xl mx-auto">
-          {/* Your Communities / Applications (removed as requested) */}
-
-          {/* Communities Grid */}
+        {/* Communities Grid */}
+        <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {communities.map((community) => (
-              <Card key={community.id} className="hover:shadow-xl transition-all duration-300 border border-[#001F3F]/20 shadow-lg hover:border-[#001F3F]/30">
+              <Card key={community.id} className="group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border-0 overflow-hidden">
+                {/* Card Header */}
                 <CardHeader className="pb-4">
                   <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 bg-gradient-to-br from-[#001F3F] to-[#001F3F]/80 rounded-full flex items-center justify-center shadow-md">
-                    <Building2 className="h-6 w-6 text-white" />
-                  </div>
-                      <div>
-                        <CardTitle className="text-lg text-[#001F3F]" style={{fontFamily: 'Montserrat-SemiBold, Helvetica'}}>
+                    <div className="flex items-center gap-4">
+                      <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow duration-300">
+                        <Building2 className="h-7 w-7 text-white" />
+                </div>
+                      <div className="flex-1 min-w-0">
+                        <CardTitle className="text-xl font-bold text-gray-900 mb-1 truncate">
                           {community.name}
                         </CardTitle>
-                        <p className="text-sm text-[#001F3F]/70 mt-1">
-                          {community.location || '—'}
-                  </p>
+                        <div className="flex items-center gap-1 text-gray-500">
+                          <MapPin className="h-4 w-4 flex-shrink-0" />
+                          <span className="text-sm truncate">{community.location || 'Location not specified'}</span>
+                  </div>
                 </div>
-                </div>
+                    </div>
                     <Badge 
                       variant={community.is_active ? 'default' : 'secondary'}
-                      className={`text-xs px-3 py-1 rounded-full ${
+                      className={`text-xs px-3 py-1 rounded-full font-medium ${
                         community.is_active 
-                          ? 'bg-[#001F3F]/10 text-[#001F3F] border border-[#001F3F]/20' 
+                          ? 'bg-green-100 text-green-700 border border-green-200' 
                           : 'bg-gray-100 text-gray-600 border border-gray-200'
                       }`}
                     >
@@ -907,65 +846,86 @@ const CommunityFeed = () => {
                                         </Badge>
                                       </div>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <p className="text-sm text-[#001F3F]/80 leading-relaxed">
+
+                {/* Card Content */}
+                <CardContent className="space-y-6">
+                                      {/* Description */}
+                  <p className="text-gray-600 leading-relaxed line-clamp-3">
                     {community.description || 'Join this community to connect with others and share local issues.'}
                   </p>
-                  <div className="flex items-center justify-between text-sm text-[#001F3F]/60 bg-gray-50/50 rounded-lg p-3">
+
+                  {/* Stats Row */}
+                  <div className="flex items-center justify-between bg-gray-50 rounded-xl p-4">
                     <div className="flex items-center gap-2">
-                      <Users className="h-4 w-4 text-[#001F3F]/70" />
-                      <span className="font-medium">{memberCounts[community.id] || 0} members</span>
-                                      </div>
-                    <div className="flex items-center gap-2">
-                      <Calendar className="h-4 w-4 text-[#001F3F]/70" />
-                      <span className="font-medium">{new Date(community.created_at).toLocaleDateString()}</span>
+                      <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <Users className="h-4 w-4 text-blue-600" />
                                                   </div>
+                      <div>
+                        <p className="text-sm font-semibold text-gray-900">{memberCounts[community.id] || 0}</p>
+                        <p className="text-xs text-gray-500">members</p>
                                               </div>
+                                          </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                        <Calendar className="h-4 w-4 text-green-600" />
+                                        </div>
+                      <div>
+                        <p className="text-sm font-semibold text-gray-900">
+                          {new Date(community.created_at).toLocaleDateString('en-US', { 
+                            month: 'short', 
+                            day: 'numeric' 
+                          })}
+                        </p>
+                        <p className="text-xs text-gray-500">created</p>
+                      </div>
+                                </div>
+                              </div>
+
+                  {/* Action Button */}
                   <div className="pt-2">
-                    <div className="flex gap-2">
-                      {(community.name.toLowerCase() === 'india' || userCommunities.has(community.id)) && (
-                                          <Button
-                          className="flex-1 bg-gradient-to-r from-[#001F3F] to-[#001F3F]/90 hover:from-[#001F3F]/90 hover:to-[#001F3F] text-white text-sm h-10 shadow-md hover:shadow-lg transition-all duration-200"
-                          onClick={() => navigate(`/communities/${encodeURIComponent(community.name)}`)}
-                          style={{ fontFamily: 'Montserrat-SemiBold, Helvetica' }}
-                        >
-                          <Eye className="h-4 w-4 mr-2" />
-                          View Community
-                                          </Button>
-                      )}
-                      {community.name.toLowerCase() !== 'india' && !userCommunities.has(community.id) && (
+                    {(community.name.toLowerCase() === 'india' || userCommunities.has(community.id)) ? (
                                     <Button
-                          variant="outline"
-                          className="flex-1 text-[#001F3F] border-[#001F3F]/30"
-                          onClick={() => handleJoinCommunity(community.id, community.name)}
-                          disabled={!community.is_active || isJoining(community.id) || requestedCommunities.has(community.id)}
-                        >
-                          {isJoining(community.id) ? (
-                            <>
-                              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                              Sending...
-                            </>
-                          ) : requestedCommunities.has(community.id) ? (
-                            <>
-                              <Users className="h-4 w-4 mr-2" />
-                              Requested
+                        className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                        onClick={() => navigate(`/communities/${encodeURIComponent(community.name)}`)}
+                      >
+                        <Eye className="h-5 w-5 mr-2" />
+                        View Community
+                                    </Button>
+                    ) : (
+                                    <Button
+                        variant="outline"
+                        className="w-full border-2 border-blue-200 text-blue-700 hover:bg-blue-50 hover:border-blue-300 font-semibold py-3 rounded-xl transition-all duration-300"
+                        onClick={() => handleJoinCommunity(community.id, community.name)}
+                        disabled={!community.is_active || isJoining(community.id) || requestedCommunities.has(community.id)}
+                      >
+                        {isJoining(community.id) ? (
+                          <>
+                            <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                            Sending Request...
+                          </>
+                        ) : requestedCommunities.has(community.id) ? (
+                          <>
+                            <CheckCircle className="h-5 w-5 mr-2" />
+                            Request Sent
                                         </>
                                       ) : (
                                         <>
-                              <Users className="h-4 w-4 mr-2" />
-                              Request to Join
+                            <Users className="h-5 w-5 mr-2" />
+                            Request to Join
                                         </>
                                       )}
                                     </Button>
                                   )}
-                                </div>
                               </div>
                             </CardContent>
                           </Card>
                         ))}
-                      </div>
-              </div>
+            </div>
+          </div>
         </div>
+
+      {/* Mobile Bottom Navigation */}
+      <MobileBottomNavigation />
       </div>
     );
 };

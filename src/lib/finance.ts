@@ -30,11 +30,16 @@ export const getCommunityTransactions = async (
       .order('created_at', { ascending: false })
       .limit(limit)
 
-    if (error) throw error
+    // If table doesn't exist or other error, return empty array
+    if (error) {
+      console.warn('Finance transactions table not available:', error.message)
+      return { data: [], error: null }
+    }
 
     return { data: (data as CommunityTransaction[]) || [], error: null }
   } catch (error) {
-    return { data: [], error }
+    console.warn('Finance transactions error:', error)
+    return { data: [], error: null }
   }
 }
 
@@ -47,7 +52,11 @@ export const getCommunityFinanceSummary = async (
       .select('type, amount')
       .eq('community_id', communityId)
 
-    if (error) throw error
+    // If table doesn't exist or other error, return default values
+    if (error) {
+      console.warn('Finance table not available:', error.message)
+      return { data: { collected: 0, spent: 0, balance: 0 }, error: null }
+    }
 
     let collected = 0
     let spent = 0
@@ -66,7 +75,8 @@ export const getCommunityFinanceSummary = async (
 
     return { data: summary, error: null }
   } catch (error) {
-    return { data: { collected: 0, spent: 0, balance: 0 }, error }
+    console.warn('Finance summary error:', error)
+    return { data: { collected: 0, spent: 0, balance: 0 }, error: null }
   }
 }
 

@@ -303,3 +303,38 @@ FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
 DROP POLICY IF EXISTS "Delete own complaint_comments" ON public.complaint_comments;
 CREATE POLICY "Delete own complaint_comments" ON public.complaint_comments
 FOR DELETE USING (auth.uid() = user_id OR public.is_admin());
+
+-- =============================================
+-- Ensure community admin is always an approved member
+-- =============================================
+
+-- Helper function (idempotent block)
+DO $$ BEGIN
+  CREATE OR REPLACE FUNCTION public.ensure_admin_membership()
+  RETURNS trigger
+  LANGUAGE plpgsql
+  SECURITY DEFINER
+  AS $$
+  BEGIN
+    IF NEW.admin_id IS NULL THEN
+      RETURN NEW;
+    END IF;
+    INSERT INTO public.user_communities (user_id, community_id, role, status, joined_at)
+    VALUES (NEW.admin_id, NEW.id, 'admin', 'approved', NOW())
+    ON CONFLICT (user_id, community_id)
+    DO UPDATE SET role = 'admin', status = 'approved';
+    RETURN NEW;
+  END;
+  $$;
+EXCEPTION WHEN others THEN
+  NULL;
+END $$;
+
+-- Trigger to enforce membership on insert/update of admin_id
+DO $$ BEGIN
+  CREATE TRIGGER trg_ensure_admin_membership
+  AFTER INSERT OR UPDATE OF admin_id ON public.communities
+  FOR EACH ROW EXECUTE FUNCTION public.ensure_admin_membership();
+EXCEPTION WHEN others THEN
+  NULL;
+END $$;

@@ -74,13 +74,15 @@ export const createCommunity = async (communityData: CreateCommunityData, adminI
       throw communityError
     }
 
-    // Add admin as a member of the community
+    // Add admin as a member of the community (approved)
     const { error: membershipError } = await supabase
       .from('user_communities')
       .insert({
         user_id: adminId,
         community_id: community.id,
-        role: 'admin'
+        role: 'admin',
+        status: 'approved',
+        joined_at: new Date().toISOString()
       })
 
     if (membershipError) {
@@ -588,6 +590,17 @@ export const updateMembershipStatus = async (
 
     if (error) {
       throw error
+    }
+
+    // Fire-and-forget email notification when approved
+    if (status === 'approved') {
+      try {
+        await supabase.functions.invoke('send-membership-approved', {
+          body: { membershipId }
+        })
+      } catch (notifyErr) {
+        console.error('Email notification failed (non-blocking):', notifyErr)
+      }
     }
 
     return { data: null, error: null }

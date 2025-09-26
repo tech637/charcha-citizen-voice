@@ -1,102 +1,71 @@
 
-import { FileText, Bell, Users, MapPin, MessageSquare, CheckCircle } from "lucide-react";
-import { BentoCard, BentoGrid } from "@/components/magicui/bento-grid";
-import Marquee from "@/components/magicui/marquee";
-import { cn } from "@/lib/utils";
+import { FileText, Bell, Users, ArrowRight } from "lucide-react";
 
 const HowItWorks = () => {
-  const complaintCategories = [
-    { name: "Water Issues", icon: "", description: "Water logging, supply problems" },
-    { name: "Garbage", icon: "", description: "Waste collection, dumping" },
-    { name: "Electricity", icon: "", description: "Power cuts, street lights" },
-    { name: "Roads", icon: "🛣️", description: "Potholes, maintenance" },
-    { name: "Sewage", icon: "🚰", description: "Drainage, sanitation" },
-    { name: "Other", icon: "📝", description: "Other civic issues" }
-  ];
-
-  const statusUpdates = [
-    { status: "Submitted", icon: "", color: "text-blue-500" },
-    { status: "In Review", icon: "", color: "text-yellow-500" },
-    { status: "In Progress", icon: "⚙️", color: "text-orange-500" },
-    { status: "Resolved", icon: "✅", color: "text-green-500" },
-    { status: "Closed", icon: "🔒", color: "text-gray-500" }
-  ];
-
   const features = [
     {
       Icon: FileText,
       name: "File a Complaint",
       description: "Report civic issues with photos, location, and category selection. Auto-capture GPS location with manual map pin option.",
-      href: "#complaint",
       cta: "Start Reporting",
-      className: "col-span-1 sm:col-span-2 lg:col-span-2 lg:row-start-1",
-      background: (
-        <div className="absolute bottom-2 right-2 sm:bottom-4 sm:right-4 flex flex-wrap gap-1 sm:gap-2 max-w-[150px] sm:max-w-[200px]">
-          {complaintCategories.slice(0, 3).map((category, idx) => (
-            <div
-              key={idx}
-              className="flex items-center gap-1 sm:gap-2 px-2 py-1 sm:px-3 sm:py-2 rounded-full bg-white/90 dark:bg-gray-800/90 shadow-sm border border-gray-200 dark:border-gray-700"
-            >
-              {category.icon && <span className="text-sm sm:text-lg">{category.icon}</span>}
-              <span className="text-xs font-medium text-gray-700 dark:text-gray-300 hidden sm:inline">{category.name}</span>
-            </div>
-          ))}
-        </div>
-      ),
+      gradient: "from-blue-500 to-blue-600",
+      bgGradient: "from-blue-50 to-blue-100",
     },
     {
       Icon: Bell,
       name: "Track Status",
       description: "Get real-time updates on your complaint progress with email notifications and status tracking.",
-      href: "#track",
       cta: "View Status",
-      className: "col-span-1 sm:col-span-1 lg:col-span-1 lg:row-span-2",
-      background: (
-        <div className="absolute bottom-2 right-2 sm:bottom-4 sm:right-4 flex flex-col gap-1 sm:gap-2">
-          {statusUpdates.slice(0, 2).map((update, idx) => (
-            <div key={idx} className="flex items-center gap-1 sm:gap-2 px-2 py-1 sm:px-3 sm:py-2 rounded-full bg-white/90 dark:bg-gray-800/90 shadow-sm border border-gray-200 dark:border-gray-700">
-              {update.icon && <span className="text-sm sm:text-lg">{update.icon}</span>}
-              <span className={`text-xs font-medium ${update.color} hidden sm:inline`}>{update.status}</span>
-            </div>
-          ))}
-        </div>
-      ),
-    },
-    {
-      Icon: Users,
-      name: "Community Feed",
-      description: "See public complaints in your area, collaborate with neighbors, and build stronger communities.",
-      href: "#community",
-      cta: "Join Community",
-      className: "col-span-1 sm:col-span-2 lg:col-span-2 lg:row-start-2",
-      background: (
-        <div className="absolute bottom-2 right-2 sm:bottom-4 sm:right-4 flex flex-col gap-1 sm:gap-2 max-w-[150px] sm:max-w-[250px]">
-          <div className="flex items-center gap-1 sm:gap-2 px-2 py-1 sm:px-3 sm:py-2 rounded-lg bg-white/90 dark:bg-gray-800/90 shadow-sm border border-gray-200 dark:border-gray-700">
-            <div className="flex-1 min-w-0">
-              <div className="text-xs font-medium text-gray-900 dark:text-gray-100 truncate">Road maintenance near Metro</div>
-              <div className="text-xs text-gray-600 dark:text-gray-300 hidden sm:block">2h ago • 5 likes</div>
-            </div>
-          </div>
-          <div className="flex items-center gap-1 sm:gap-2 px-2 py-1 sm:px-3 sm:py-2 rounded-lg bg-white/90 dark:bg-gray-800/90 shadow-sm border border-gray-200 dark:border-gray-700">
-            <div className="flex-1 min-w-0">
-              <div className="text-xs font-medium text-gray-900 dark:text-gray-100 truncate">Sewage system repair</div>
-              <div className="text-xs text-gray-600 dark:text-gray-300 hidden sm:block">4h ago • 3 likes</div>
-            </div>
-          </div>
-        </div>
-      ),
+      gradient: "from-green-500 to-green-600",
+      bgGradient: "from-green-50 to-green-100",
     },
   ];
 
   return (
-    <div className="py-6 sm:py-8 md:py-16 px-4">
-      <div className="max-w-4xl mx-auto">
-        <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-center mb-6 sm:mb-8 md:mb-12">How It Works</h2>
-        <BentoGrid>
-          {features.map((feature, idx) => (
-            <BentoCard key={idx} {...feature} />
-          ))}
-        </BentoGrid>
+    <div className="w-full">
+      {/* Section Header */}
+      <div className="text-center mb-12 md:mb-16">
+        <h2 className="text-3xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-[#001F3F] mb-4 md:mb-6" style={{fontFamily: 'Montserrat-Bold, Helvetica'}}>
+          How It Works
+        </h2>
+        <p className="text-base md:text-base lg:text-lg xl:text-xl text-[#001F3F]/80 max-w-3xl mx-auto leading-relaxed">
+          Simple steps to make your voice heard and track progress
+        </p>
+      </div>
+
+      {/* Features Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+        {features.map((feature, idx) => (
+          <div
+            key={idx}
+            className={`bg-gradient-to-br ${feature.bgGradient} rounded-3xl p-8 md:p-10 shadow-xl hover:shadow-2xl transition-all duration-300 border border-white/20`}
+          >
+            {/* Icon */}
+            <div className={`w-16 h-16 md:w-18 md:h-18 bg-gradient-to-br ${feature.gradient} rounded-2xl flex items-center justify-center shadow-lg mb-6 md:mb-6`}>
+              <feature.Icon className="w-8 h-8 md:w-9 md:h-9 text-white" />
+            </div>
+
+            {/* Content */}
+            <div className="space-y-4 md:space-y-6">
+              <h3 className="text-xl md:text-xl lg:text-2xl xl:text-3xl font-bold text-[#001F3F]" style={{fontFamily: 'Montserrat-Bold, Helvetica'}}>
+                {feature.name}
+              </h3>
+              
+              <p className="text-[#001F3F]/80 leading-relaxed text-base md:text-base lg:text-lg">
+                {feature.description}
+              </p>
+
+              {/* CTA Button */}
+              <button
+                className={`inline-flex items-center gap-2 px-6 py-3 md:px-8 md:py-4 bg-gradient-to-r ${feature.gradient} hover:shadow-lg text-white font-bold rounded-xl transition-all duration-300 group text-base md:text-base`}
+                style={{fontFamily: 'Montserrat-Bold, Helvetica'}}
+              >
+                {feature.cta}
+                <ArrowRight className="w-4 h-4 md:w-5 md:h-5 group-hover:translate-x-1 transition-transform duration-300" />
+              </button>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );

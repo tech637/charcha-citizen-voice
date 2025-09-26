@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -9,13 +9,60 @@ import { useComplaint } from "@/contexts/ComplaintContext";
 import { getUserComplaints, createComplaint } from "@/lib/complaints";
 import { Complaint } from "@/lib/supabase";
 import { useToast } from "@/hooks/use-toast";
-import { FileText, Clock, CheckCircle, AlertCircle, Plus, LogOut, MapPin, Users } from "lucide-react";
+import { FileText, Clock, CheckCircle, AlertCircle, Plus, LogOut, MapPin, Users, Home, Building2, User } from "lucide-react";
 import { supabase } from "@/lib/supabase";
-import ComplaintForm from "./ComplaintForm";
 import { hasLocationData } from "@/lib/locationUtils";
 import { useLocationFormat } from "@/hooks/useLocationFormat";
 import Navigation from "./Navigation";
 import JoinRequestsTab from "./JoinRequestsTab";
+
+// Mobile Bottom Navigation Component
+const MobileBottomNavigation = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const isActive = (path: string) => {
+    return location.pathname === path;
+  };
+
+  return (
+    <div className="fixed bottom-0 left-0 right-0 z-40 md:hidden">
+      <div className="bg-white border-t border-gray-200 shadow-lg">
+        <div className="flex items-center justify-around py-2">
+          <button
+            onClick={() => navigate('/')}
+            className={`flex flex-col items-center justify-center py-2 px-4 rounded-lg transition-colors ${
+              isActive('/') ? 'text-blue-600' : 'text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            <Home className={`h-5 w-5 ${isActive('/') ? 'text-blue-600 fill-blue-600' : 'text-gray-500 fill-gray-500'}`} />
+            <span className="text-xs mt-1 font-medium">Home</span>
+          </button>
+          
+          <button
+            onClick={() => navigate('/communities')}
+            className={`flex flex-col items-center justify-center py-2 px-4 rounded-lg transition-colors ${
+              isActive('/communities') ? 'text-blue-600' : 'text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            <Building2 className={`h-5 w-5 ${isActive('/communities') ? 'text-blue-600 fill-blue-600' : 'text-gray-500 fill-gray-500'}`} />
+            <span className="text-xs mt-1 font-medium">Communities</span>
+          </button>
+          
+          <button
+            onClick={() => navigate('/dashboard')}
+            className={`flex flex-col items-center justify-center py-2 px-4 rounded-lg transition-colors ${
+              isActive('/dashboard') ? 'text-blue-600' : 'text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            <User className={`h-5 w-5 ${isActive('/dashboard') ? 'text-blue-600 fill-blue-600' : 'text-gray-500 fill-gray-500'}`} />
+            <span className="text-xs mt-1 font-medium">Profile</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 // Location display component for Dashboard
 const LocationDisplay: React.FC<{
@@ -30,12 +77,12 @@ const LocationDisplay: React.FC<{
   }
 
   return (
-    <div className="flex items-center space-x-2 text-sm text-muted-foreground bg-muted/30 rounded-md px-3 py-2 mb-4">
-      <MapPin className="h-4 w-4 text-primary flex-shrink-0" />
+    <div className="flex items-center space-x-2 text-sm text-gray-600 bg-gray-50 rounded-lg px-3 py-2">
+      <MapPin className="h-4 w-4 text-blue-600 flex-shrink-0" />
       <span className="font-medium">
         {formattedLocation}
         {isLoading && (
-          <span className="ml-2 text-xs text-muted-foreground">(loading...)</span>
+          <span className="ml-2 text-xs text-gray-500">(loading...)</span>
         )}
       </span>
     </div>
@@ -160,26 +207,29 @@ const Dashboard = () => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "pending":
-        return <Badge variant="secondary"><Clock className="w-3 h-3 mr-1" />Pending</Badge>;
+        return <Badge className="bg-yellow-100 text-yellow-700 border border-yellow-200 px-3 py-1 rounded-full font-medium"><Clock className="w-3 h-3 mr-1" />Pending</Badge>;
       case "in_progress":
-        return <Badge className="bg-orange-500"><AlertCircle className="w-3 h-3 mr-1" />In Progress</Badge>;
+        return <Badge className="bg-orange-100 text-orange-700 border border-orange-200 px-3 py-1 rounded-full font-medium"><AlertCircle className="w-3 h-3 mr-1" />In Progress</Badge>;
       case "resolved":
-        return <Badge className="bg-green-500"><CheckCircle className="w-3 h-3 mr-1" />Resolved</Badge>;
+        return <Badge className="bg-green-100 text-green-700 border border-green-200 px-3 py-1 rounded-full font-medium"><CheckCircle className="w-3 h-3 mr-1" />Resolved</Badge>;
       default:
-        return <Badge variant="secondary">{status}</Badge>;
+        return <Badge className="bg-gray-100 text-gray-700 border border-gray-200 px-3 py-1 rounded-full font-medium">{status}</Badge>;
     }
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navigation />
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 pb-20 md:pb-8">
+      {/* Desktop Navigation Only */}
+      <div className="hidden md:block">
+        <Navigation />
+      </div>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8 flex justify-between items-start">
           <div>
-            <h1 className="text-3xl font-bold text-foreground mb-2">Dashboard</h1>
-            <p className="text-muted-foreground">Welcome back, {user.user_metadata?.full_name || user.email}</p>
-            <p className="text-xs text-muted-foreground mt-1">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Dashboard</h1>
+            <p className="text-gray-600">Welcome back, {user.user_metadata?.full_name || user.email}</p>
+            <p className="text-xs text-gray-500 mt-1">
               {user.user_metadata?.full_name && (
                 <>
                   <span className="font-medium">Email:</span> {user.email}
@@ -187,7 +237,7 @@ const Dashboard = () => {
               )}
             </p>
           </div>
-          <Button variant="outline" onClick={handleSignOut}>
+          <Button variant="outline" onClick={handleSignOut} className="border-2 border-gray-200 hover:border-gray-300 text-gray-700 hover:bg-gray-50">
             <LogOut className="h-4 w-4 mr-2" />
             Sign Out
           </Button>
@@ -195,142 +245,123 @@ const Dashboard = () => {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Complaints</CardTitle>
-              <FileText className="h-4 w-4 text-muted-foreground" />
+          <Card className="bg-white rounded-2xl shadow-lg border-0 hover:shadow-xl transition-all duration-300">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+              <CardTitle className="text-sm font-semibold text-gray-600">Total Complaints</CardTitle>
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
+                <FileText className="h-5 w-5 text-white" />
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{complaints.length}</div>
+              <div className="text-3xl font-bold text-gray-900">{complaints.length}</div>
             </CardContent>
           </Card>
           
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Pending</CardTitle>
-              <Clock className="h-4 w-4 text-muted-foreground" />
+          <Card className="bg-white rounded-2xl shadow-lg border-0 hover:shadow-xl transition-all duration-300">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+              <CardTitle className="text-sm font-semibold text-gray-600">Pending</CardTitle>
+              <div className="w-10 h-10 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl flex items-center justify-center shadow-lg">
+                <Clock className="h-5 w-5 text-white" />
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{pendingCount}</div>
+              <div className="text-3xl font-bold text-gray-900">{pendingCount}</div>
             </CardContent>
           </Card>
           
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Resolved</CardTitle>
-              <CheckCircle className="h-4 w-4 text-muted-foreground" />
+          <Card className="bg-white rounded-2xl shadow-lg border-0 hover:shadow-xl transition-all duration-300">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+              <CardTitle className="text-sm font-semibold text-gray-600">Resolved</CardTitle>
+              <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center shadow-lg">
+                <CheckCircle className="h-5 w-5 text-white" />
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{resolvedCount}</div>
+              <div className="text-3xl font-bold text-gray-900">{resolvedCount}</div>
             </CardContent>
           </Card>
         </div>
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-8">
-            <TabsTrigger value="complaints" className="flex items-center gap-2">
+          <TabsList className="grid w-full grid-cols-2 mb-8 bg-gray-100 rounded-xl p-1">
+            <TabsTrigger value="complaints" className="flex items-center gap-2 rounded-lg font-medium data-[state=active]:bg-white data-[state=active]:shadow-sm">
               <FileText className="h-4 w-4" />
               My Complaints
             </TabsTrigger>
-            <TabsTrigger value="requests" className="flex items-center gap-2">
+            <TabsTrigger value="requests" className="flex items-center gap-2 rounded-lg font-medium data-[state=active]:bg-white data-[state=active]:shadow-sm">
               <Users className="h-4 w-4" />
               Join Requests
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="complaints" className="space-y-6">
-            {/* Quick Actions */}
+            {/* My Complaints List */}
             <div>
-              <h2 className="text-xl font-semibold mb-4">Quick Actions</h2>
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Button 
-                  onClick={() => navigate("/")}
-                  className="flex items-center gap-2"
-                  disabled={!hasApprovedMembership}
-                  title={hasApprovedMembership ? undefined : 'Join request must be approved to file a complaint'}
-                >
-                  <Plus className="w-4 h-4" />
-                  File New Complaint
-                </Button>
-                <Button variant="outline">
-                  Track Existing Complaint
-                </Button>
-              </div>
-            </div>
-
-            {/* Quick file for approved users */}
-            {hasApprovedMembership && (
-              <div>
-                <h2 className="text-xl font-semibold mb-4">File a Complaint</h2>
-                <ComplaintForm />
-              </div>
-            )}
-
-            {/* Recent Complaints */}
-            <div>
-              <h2 className="text-xl font-semibold mb-4">My Complaints</h2>
-          {loading ? (
-            <div className="text-center py-8">
-              <p className="text-muted-foreground">Loading your complaints...</p>
-            </div>
-          ) : complaints.length === 0 ? (
-            <div className="text-center py-8">
-              <p className="text-muted-foreground mb-4">You haven't filed any complaints yet.</p>
-              <Button onClick={() => navigate("/")}>
-                <Plus className="h-4 w-4 mr-2" />
-                File Your First Complaint
-              </Button>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {complaints.map((complaint) => (
-                <Card key={complaint.id} className="hover:shadow-lg transition-all duration-300 border-border/60 bg-card/50 backdrop-blur-sm">
-                  <CardHeader>
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <CardTitle className="text-lg capitalize bg-primary/10 text-primary px-3 py-1 rounded-lg inline-block">
-                          {complaint.category.replace('-', ' ')}
-                        </CardTitle>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          Filed on {new Date(complaint.created_at).toLocaleDateString()}
-                        </p>
-                      </div>
-                      {getStatusBadge(complaint.status)}
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <LocationDisplay 
-                      location_address={complaint.location_address}
-                      latitude={complaint.latitude}
-                      longitude={complaint.longitude}
-                    />
-                    <div className="bg-gradient-to-r from-muted/5 to-muted/10 border border-border/50 rounded-xl p-4 shadow-sm mb-4 hover:shadow-md transition-all duration-300 hover:border-primary/20">
-                      <div className="flex items-start space-x-3">
-                        <div className="flex-shrink-0 w-2 h-2 bg-primary rounded-full mt-2 animate-pulse"></div>
-                        <div className="flex-1">
-                          <h4 className="text-sm font-semibold text-muted-foreground mb-2">Complaint Description:</h4>
-                          <p className="text-foreground text-base leading-relaxed font-medium">
+              <h2 className="text-xl font-semibold mb-6 text-gray-900">My Complaints</h2>
+              {loading ? (
+                <div className="text-center py-12">
+                  <div className="inline-flex items-center justify-center w-16 h-16 bg-gray-100 rounded-2xl mb-4">
+                    <FileText className="h-8 w-8 text-gray-400" />
+                  </div>
+                  <p className="text-gray-600">Loading your complaints...</p>
+                </div>
+              ) : complaints.length === 0 ? (
+                <div className="text-center py-12">
+                  <div className="inline-flex items-center justify-center w-16 h-16 bg-gray-100 rounded-2xl mb-4">
+                    <FileText className="h-8 w-8 text-gray-400" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">No Complaints Yet</h3>
+                  <p className="text-gray-600 mb-6">You haven't filed any complaints yet.</p>
+                  <Button onClick={() => navigate("/")} className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
+                    <Plus className="h-4 w-4 mr-2" />
+                    File Your First Complaint
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {complaints.map((complaint) => (
+                    <Card key={complaint.id} className="bg-white rounded-2xl shadow-lg border-0 hover:shadow-xl transition-all duration-300">
+                      <CardHeader className="pb-4">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <Badge className="bg-blue-100 text-blue-700 border border-blue-200 px-3 py-1 rounded-full font-medium mb-2">
+                              {complaint.category.replace('-', ' ').replace(/\b\w/g, (l) => l.toUpperCase())}
+                            </Badge>
+                            <p className="text-sm text-gray-500">
+                              Filed on {new Date(complaint.created_at).toLocaleDateString()}
+                            </p>
+                          </div>
+                          {getStatusBadge(complaint.status)}
+                        </div>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <LocationDisplay 
+                          location_address={complaint.location_address}
+                          latitude={complaint.latitude}
+                          longitude={complaint.longitude}
+                        />
+                        <div className="bg-gray-50 rounded-xl p-4">
+                          <h4 className="text-sm font-semibold text-gray-700 mb-2">Complaint Description:</h4>
+                          <p className="text-gray-900 leading-relaxed">
                             {complaint.description}
                           </p>
                         </div>
-                      </div>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button variant="outline" size="sm">
-                        View Details
-                      </Button>
-                      {complaint.status === 'pending' && (
-                        <Button variant="outline" size="sm">
-                          Edit
-                        </Button>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
+                        <div className="flex gap-3">
+                          <Button variant="outline" size="sm" className="border-2 border-gray-200 hover:border-gray-300 text-gray-700 hover:bg-gray-50">
+                            View Details
+                          </Button>
+                          {complaint.status === 'pending' && (
+                            <Button variant="outline" size="sm" className="border-2 border-gray-200 hover:border-gray-300 text-gray-700 hover:bg-gray-50">
+                              Edit
+                            </Button>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
             </div>
           </TabsContent>
 
@@ -339,6 +370,9 @@ const Dashboard = () => {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Mobile Bottom Navigation */}
+      <MobileBottomNavigation />
     </div>
   );
 };
