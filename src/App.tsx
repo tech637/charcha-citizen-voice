@@ -17,9 +17,6 @@ import CommunityFeed from "./components/CommunityFeed";
 import IndiaCommunityFeed from "./components/IndiaCommunityFeed";
 import CommunityPage from "./components/CommunityPage";
 import JoinCommunities from "./components/JoinCommunities";
-import { ProfilePage } from "./pages/Profile";
-import ComplaintForm from "./components/ComplaintForm";
-import MyCommunities from "./components/MyCommunities";
 
 const queryClient = new QueryClient();
 
@@ -36,12 +33,10 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/communities" element={<JoinCommunities />} />
-              <Route path="/explore-communities" element={<JoinCommunities />} />
+              <Route path="/communities" element={<CommunityFeed />} />
+              <Route path="/join-communities" element={<JoinCommunities />} />
               <Route path="/communities/:communityName" element={<CommunityPage />} />
-              <Route path="/feed" element={<CommunityFeed />} />
               <Route path="/india" element={<IndiaCommunityFeed />} />
-              <Route path="/new-complaint" element={<ComplaintForm />} />
               <Route path="/admin" element={<AdminPanel />} />
               <Route path="/admin-test" element={<AdminTest />} />
               <Route path="/auth/callback" element={<AuthCallback />} />
