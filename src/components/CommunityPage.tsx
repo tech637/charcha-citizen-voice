@@ -17,7 +17,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { hasLocationData } from '@/lib/locationUtils';
 import { useLocationFormat } from '@/hooks/useLocationFormat';
-import Navigation from './Navigation';
 
 // Location display component
 const LocationDisplay: React.FC<{
@@ -622,7 +621,6 @@ const CommunityPage: React.FC = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
-        <Navigation />
         <div className="container mx-auto px-4 py-8">
           <div className="flex items-center justify-center min-h-[400px]">
             <div className="text-center">
@@ -642,7 +640,6 @@ const CommunityPage: React.FC = () => {
   if (error || !community) {
     return (
       <div className="min-h-screen bg-background">
-        <Navigation />
         <div className="container mx-auto px-4 py-8">
           <div className="text-center max-w-md mx-auto">
             <AlertCircle className="h-16 w-16 text-red-500 mx-auto mb-4" />
@@ -667,7 +664,6 @@ const CommunityPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-muted/20">
-      <Navigation />
       <div className="container mx-auto px-4 py-6 max-w-7xl">
         {/* Community Header */}
         <div className="bg-white rounded-lg shadow-sm border p-4 md:p-6 mb-6">

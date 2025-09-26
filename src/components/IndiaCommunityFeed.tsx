@@ -18,7 +18,6 @@ import {
 } from 'lucide-react';
 import { hasLocationData } from '@/lib/locationUtils';
 import { useLocationFormat } from '@/hooks/useLocationFormat';
-import Navigation from './Navigation';
 
 interface Complaint {
   id: string;
@@ -167,22 +166,18 @@ const IndiaCommunityFeed = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 py-8">
-        <Navigation />
-        <div className="container mx-auto px-4">
-          <div className="text-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-            <p className="text-muted-foreground">Loading India community feed...</p>
-          </div>
+      <div className="flex flex-col min-h-screen">
+        <div className="flex-1 flex items-center justify-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading India community feed...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Navigation />
-      <div className="container mx-auto px-4 py-8">
+    <div className="flex flex-col min-h-screen bg-gray-50">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-3 mb-4">

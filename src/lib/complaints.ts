@@ -374,6 +374,42 @@ export const getAllCommunityComplaints = async () => {
   }
 }
 
+export const getAllCommunityComplaintsForUser = async (userId: string) => {
+  try {
+    const { data: userCommunities, error: userCommunitiesError } = await supabase
+      .from('user_communities')
+      .select('community_id')
+      .eq('user_id', userId)
+      .eq('status', 'approved');
+
+    if (userCommunitiesError) throw userCommunitiesError;
+
+    const communityIds = userCommunities.map(uc => uc.community_id);
+
+    if (communityIds.length === 0) {
+      return { data: [], error: null };
+    }
+
+    const { data, error } = await supabase
+      .from('complaints')
+      .select(`
+        *,
+        complaint_files (*),
+        users (full_name),
+        communities (name, location, is_active)
+      `)
+      .in('community_id', communityIds)
+      .eq('visibility_type', 'community')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    return { data, error: null };
+  } catch (error) {
+    return { data: null, error };
+  }
+};
+
 export const updateComplaintStatus = async (complaintId: string, status: string) => {
   try {
     const { data, error } = await supabase
