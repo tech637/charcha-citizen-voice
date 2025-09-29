@@ -1,11 +1,10 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 
-// Minimal email sender using Mailgun as primary provider. Replace with your provider as needed.
+// Email notification for membership approval using Mailgun
 // Required secrets to set in Supabase project:
 // - MAILGUN_API_KEY (primary, no domain verification needed)
 // - MAILGUN_DOMAIN (your Mailgun domain)
 // - FROM_EMAIL (e.g. notifications@yourdomain.com)
-// Alternative providers: SENDGRID_API_KEY, RESEND_API_KEY
 
 type MembershipRow = {
   id: string;
@@ -37,15 +36,6 @@ function getEnv(name: string, required = true): string {
   const value = Deno.env.get(name);
   if (required && !value) throw new Error(`Missing required env: ${name}`);
   return value!;
-}
-
-function getFirstEnv(names: string[], required = true): string {
-  for (const n of names) {
-    const v = Deno.env.get(n);
-    if (v) return v;
-  }
-  if (required) throw new Error(`Missing required env. Tried: ${names.join(', ')}`);
-  return "";
 }
 
 async function getMembership(baseUrl: string, serviceKey: string, membershipId: string): Promise<MembershipRow> {
@@ -87,55 +77,6 @@ async function getUser(baseUrl: string, serviceKey: string, userId: string): Pro
   return data[0];
 }
 
-async function sendEmailResend(to: string, subject: string, html: string) {
-  const apiKey = getEnv("RESEND_API_KEY");
-  const from = getEnv("FROM_EMAIL");
-  const res = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      from,
-      to: [to],
-      subject,
-      html,
-    }),
-  });
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`Resend failed: ${res.status} ${text}`);
-  }
-}
-
-// Alternative provider: SendGrid (supports Single Sender verification)
-async function sendEmailSendgrid(to: string, subject: string, html: string) {
-  const apiKey = getEnv("SENDGRID_API_KEY");
-  const from = getEnv("FROM_EMAIL");
-  const payload = {
-    personalizations: [
-      { to: [{ email: to }] }
-    ],
-    from: { email: from },
-    subject,
-    content: [{ type: "text/html", value: html }]
-  };
-  const res = await fetch("https://api.sendgrid.com/v3/mail/send", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(payload),
-  });
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`SendGrid failed: ${res.status} ${text}`);
-  }
-}
-
-// Alternative provider: Mailgun (no domain verification needed)
 async function sendEmailMailgun(to: string, subject: string, html: string) {
   const apiKey = getEnv("MAILGUN_API_KEY");
   const domain = getEnv("MAILGUN_DOMAIN");
@@ -204,13 +145,12 @@ Deno.serve(async (req: Request) => {
       });
     }
 
-    // SUPABASE_URL is injected automatically by the platform. Do NOT add it as a secret.
+    // SUPABASE_URL is injected automatically by the platform
     const url = getEnv("SUPABASE_URL")!;
-    // Use SERVICE_ROLE_KEY (recommended). Fallback to legacy name if present.
-    const serviceRoleKey = getFirstEnv(["SERVICE_ROLE_KEY", "SUPABASE_SERVICE_ROLE_KEY"])!;
+    const serviceRoleKey = getEnv("SERVICE_ROLE_KEY")!;
 
     // Fetch membership -> user -> community
-    console.log("send-membership-approved invoked", { membershipId });
+    console.log("send-approval-email invoked", { membershipId });
     const membership = await getMembership(url, serviceRoleKey, membershipId);
     const [user, community] = await Promise.all([
       getUser(url, serviceRoleKey, membership.user_id),
@@ -239,17 +179,8 @@ Deno.serve(async (req: Request) => {
       </div>
     `;
 
-    // Choose provider priority:
-    // 1) Mailgun (no domain verification needed, can send to anyone)
-    // 2) SendGrid (single sender)
-    // 3) Resend (requires verified domain or sandbox recipient)
-    if (Deno.env.get("MAILGUN_API_KEY")) {
-      await sendEmailMailgun(user.email, subject, html);
-    } else if (Deno.env.get("SENDGRID_API_KEY")) {
-      await sendEmailSendgrid(user.email, subject, html);
-    } else {
-      await sendEmailResend(user.email, subject, html);
-    }
+    // Send email via Mailgun (no domain verification needed)
+    await sendEmailMailgun(user.email, subject, html);
 
     return new Response(JSON.stringify({ ok: true }), { 
       status: 200,
@@ -259,7 +190,7 @@ Deno.serve(async (req: Request) => {
       }
     });
   } catch (err: any) {
-    console.error("send-membership-approved error:", err);
+    console.error("send-approval-email error:", err);
     return new Response(JSON.stringify({ ok: false, error: err?.message || String(err) }), { 
       status: 200,
       headers: {
@@ -269,5 +200,3 @@ Deno.serve(async (req: Request) => {
     });
   }
 });
-
-

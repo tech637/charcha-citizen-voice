@@ -194,6 +194,54 @@ export const joinCommunity = async (joinData: {
   address?: string
 }) => {
   try {
+    // First check if user already has a membership in this community
+    const { data: existingMembership, error: checkError } = await supabase
+      .from('user_communities')
+      .select('id, status, role')
+      .eq('user_id', joinData.userId)
+      .eq('community_id', joinData.communityId)
+      .maybeSingle()
+
+    if (checkError && checkError.code !== 'PGRST116') {
+      throw checkError
+    }
+
+    // If user already has membership, handle accordingly
+    if (existingMembership) {
+      // If already approved, return success without creating duplicate
+      if (existingMembership.status === 'approved') {
+        return { 
+          data: { 
+            id: existingMembership.id, 
+            message: 'Already a member of this community' 
+          }, 
+          error: null 
+        }
+      }
+      
+      // If pending or rejected, update the existing record
+      const { data, error } = await supabase
+        .from('user_communities')
+        .update({
+          block_id: joinData.blockId || null,
+          block_name: joinData.blockName || null,
+          role: joinData.role,
+          address: joinData.address || null,
+          status: 'pending',
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', existingMembership.id)
+        .select()
+        .single()
+
+      if (error) {
+        throw error
+      }
+
+      return { data, error: null }
+    }
+
+    // If no existing membership, create new one
     const { data, error } = await supabase
       .from('user_communities')
       .insert({
@@ -595,7 +643,7 @@ export const updateMembershipStatus = async (
     // Fire-and-forget email notification when approved
     if (status === 'approved') {
       try {
-        await supabase.functions.invoke('send-membership-approved', {
+        await supabase.functions.invoke('send-approval-email', {
           body: { membershipId }
         })
       } catch (notifyErr) {

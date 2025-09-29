@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/contexts/AuthContext';
 import { getAllCommunities, getCommunityMembers, joinCommunity, getUserCommunities } from '@/lib/communities';
+import { supabase } from '@/lib/supabase';
 import { getPublicComplaints, getAllCommunityComplaints, getCommunityComplaints } from '@/lib/complaints';
 import { getIndiaCommunityId } from '@/lib/india-community';
 import { useNavigate } from 'react-router-dom';
@@ -17,7 +18,8 @@ import {
   Plus, 
   CheckCircle, 
   Loader2, 
-  ThumbsUp, 
+  ThumbsUp,
+  Clock, 
   ThumbsDown, 
   Eye, 
   RefreshCw,
@@ -365,18 +367,42 @@ const CommunityFeed = () => {
     if (!user) return;
     
     try {
-      const { data, error } = await getUserCommunities(user.id);
+      // Fetch ALL memberships (approved, pending, rejected) to properly handle UI state
+      const { data, error } = await supabase
+        .from('user_communities')
+        .select(`
+          *,
+          communities (*)
+        `)
+        .eq('user_id', user.id)
+        .order('joined_at', { ascending: false });
+
       if (error) {
         console.error('Error fetching user communities:', error);
       } else {
-        const communityIds = new Set<string>((data || []).map((uc: any) => uc.community_id));
-        setUserCommunities(communityIds);
+        // Only approved memberships go into userCommunities set
+        const approvedCommunityIds = new Set<string>(
+          (data || [])
+            .filter((uc: any) => uc.status === 'approved')
+            .map((uc: any) => uc.community_id)
+        );
+        setUserCommunities(approvedCommunityIds);
+
+        // All memberships (including pending) go into memberships array
         const mapped = (data || []).map((uc: any) => ({
           community_id: uc.community_id,
           status: (uc.status || 'pending') as 'pending' | 'approved' | 'rejected',
           community_name: uc.communities?.name || ''
         }));
         setMemberships(mapped);
+
+        // Update requestedCommunities set with pending memberships
+        const pendingCommunityIds = new Set<string>(
+          (data || [])
+            .filter((uc: any) => uc.status === 'pending')
+            .map((uc: any) => uc.community_id)
+        );
+        setRequestedCommunities(pendingCommunityIds);
       }
     } catch (error) {
       console.error('Error fetching user communities:', error);
@@ -742,6 +768,15 @@ const CommunityFeed = () => {
       
       if (error) {
         throw error;
+      }
+
+      // Check if user was already a member
+      if (data?.message === 'Already a member of this community') {
+        toast({
+          title: "Already a Member",
+          description: `You are already a member of ${communityName}.`,
+        });
+        return;
       }
 
       // Mark as requested (pending). Do NOT add to approved membership set.

@@ -16,10 +16,12 @@ import {
   AlertCircle,
   ArrowLeft,
   Flag,
-  UserPlus
+  UserPlus,
+  Clock
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { getAllCommunities, getCommunityMembers, joinCommunity, getUserCommunities } from '@/lib/communities';
+import { supabase } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
 import Navigation from './Navigation';
 
@@ -44,6 +46,7 @@ const JoinCommunities = () => {
   const [loading, setLoading] = useState(true);
   const [memberCounts, setMemberCounts] = useState<Record<string, number>>({});
   const [userCommunities, setUserCommunities] = useState<Set<string>>(new Set());
+  const [requestedCommunities, setRequestedCommunities] = useState<Set<string>>(new Set());
   const [joiningCommunities, setJoiningCommunities] = useState<Set<string>>(new Set());
   const [refreshing, setRefreshing] = useState(false);
 
@@ -87,12 +90,34 @@ const JoinCommunities = () => {
     if (!user) return;
     
     try {
-      const { data, error } = await getUserCommunities(user.id);
+      // Fetch ALL memberships (approved, pending, rejected) to properly handle UI state
+      const { data, error } = await supabase
+        .from('user_communities')
+        .select(`
+          *,
+          communities (*)
+        `)
+        .eq('user_id', user.id)
+        .order('joined_at', { ascending: false });
+
       if (error) {
         console.error('Error fetching user communities:', error);
       } else {
-        const communityIds = new Set<string>((data || []).map((uc: any) => uc.community_id));
-        setUserCommunities(communityIds);
+        // Only approved memberships go into userCommunities set
+        const approvedCommunityIds = new Set<string>(
+          (data || [])
+            .filter((uc: any) => uc.status === 'approved')
+            .map((uc: any) => uc.community_id)
+        );
+        setUserCommunities(approvedCommunityIds);
+
+        // Update requestedCommunities set with pending memberships
+        const pendingCommunityIds = new Set<string>(
+          (data || [])
+            .filter((uc: any) => uc.status === 'pending')
+            .map((uc: any) => uc.community_id)
+        );
+        setRequestedCommunities(pendingCommunityIds);
       }
     } catch (error) {
       console.error('Error fetching user communities:', error);
@@ -112,24 +137,27 @@ const JoinCommunities = () => {
     try {
       setJoiningCommunities(prev => new Set(prev).add(communityId));
       
-      const { data, error } = await joinCommunity(communityId, user.id);
+      const { data, error } = await joinCommunity({ communityId, userId: user.id, role: 'member' });
       
       if (error) {
         throw error;
       }
 
-      // Update user communities state
-      setUserCommunities(prev => new Set(prev).add(communityId));
-      
-      // Update member count
-      setMemberCounts(prev => ({
-        ...prev,
-        [communityId]: (prev[communityId] || 0) + 1
-      }));
+      // Check if user was already a member
+      if (data?.message === 'Already a member of this community') {
+        toast({
+          title: "Already a Member",
+          description: `You are already a member of ${communityName}.`,
+        });
+        return;
+      }
+
+      // Mark as requested (pending). Do NOT add to approved membership set.
+      setRequestedCommunities(prev => new Set(prev).add(communityId));
 
       toast({
-        title: "Successfully Joined!",
-        description: `You've joined the ${communityName} community`,
+        title: "Request Sent",
+        description: `Your request to join ${communityName} was sent for approval.`,
       });
     } catch (error: any) {
       console.error('Error joining community:', error);
@@ -295,6 +323,11 @@ const JoinCommunities = () => {
                     <div className="w-full bg-gradient-to-r from-[#001F3F]/90 to-[#001F3F]/70 text-white text-center py-3 rounded-lg font-semibold flex items-center justify-center gap-2">
                       <CheckCircle className="h-4 w-4" />
                       You're a Member
+                    </div>
+                  ) : requestedCommunities.has(community.id) ? (
+                    <div className="w-full bg-gradient-to-r from-yellow-500 to-yellow-600 text-white text-center py-3 rounded-lg font-semibold flex items-center justify-center gap-2">
+                      <Clock className="h-4 w-4" />
+                      Request Pending
                     </div>
                   ) : (
                     <Button 
