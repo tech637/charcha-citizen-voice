@@ -4,11 +4,12 @@ import { Button } from "@/components/ui/button";
 import { LogOut, Shield, User } from "lucide-react";
 import { LoginDialog } from "./LoginDialog";
 import { useAuth } from "@/contexts/AuthContext";
-import { isUserAdmin } from "@/lib/communities";
+import { isUserAdmin, getUserApprovedCommunities } from "@/lib/communities";
 
 const Navigation = () => {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [joinedCommunityName, setJoinedCommunityName] = useState<string | null>(null);
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
 
@@ -28,6 +29,27 @@ const Navigation = () => {
     };
 
     checkAdminStatus();
+  }, [user]);
+
+  // Fetch user's approved community (single-membership)
+  useEffect(() => {
+    const loadJoinedCommunity = async () => {
+      if (!user) {
+        setJoinedCommunityName(null);
+        return;
+      }
+      try {
+        const { data } = await getUserApprovedCommunities(user.id);
+        if (data && data.length > 0) {
+          setJoinedCommunityName(data[0].name);
+        } else {
+          setJoinedCommunityName(null);
+        }
+      } catch (e) {
+        setJoinedCommunityName(null);
+      }
+    };
+    loadJoinedCommunity();
   }, [user]);
 
   const handleSignOut = async () => {
@@ -63,7 +85,13 @@ const Navigation = () => {
                 How It Works
               </a>
               <button 
-                onClick={() => navigate("/communities")}
+                onClick={() => {
+                  if (joinedCommunityName) {
+                    navigate(`/communities/${encodeURIComponent(joinedCommunityName)}`)
+                  } else {
+                    navigate("/communities")
+                  }
+                }}
                 className="text-gray-200 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors"
               >
                 Communities

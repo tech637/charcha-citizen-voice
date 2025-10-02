@@ -110,6 +110,99 @@ async function sendEmailMailgun(to: string, subject: string, html: string) {
   console.log("Mailgun send succeeded", { to, subject, messageId: result.id });
 }
 
+async function sendEmailResend(to: string, subject: string, html: string) {
+  const apiKey = getEnv("RESEND_API_KEY");
+  const from = getEnv("FROM_EMAIL");
+  
+  console.log("Resend send attempt", { to, from, subject });
+  
+  const res = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      from: from,
+      to: [to],
+      subject: subject,
+      html: html,
+    }),
+  });
+  
+  if (!res.ok) {
+    const text = await res.text();
+    console.error("Resend send failed", { status: res.status, body: text });
+    throw new Error(`Resend failed: ${res.status} ${text}`);
+  }
+  
+  const result = await res.json();
+  console.log("Resend send succeeded", { to, subject, messageId: result.id });
+}
+
+async function sendEmailSendgrid(to: string, subject: string, html: string) {
+  const apiKey = getEnv("SENDGRID_API_KEY");
+  const from = getEnv("FROM_EMAIL");
+  
+  console.log("SendGrid send attempt", { to, from, subject });
+  
+  const payload = {
+    personalizations: [{ to: [{ email: to }] }],
+    from: { email: from },
+    subject: subject,
+    content: [{ type: "text/html", value: html }]
+  };
+  
+  const res = await fetch("https://api.sendgrid.com/v3/mail/send", {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+  
+  if (!res.ok) {
+    const text = await res.text();
+    console.error("SendGrid send failed", { status: res.status, body: text });
+    throw new Error(`SendGrid failed: ${res.status} ${text}`);
+  }
+  
+  console.log("SendGrid send succeeded", { to, subject });
+}
+
+async function sendEmailPostmark(to: string, subject: string, html: string) {
+  const serverToken = getEnv("POSTMARK_SERVER_TOKEN");
+  const from = getEnv("FROM_EMAIL");
+  
+  console.log("Postmark send attempt", { to, from, subject });
+  
+  const payload = {
+    From: from,
+    To: to,
+    Subject: subject,
+    HtmlBody: html
+  };
+  
+  const res = await fetch("https://api.postmarkapp.com/email", {
+    method: "POST",
+    headers: {
+      "X-Postmark-Server-Token": serverToken,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+  
+  if (!res.ok) {
+    const text = await res.text();
+    console.error("Postmark send failed", { status: res.status, body: text });
+    throw new Error(`Postmark failed: ${res.status} ${text}`);
+  }
+  
+  const result = await res.json();
+  console.log("Postmark send succeeded", { to, subject, messageId: result.MessageID });
+}
+
 Deno.serve(async (req: Request) => {
   // Handle CORS
   if (req.method === "OPTIONS") {
@@ -179,8 +272,57 @@ Deno.serve(async (req: Request) => {
       </div>
     `;
 
-    // Send email via Mailgun (no domain verification needed)
-    await sendEmailMailgun(user.email, subject, html);
+    // Try multiple email providers in order of preference
+    let emailSent = false;
+    let lastError = null;
+
+    // Try Mailgun first
+    if (Deno.env.get("MAILGUN_API_KEY") && Deno.env.get("MAILGUN_DOMAIN")) {
+      try {
+        await sendEmailMailgun(user.email, subject, html);
+        emailSent = true;
+      } catch (err) {
+        console.error("Mailgun failed:", err);
+        lastError = err;
+      }
+    }
+
+    // Try Resend as fallback
+    if (!emailSent && Deno.env.get("RESEND_API_KEY")) {
+      try {
+        await sendEmailResend(user.email, subject, html);
+        emailSent = true;
+      } catch (err) {
+        console.error("Resend failed:", err);
+        lastError = err;
+      }
+    }
+
+    // Try SendGrid as fallback
+    if (!emailSent && Deno.env.get("SENDGRID_API_KEY")) {
+      try {
+        await sendEmailSendgrid(user.email, subject, html);
+        emailSent = true;
+      } catch (err) {
+        console.error("SendGrid failed:", err);
+        lastError = err;
+      }
+    }
+
+    // Try Postmark as fallback
+    if (!emailSent && Deno.env.get("POSTMARK_SERVER_TOKEN")) {
+      try {
+        await sendEmailPostmark(user.email, subject, html);
+        emailSent = true;
+      } catch (err) {
+        console.error("Postmark failed:", err);
+        lastError = err;
+      }
+    }
+
+    if (!emailSent) {
+      throw new Error(`All email providers failed. Last error: ${lastError?.message || 'No providers configured'}`);
+    }
 
     return new Response(JSON.stringify({ ok: true }), { 
       status: 200,

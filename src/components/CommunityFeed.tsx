@@ -767,6 +767,15 @@ const CommunityFeed = () => {
       const { data, error } = await joinCommunity({ communityId, userId: user.id, role: 'member' });
       
       if (error) {
+        const msg = (error as any)?.message || '';
+        if (msg.includes('Only one active community membership') || msg.includes('already have an active membership')) {
+          toast({
+            title: "Already in a Community",
+            description: "You already have an active membership or pending request in another community. Please leave or cancel it before joining a new one.",
+            variant: "destructive",
+          });
+          return;
+        }
         throw error;
       }
 
@@ -843,14 +852,17 @@ const CommunityFeed = () => {
             Communities
           </h1>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
-            Join communities to connect with others and share local issues. India community is public and available to everyone.
+            {userCommunities.size > 0
+              ? 'You are a member of the community shown below.'
+              : 'Browse all communities and send a request to join. India community is public and available to everyone.'}
           </p>
         </div>
 
-        {/* Communities Grid */}
+        {/* Communities Grid - if user has a joined community, show only joined; else show all with join options */}
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {communities.map((community) => (
+            {(userCommunities.size === 0 ? communities : communities.filter((c) => userCommunities.has(c.id)))
+              .map((community) => (
               <Card key={community.id} className="group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border-0 overflow-hidden">
                 {/* Card Header */}
                 <CardHeader className="pb-4">
@@ -927,7 +939,8 @@ const CommunityFeed = () => {
                         View Community
                                     </Button>
                     ) : (
-                                    <Button
+                    user && userCommunities.size === 0 ? (
+                      <Button
                         variant="outline"
                         className="w-full border-2 border-blue-200 text-blue-700 hover:bg-blue-50 hover:border-blue-300 font-semibold py-3 rounded-xl transition-all duration-300"
                         onClick={() => handleJoinCommunity(community.id, community.name)}
@@ -942,19 +955,29 @@ const CommunityFeed = () => {
                           <>
                             <CheckCircle className="h-5 w-5 mr-2" />
                             Request Sent
-                                        </>
-                                      ) : (
-                                        <>
+                          </>
+                        ) : (
+                          <>
                             <Users className="h-5 w-5 mr-2" />
                             Request to Join
-                                        </>
-                                      )}
-                                    </Button>
+                          </>
+                        )}
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="outline"
+                        className="w-full border-2 border-blue-200 text-blue-700 hover:bg-blue-50 hover:border-blue-300 font-semibold py-3 rounded-xl transition-all duration-300"
+                        onClick={() => navigate('/communities')}
+                      >
+                        <Users className="h-5 w-5 mr-2" />
+                        Explore & Join Communities
+                      </Button>
+                    )
                                   )}
                               </div>
                             </CardContent>
                           </Card>
-                        ))}
+            ))}
             </div>
           </div>
         </div>

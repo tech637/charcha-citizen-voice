@@ -140,6 +140,15 @@ const JoinCommunities = () => {
       const { data, error } = await joinCommunity({ communityId, userId: user.id, role: 'member' });
       
       if (error) {
+        const msg = (error as any)?.message || '';
+        if (msg.includes('Only one active community membership') || msg.includes('already have an active membership')) {
+          toast({
+            title: "Already in a Community",
+            description: "You already have an active membership or pending request in another community. Please leave or cancel it before joining a new one.",
+            variant: "destructive",
+          });
+          return;
+        }
         throw error;
       }
 

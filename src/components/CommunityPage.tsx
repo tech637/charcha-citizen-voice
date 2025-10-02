@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { ThumbsUp, ThumbsDown, MapPin, Calendar, Eye, RefreshCw, AlertCircle, ArrowLeft, Building2, Users, Flag, Home, User, ChevronDown, ChevronUp, Settings, CheckCircle } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { getPublicComplaints, getCommunityComplaints, getAllCommunityComplaints, updateComplaintStatus, getComplaintVoteSummary, upsertComplaintVote, removeComplaintVote, listComplaintComments, addComplaintComment } from '@/lib/complaints';
-import { getAllCommunities, getCommunityMembers, isUserMemberOfCommunity, isUserAdmin, getPendingMembershipRequests, updateMembershipStatus, updateCommunity } from '@/lib/communities';
+import { getAllCommunities, getCommunityMembers, isUserMemberOfCommunity, isUserAdmin, getPendingMembershipRequests, updateMembershipStatus, updateCommunity, leaveCommunity } from '@/lib/communities';
 import ComplaintForm from './ComplaintForm';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer';
@@ -158,6 +158,7 @@ const CommunityPage: React.FC = () => {
   const [commentsById, setCommentsById] = useState<Record<string, Array<{ id: string; content: string; created_at: string; users?: { full_name?: string } }>>>({});
   const [commentDraft, setCommentDraft] = useState<Record<string, string>>({});
   const [showDetails, setShowDetails] = useState(false);
+  const [leaving, setLeaving] = useState(false);
 
   useEffect(() => {
     if (communityName) {
@@ -494,7 +495,7 @@ const CommunityPage: React.FC = () => {
   // Request to Join navigation
   const handleRequestToJoin = () => {
     if (!community) return;
-    navigate(`/join-communities?communityId=${community.id}`);
+    navigate(`/communities`);
   };
 
   const formatDate = (dateString: string) => {
@@ -563,6 +564,33 @@ const CommunityPage: React.FC = () => {
       toast({ title: 'Error', description: e.message || 'Failed to update status', variant: 'destructive' });
     } finally {
       setUpdatingComplaintId(null);
+    }
+  };
+
+  const handleLeaveCommunity = async () => {
+    if (!user || !community) return;
+    if (community.name.toLowerCase() === 'india') {
+      toast({ title: 'Cannot leave India', description: 'India is public.', variant: 'destructive' });
+      return;
+    }
+    if (user.id === community.admin_id) {
+      toast({ title: 'Action blocked', description: 'Reassign president before leaving.', variant: 'destructive' });
+      return;
+    }
+    const ok = window.confirm(`Leave ${community.name}? You’ll need approval again to rejoin.`);
+    if (!ok) return;
+    try {
+      setLeaving(true);
+      const { error } = await leaveCommunity(community.id, user.id);
+      if (error) throw error as any;
+      toast({ title: 'Left community', description: `You left ${community.name}.` });
+      setMembershipStatus('none');
+      setIsUserMember(false);
+      navigate('/communities');
+    } catch (e: any) {
+      toast({ title: 'Error', description: e.message || 'Failed to leave community', variant: 'destructive' });
+    } finally {
+      setLeaving(false);
     }
   };
 
@@ -836,6 +864,15 @@ const CommunityPage: React.FC = () => {
                       <div className="h-4 bg-gray-200 rounded animate-pulse mb-2"></div>
                       <div className="h-3 bg-gray-200 rounded animate-pulse w-3/4"></div>
                     </div>
+                  </div>
+                )}
+
+                {/* Leave Community action for members (non-India, not president) */}
+                {membershipStatus === 'approved' && user && community.name.toLowerCase() !== 'india' && user.id !== community.admin_id && (
+                  <div className="mt-5">
+                    <Button variant="outline" onClick={handleLeaveCommunity} disabled={leaving}>
+                      {leaving ? 'Leaving…' : 'Leave Community'}
+                    </Button>
                   </div>
                 )}
               </div>
