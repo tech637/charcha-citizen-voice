@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { ThumbsUp, ThumbsDown, MapPin, Calendar, Eye, RefreshCw, AlertCircle, ArrowLeft, Building2, Users, Flag, Home, User, ChevronDown, ChevronUp, Settings, CheckCircle } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { getPublicComplaints, getCommunityComplaints, getAllCommunityComplaints, updateComplaintStatus, getComplaintVoteSummary, upsertComplaintVote, removeComplaintVote, listComplaintComments, addComplaintComment } from '@/lib/complaints';
-import { getAllCommunities, getCommunityMembers, isUserMemberOfCommunity, isUserAdmin, getPendingMembershipRequests, updateMembershipStatus, updateCommunity, leaveCommunity } from '@/lib/communities';
+import { getAllCommunities, getCommunityMembers, isUserMemberOfCommunity, isUserAdmin, getPendingMembershipRequests, updateMembershipStatus, updateCommunity, withdrawCommunityMembership, leaveCommunityWithAdminCheck } from '@/lib/communities';
 import ComplaintForm from './ComplaintForm';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer';
@@ -573,17 +573,27 @@ const CommunityPage: React.FC = () => {
       toast({ title: 'Cannot leave India', description: 'India is public.', variant: 'destructive' });
       return;
     }
-    if (user.id === community.admin_id) {
-      toast({ title: 'Action blocked', description: 'Reassign president before leaving.', variant: 'destructive' });
-      return;
-    }
-    const ok = window.confirm(`Leave ${community.name}? You’ll need approval again to rejoin.`);
+    
+    // Enhanced confirmation message for admins
+    const isAdmin = user.id === community.admin_id;
+    const confirmMessage = isAdmin 
+      ? `Leave ${community.name}? Admin privileges will be transferred to another member or removed. You'll need approval again to rejoin.`
+      : `Leave ${community.name}? You'll need approval again to rejoin.`;
+    
+    const ok = window.confirm(confirmMessage);
     if (!ok) return;
+    
     try {
       setLeaving(true);
-      const { error } = await leaveCommunity(community.id, user.id);
+      const { data, error } = await leaveCommunityWithAdminCheck(community.id, user.id);
       if (error) throw error as any;
-      toast({ title: 'Left community', description: `You left ${community.name}.` });
+      
+      // Enhanced success message
+      toast({ 
+        title: 'Left community', 
+        description: data?.message || `You left ${community.name}.`,
+      });
+      
       setMembershipStatus('none');
       setIsUserMember(false);
       navigate('/communities');
@@ -867,14 +877,21 @@ const CommunityPage: React.FC = () => {
                   </div>
                 )}
 
-                {/* Leave Community action for members (non-India, not president) */}
-                {membershipStatus === 'approved' && user && community.name.toLowerCase() !== 'india' && user.id !== community.admin_id && (
-                  <div className="mt-5">
-                    <Button variant="outline" onClick={handleLeaveCommunity} disabled={leaving}>
-                      {leaving ? 'Leaving…' : 'Leave Community'}
+                {/* Leave Community action for all members (non-India only) */}
+                {membershipStatus === 'approved' && user && community.name.toLowerCase() !== 'india' && (
+                  <div className="mt-5 p-3 border-2 border-red-200 bg-red-50 rounded-lg">
+                    <div className="text-sm text-red-700 font-medium mb-2">🚪 Leave Community</div>
+                    <Button 
+                      variant="outline" 
+                      onClick={handleLeaveCommunity} 
+                      disabled={leaving}
+                      className="bg-red-500 hover:bg-red-600 text-white border-red-500 hover:border-red-600"
+                    >
+                      {leaving ? 'Leaving…' : 'Leave GTB Nagar Community'}
                     </Button>
                   </div>
                 )}
+
               </div>
               
               <div className="bg-white rounded-2xl shadow-lg border-0 p-6">

@@ -12,6 +12,13 @@ export interface CreateCommunityData {
   leader_address?: string
 }
 
+export interface CreateCommunityFromLocalityData {
+  locality_name: string
+  pincode: string
+  locality_data: any // JSON data from locality lookup
+  description?: string
+}
+
 export interface JoinCommunityData {
   community_id: string
 }
@@ -41,6 +48,86 @@ export const getUserRole = async (userId: string): Promise<string | null> => {
 export const isUserAdmin = async (userId: string): Promise<boolean> => {
   const role = await getUserRole(userId)
   return role === 'admin'
+}
+
+// Create a new community from locality data (for regular users)
+export const createCommunityFromLocality = async (communityData: CreateCommunityFromLocalityData, userId: string) => {
+  try {
+    // First, check if user has any existing approved memberships
+    const { data: existingMembership, error: checkError } = await supabase
+      .from('user_communities')
+      .select('id, community_id, status, communities!inner(name)')
+      .eq('user_id', userId)
+      .eq('status', 'approved')
+      .maybeSingle()
+
+    if (checkError && checkError.code !== 'PGRST116') {
+      throw checkError
+    }
+
+    // If user has an existing approved membership, prevent creating new community
+    if (existingMembership) {
+      throw new Error(`You already have an active membership in "${existingMembership.communities?.name}". Please leave your current community first before creating a new one.`)
+    }
+
+    // Also check for pending memberships
+    const { data: pendingMembership, error: pendingError } = await supabase
+      .from('user_communities')
+      .select('id, status, communities!inner(name)')
+      .eq('user_id', userId)
+      .eq('status', 'pending')
+      .maybeSingle()
+
+    if (pendingError && pendingError.code !== 'PGRST116') {
+      throw pendingError
+    }
+
+    // If user has a pending membership, prevent creating new community
+    if (pendingMembership) {
+      throw new Error(`You already have a pending request for "${pendingMembership.communities?.name}". Please wait for approval or cancel your request before creating a new community.`)
+    }
+
+    const { data: community, error: communityError } = await supabase
+      .from('communities')
+      .insert({
+        name: communityData.locality_name,
+        description: communityData.description || `Community for ${communityData.locality_name}`,
+        location: `${communityData.locality_name}, Pincode: ${communityData.pincode}`,
+        pincode: communityData.pincode,
+        locality_name: communityData.locality_name,
+        locality_data: communityData.locality_data,
+        created_by_user: true,
+        admin_id: userId,
+        is_active: true
+      })
+      .select()
+      .single()
+
+    if (communityError) {
+      console.error('Community creation error:', communityError)
+      throw communityError
+    }
+
+    // Add creator as admin member of the community (approved)
+    const { error: membershipError } = await supabase
+      .from('user_communities')
+      .insert({
+        user_id: userId,
+        community_id: community.id,
+        role: 'admin',
+        status: 'approved',
+        joined_at: new Date().toISOString()
+      })
+
+    if (membershipError) {
+      console.error('Error adding creator to community:', membershipError)
+      // Don't throw here as community was created successfully
+    }
+
+    return { data: community, error: null }
+  } catch (error) {
+    return { data: null, error }
+  }
 }
 
 // Create a new community
@@ -96,22 +183,47 @@ export const createCommunity = async (communityData: CreateCommunityData, adminI
   }
 }
 
-// Get all communities
+// Get all communities (only active ones with proper member counts)
 export const getAllCommunities = async () => {
   try {
     const { data, error } = await supabase
       .from('communities')
       .select(`
-        *,
-        user_communities!inner(count)
+        id,
+        name,
+        description,
+        location,
+        latitude,
+        longitude,
+        admin_id,
+        is_active,
+        pincode,
+        locality_name,
+        created_by_user,
+        created_at,
+        updated_at,
+        user_communities!inner(
+          user_id,
+          status
+        )
       `)
+      .eq('is_active', true)
       .order('created_at', { ascending: false })
 
     if (error) {
       throw error
     }
 
-    return { data, error: null }
+    // Process communities to add member counts
+    const processedCommunities = data?.map(community => ({
+      ...community,
+      memberCount: community.user_communities?.filter((uc: any) => uc.status === 'approved').length || 0,
+      pendingCount: community.user_communities?.filter((uc: any) => uc.status === 'pending').length || 0,
+      // Remove the user_communities array from final result
+      user_communities: undefined
+    })) || []
+
+    return { data: processedCommunities, error: null }
   } catch (error) {
     return { data: null, error }
   }
@@ -194,7 +306,43 @@ export const joinCommunity = async (joinData: {
   address?: string
 }) => {
   try {
-    // First check if user already has a membership in this community
+    // First check if user already has an active membership in any other community
+    const { data: otherMembership, error: otherError } = await supabase
+      .from('user_communities')
+      .select('id, community_id, status, communities!inner(name)')
+      .eq('user_id', joinData.userId)
+      .eq('status', 'approved')
+      .neq('community_id', joinData.communityId)
+      .maybeSingle()
+
+    if (otherError && otherError.code !== 'PGRST116') {
+      throw otherError
+    }
+
+    // If user has an active membership in another community, prevent joining
+    if (otherMembership) {
+      throw new Error(`You already have an active membership in "${otherMembership.communities?.name}". Please leave your current community first before joining another one.`)
+    }
+
+    // Check if user has a pending membership in any other community
+    const { data: pendingMembership, error: pendingError } = await supabase
+      .from('user_communities')
+      .select('id, community_id, status, communities!inner(name)')
+      .eq('user_id', joinData.userId)
+      .eq('status', 'pending')
+      .neq('community_id', joinData.communityId)
+      .maybeSingle()
+
+    if (pendingError && pendingError.code !== 'PGRST116') {
+      throw pendingError
+    }
+
+    // If user has a pending membership in another community, prevent joining
+    if (pendingMembership) {
+      throw new Error(`You already have a pending request for "${pendingMembership.communities?.name}". Please wait for approval or cancel your request before joining another community.`)
+    }
+
+    // Check if user already has a membership in this community
     const { data: existingMembership, error: checkError } = await supabase
       .from('user_communities')
       .select('id, status, role')
@@ -206,7 +354,7 @@ export const joinCommunity = async (joinData: {
       throw checkError
     }
 
-    // If user already has membership, handle accordingly
+    // If user already has membership in this community, handle accordingly
     if (existingMembership) {
       // If already approved, return success without creating duplicate
       if (existingMembership.status === 'approved') {
@@ -219,7 +367,7 @@ export const joinCommunity = async (joinData: {
         }
       }
       
-      // If pending or rejected, update the existing record
+      // If pending or rejected in this community, update the existing record
       const { data, error } = await supabase
         .from('user_communities')
         .update({
@@ -304,6 +452,97 @@ export const leaveCommunity = async (communityId: string, userId: string) => {
     }
 
     return { data: true, error: null }
+  } catch (error) {
+    return { data: null, error }
+  }
+}
+
+// Enhanced leave community function that handles admin scenarios
+export const leaveCommunityWithAdminCheck = async (communityId: string, userId: string) => {
+  try {
+    // Check if user is admin of this community
+    const { data: community, error: communityError } = await supabase
+      .from('communities')
+      .select('admin_id')
+      .eq('id', communityId)
+      .single()
+
+    if (communityError) {
+      throw communityError
+    }
+
+    const isUserAdmin = community.admin_id === userId
+    let transferredAdminId = null
+
+    // If user is admin, transfer admin to another member or set to null
+    if (isUserAdmin) {
+      // Try to find another member to transfer admin to
+      const { data: otherMembers, error: membersError } = await supabase
+        .from('user_communities')
+        .select('user_id')
+        .eq('community_id', communityId)
+        .neq('user_id', userId)
+        .eq('status', 'approved')
+        .limit(1)
+
+      if (membersError) {
+        console.error('Error finding other members:', membersError)
+      }
+
+      // Transfer admin to another member if available, otherwise set to null
+      const newAdminId = otherMembers?.[0]?.user_id || null
+      transferredAdminId = newAdminId
+
+      if (newAdminId) {
+        // Update community admin_id to another member
+        const { error: updateError } = await supabase
+          .from('communities')
+          .update({ admin_id: newAdminId, updated_at: new Date().toISOString() })
+          .eq('id', communityId)
+
+        if (updateError) {
+          console.error('Error transferring admin ownership (RLS policy may be blocking):', updateError)
+          // Don't throw error - user can still leave, just admin transfer failed
+        }
+
+        // Also update the new admin's role in user_communities
+        const { error: roleUpdateError } = await supabase
+          .from('user_communities')
+          .update({ role: 'admin', updated_at: new Date().toISOString() })
+          .eq('user_id', newAdminId)
+          .eq('community_id', communityId)
+
+        if (roleUpdateError) {
+          console.error('Error updating new admin role:', roleUpdateError)
+        }
+      } else {
+        // For now, don't update communities table due to RLS restrictions
+        // Just log this for admins - they can leave but ownership transfer will need manual action
+        console.log('No other members found for admin transfer. Community may need global admin intervention.')
+      }
+    }
+
+    // Now proceed with the regular leave operation
+    const { error } = await supabase
+      .from('user_communities')
+      .delete()
+      .eq('user_id', userId)
+      .eq('community_id', communityId)
+
+    if (error) {
+      throw error
+    }
+
+    return { 
+      data: { 
+        success: true, 
+        transferredAdmin: transferredAdminId,
+        message: isUserAdmin 
+          ? 'Left community successfully. Admin privileges transfer may require global admin action due to security policies.'
+          : 'Left community successfully'
+      }, 
+      error: null 
+    }
   } catch (error) {
     return { data: null, error }
   }
@@ -653,6 +892,252 @@ export const updateMembershipStatus = async (
 
     return { data: null, error: null }
   } catch (error) {
+    return { data: null, error }
+  }
+}
+
+// Helper function to check and clean up all memberships for a user (for debugging)
+export const debugUserMemberships = async (userId: string) => {
+  try {
+    const { data: memberships, error } = await supabase
+      .from('user_communities')
+      .select(`
+        id,
+        community_id,
+        status,
+        joined_at,
+        communities!inner(name)
+      `)
+      .eq('user_id', userId)
+      .order('joined_at', { ascending: false })
+
+    if (error) {
+      console.error('Error fetching user memberships:', error)
+      return { data: null, error }
+    }
+
+    console.log(`User ${userId} has ${memberships?.length || 0} memberships:`, memberships)
+    return { data: memberships, error: null }
+  } catch (error) {
+    console.error('Error in debugUserMemberships:', error)
+    return { data: null, error }
+  }
+}
+
+// Simple and robust community synchronization
+// Global cleanup function that fixes database issues for ALL users
+const runGlobalCleanup = async () => {
+  try {
+    console.log('🌍 Running global database cleanup...');
+    
+    // Use Supabase RPC functions for efficient bulk cleanup
+    const cleanupTasks = [
+      supabase.rpc('cleanup_orphaned_memberships'),
+      supabase.rpc('cleanup_pending_for_inactive'),
+      supabase.rpc('reactivate_communities_with_members'),
+      supabase.rpc('deactivate_communities_without_members')
+    ];
+    
+    const results = await Promise.allSettled(cleanupTasks);
+    
+    const globalResults = {
+      orphanedMembershipsDeleted: results[0].status === 'fulfilled' ? results[0].value.data || 0 : 0,
+      pendingRequestsDeleted: results[1].status === 'fulfilled' ? results[1].value.data || 0 : 0,
+      communitiesReactivated: results[2].status === 'fulfilled' ? results[2].value.data || 0 : 0,
+      communitiesDeactivated: results[3].status === 'fulfilled' ? results[3].value.data || 0 : 0
+    };
+    
+    console.log('✅ Global cleanup completed:', globalResults);
+    return { data: globalResults, error: null };
+  } catch (error) {
+    console.warn('⚠️ Global cleanup had issues, but user-specific sync will continue:', error);
+    return { data: null, error };
+  }
+};
+
+export const syncUserCommunities = async (userId: string) => {
+  try {
+    console.log('🎯 Starting comprehensive community synchronization for user:', userId);
+    
+    // Step 0: Run global cleanup first - fixes issues for ALL users automatically
+    const globalCleanupResult = await runGlobalCleanup();
+    const globalCleanupApplied = !!globalCleanupResult.data && !globalCleanupResult.error;
+    
+    // Step 1: Get all user memberships (simple query)
+    const { data: memberships, error: membershipsError } = await supabase
+      .from('user_communities')
+      .select('*')
+      .eq('user_id', userId)
+
+    if (membershipsError) {
+      console.error('Error fetching user memberships:', membershipsError)
+      return { data: null, error: membershipsError }
+    }
+    
+    console.log(`Found ${memberships?.length || 0} raw memberships`)
+    
+    if (!memberships || memberships.length === 0) {
+      return { 
+        data: { 
+          cleanedPendingRequests: 0, 
+          cleanedInactiveCommunities: 0, 
+          cleanedOrphanedRecords: 0, 
+          reactivatedCommunities: 0,
+          globalCleanupApplied,
+          globalCleanupResults: globalCleanupResult.data
+        }, 
+        error: null 
+      }
+    }
+
+    const results = {
+      cleanedPendingRequests: 0,
+      cleanedInactiveCommunities: 0,
+      cleanedOrphanedRecords: 0,
+      reactivatedCommunities: 0,
+      globalCleanupApplied,
+      globalCleanupResults: globalCleanupResult.data
+    }
+
+    // Step 2: Check each membership against its community
+    for (const membership of memberships) {
+      console.log(`Checking membership ${membership.id} for community ${membership.community_id}`)
+      
+      // Get the community details for this membership
+      const { data: community, error: communityError } = await supabase
+        .from('communities')
+        .select('*')
+        .eq('id', membership.community_id)
+        .single()
+
+      if (communityError) {
+        console.log(`Community ${membership.community_id} not found or error:`, communityError.message)
+        
+        // If community doesn't exist, this is orphaned data - delete it
+        if (communityError.code === 'PGRST116') {
+          console.log(`Deleting orphaned membership ${membership.id}`)
+          const { error: deleteError } = await supabase
+            .from('user_communities')
+            .delete()
+            .eq('id', membership.id)
+          
+          if (!deleteError) {
+            results.cleanedOrphanedRecords++
+            console.log(`Successfully deleted orphaned membership ${membership.id}`)
+          }
+        }
+        continue
+      }
+
+      console.log(`Community "${community.name}" status： active=${community.is_active}, membership status=${membership.status}`)
+      
+      // Clean up pending requests for inactive communities
+      if (membership.status === 'pending' && !community.is_active) {
+        console.log(`Deleting pending request for inactive community: ${community.name}`)
+        const { error: deleteError } = await supabase
+          .from('user_communities')
+          .delete()
+          .eq('id', membership.id)
+        
+        if (!deleteError) {
+          results.cleanedPendingRequests++
+          console.log(`Successfully deleted pending request for "${community.name}"`)
+        }
+        continue
+      }
+      
+      // Clean up approved memberships for inactive communities (unless admin)
+      if (membership.status === 'approved' && !community.is_active && membership.role !== 'admin') {
+        console.log(`Deleting approved membership for inactive community: ${community.name}`)
+        const { error: deleteError } = await supabase
+          .from('user_communities')
+          .delete()
+          .eq('id', membership.id)
+        
+        if (!deleteError) {
+          results.cleanedInactiveCommunities++
+          console.log(`Successfully deleted membership for inactive community "${community.name}"`)
+        }
+        continue
+      }
+      
+      // Check if inactive community should be reactivated (has approved members)
+      if (!community.is_active && membership.status === 'approved') {
+        console.log(`Reactivating community "${community.name}" as it has approved members`)
+        const { error: reactivateError } = await supabase
+          .from('communities')
+          .update({ 
+            is_active: true, 
+            updated_at: new Date().toISOString() 
+          })
+          .eq('id', community.id)
+        
+        if (!reactivateError) {
+          results.reactivatedCommunities++
+          console.log(`Successfully reactivated community "${community.name}"`)
+        }
+      }
+    }
+
+    console.log('Community synchronization completed:', results)
+    return { data: results, error: null }
+  } catch (error) {
+    console.error('Error in syncUserCommunities:', error)
+    return { data: null, error }
+  }
+}
+
+// Clean up orphaned pending requests (pending requests for non-active communities)
+export const cleanupOrphanedRequests = async (userId: string) => {
+  try {
+    // First, get all pending memberships
+    const { data: pendingMemberships, error: fetchError } = await supabase
+      .from('user_communities')
+      .select(`
+        id,
+        community_id,
+        status,
+        communities!inner(id, name, is_active)
+      `)
+      .eq('user_id', userId)
+      .eq('status', 'pending')
+
+    if (fetchError) {
+      console.error('Error fetching pending memberships:', fetchError)
+      return { data: null, error: fetchError }
+    }
+
+    const orphanedRequests = []
+    
+    // Check each pending membership
+    for (const membership of pendingMemberships || []) {
+      const community = membership.communities
+      if (!community || !community.is_active) {
+        // This is an orphaned request - community doesn't exist or is inactive
+        orphanedRequests.push(membership.id)
+      }
+    }
+
+    // Delete orphaned requests
+    if (orphanedRequests.length > 0) {
+      console.log(`Found ${orphanedRequests.length} orphaned pending requests, cleaning up...`)
+      
+      const { error: deleteError } = await supabase
+        .from('user_communities')
+        .delete()
+        .in('id', orphanedRequests)
+
+      if (deleteError) {
+        console.error('Error cleaning up orphaned requests:', deleteError)
+        return { data: null, error: deleteError }
+      }
+      
+      console.log(`Cleaned up ${orphanedRequests.length} orphaned pending requests`)
+    }
+
+    return { data: { cleanedCount: orphanedRequests.length }, error: null }
+  } catch (error) {
+    console.error('Error in cleanupOrphanedRequests:', error)
     return { data: null, error }
   }
 }

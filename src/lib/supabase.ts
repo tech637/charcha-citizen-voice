@@ -77,6 +77,10 @@ export interface Community {
   longitude?: number
   admin_id: string
   is_active: boolean
+  pincode?: string
+  locality_name?: string
+  created_by_user?: boolean
+  locality_data?: any
   created_at: string
   updated_at: string
 }

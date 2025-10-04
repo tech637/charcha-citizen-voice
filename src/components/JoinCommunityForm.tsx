@@ -17,10 +17,12 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { joinCommunity } from '@/lib/communities';
+import { joinCommunity, createCommunityFromLocality, cleanupOrphanedRequests, syncUserCommunities } from '@/lib/communities';
 import { getCommunityBlocks } from '@/lib/blocks';
 import { LoginDialog } from './LoginDialog';
+import PincodeLocalitySelector from './PincodeLocalitySelector';
 import { supabase } from '@/lib/supabase';
+import { Locality } from '@/types/locality';
 
 interface Community {
   id: string;
@@ -61,6 +63,10 @@ const JoinCommunityForm = () => {
   const [isLoadingCommunities, setIsLoadingCommunities] = useState(false);
   const [isLoadingBlocks, setIsLoadingBlocks] = useState(false);
   const [showLoginDialog, setShowLoginDialog] = useState(false);
+  
+  // State for "Other" flow
+  const [showOtherFlow, setShowOtherFlow] = useState(false);
+  const [isCreatingCommunity, setIsCreatingCommunity] = useState(false);
 
   // Load all active communities
   useEffect(() => {
@@ -107,6 +113,11 @@ const JoinCommunityForm = () => {
 
   // Handle community selection
   const handleCommunitySelect = (communityId: string) => {
+    if (communityId === 'other') {
+      setShowOtherFlow(true);
+      return;
+    }
+    
     const community = communities.find(c => c.id === communityId) || null;
     setSelectedCommunity(community);
     setSelectedBlock('');
@@ -125,11 +136,148 @@ const JoinCommunityForm = () => {
     }
   };
 
+  // Handle locality selection from "Other" flow
+  const handleLocalitySelected = async (locality: Locality, pincode: string) => {
+    if (!user) {
+      setShowLoginDialog(true);
+      return;
+    }
+
+    // Debug: Check current user memberships before creating
+    console.log('Checking user memberships before creating community...');
+    try {
+      const { data: memberships } = await supabase
+        .from('user_communities')
+        .select('*, communities!inner(name)')
+        .eq('user_id', user.id);
+      console.log('Current user memberships:', memberships?.map(m => ({
+        id: m.id,
+        community_name: m.communities?.name,
+        status: m.status,
+        role: m.role
+      })));
+    } catch (e) {
+      console.error('Error checking memberships:', e);
+    }
+
+    setIsCreatingCommunity(true);
+    
+    try {
+      // First, run comprehensive community synchronization
+      console.log('Running comprehensive community synchronization...');
+      const { data: syncResult, error: syncError } = await syncUserCommunities(user.id);
+      
+      if (syncError) {
+        console.error('Error during synchronization:', syncError);
+      } else if (syncResult && (
+        syncResult.cleanedPendingRequests > 0 || 
+        syncResult.cleanedInactiveCommunities > 0 || 
+        syncResult.cleanedOrphanedRecords > 0 ||
+        syncResult.reactivatedCommunities > 0 ||
+        syncResult.globalCleanupApplied
+      )) {
+        console.log('🔧 Synchronization results:', syncResult);
+        
+        let description = "Database cleanup completed: ";
+        const changes = [];
+        
+        // Global cleanup results
+        if (syncResult.globalCleanupApplied && syncResult.globalCleanupResults) {
+          const global = syncResult.globalCleanupResults;
+          if (global.orphanedMembershipsDeleted > 0) changes.push(`🗑️ Deleted ${global.orphanedMembershipsDeleted} orphaned memberships`);
+          if (global.pendingRequestsDeleted > 0) changes.push(`⏳ Cleaned ${global.pendingRequestsDeleted} pending requests for inactive communities`);
+          if (global.communitiesReactivated > 0) changes.push(`🔄 Reactivated ${global.communitiesReactivated} communities`);
+          if (global.communitiesDeactivated > 0) changes.push(`💤 Deactivated ${global.communitiesDeactivated} empty communities`);
+        }
+        
+        // User-specific cleanup results
+        if (syncResult.cleanedPendingRequests > 0) changes.push(`🧹 Cleaned ${syncResult.cleanedPendingRequests} user-specific pending requests`);
+        if (syncResult.cleanedInactiveCommunities > 0) changes.push(`🤖 Cleaned ${syncResult.cleanedInactiveCommunities} inactive memberships`);
+        if (syncResult.cleanedOrphanedRecords > 0) changes.push(`🔗 Fixed ${syncResult.cleanedOrphanedRecords} orphaned records`);
+        if (syncResult.reactivatedCommunities > 0) changes.push(`🎉 Reactivated ${syncResult.reactivatedCommunities} user communities`);
+        
+        toast({
+          title: "🌍 Global Community Synchronization Complete",
+          description: description + changes.join(', '),
+          variant: "default",
+        });
+      }
+
+      const { data: community, error } = await createCommunityFromLocality({
+        locality_name: locality.locality_name,
+        pincode: pincode,
+        locality_data: locality,
+        description: `Community for ${locality.locality_name} residents`
+      }, user.id);
+
+      if (error) {
+        console.log('Raw Supabase error from createCommunityFromLocality:', error);
+        
+        // Provide more helpful error messages based on actual error content
+        let errorMessage = error.message || "Failed to create community. Please try again.";
+        
+        if (error.message?.includes('already have an active membership')) {
+          errorMessage = `${error.message} Please leave your current community first before creating a new one.`;
+        } else if (error.message?.includes('unique constraint')) {
+          errorMessage = "You already have an active membership in another community. Please leave your current community first before creating a new one.";
+        } else if (error.code === '23505') {
+          errorMessage = "A community with this name already exists. Please try a different locality.";
+        } else if (error.code === '42501') {
+          errorMessage = "Permission denied. You may need admin privileges to create communities.";
+        }
+        
+        throw new Error(errorMessage);
+      }
+
+      toast({
+        title: "Community Created Successfully!",
+        description: `Successfully created community for ${locality.locality_name}. You are now the admin.`,
+      });
+
+      // Redirect to the new community
+      navigate(`/communities/${encodeURIComponent(community.name)}`);
+      
+    } catch (error: any) {
+      console.error('Error creating community:', error);
+      console.error('Full error details:', {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code
+      });
+      const isMembershipConflict = error.message?.includes('already have an active membership') || 
+                                  error.message?.includes('already have a pending request') ||
+                                  error.message?.includes('unique constraint') ||
+                                  error.code === '23505';
+      
+      const errorDescription = isMembershipConflict 
+        ? "You're already enrolled in a community. Please leave your current community first before creating a new one."
+        : error.message || "Failed to create community. Please try again.";
+        
+      toast({
+        title: "Cannot Create Community", 
+        description: errorDescription,
+        variant: "destructive",
+      });
+    } finally {
+      setIsCreatingCommunity(false);
+    }
+  };
+
+  const handleBackFromOther = () => {
+    setShowOtherFlow(false);
+  };
+
   // No need to check login status on mount - let users fill the form first
 
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Don't submit if we're in the "Other" flow
+    if (showOtherFlow) {
+      return;
+    }
     
     if (!user) {
       // Show login dialog when user tries to submit
@@ -222,7 +370,7 @@ const JoinCommunityForm = () => {
         {/* Header */}
         <div className="bg-gradient-to-br from-[#001F3F] to-[#001F3F]/90 text-white p-8 md:p-10 text-center">
           <div className="w-16 h-16 md:w-20 md:h-20 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4 md:mb-6">
-            <Users className="h-8 w-8 md:h-10 md:h-10 text-white" />
+            <Users className="h-8 w-8 md:h-10 md:w-10 text-white" />
           </div>
           <h2 className="text-2xl md:text-3xl font-bold mb-3 md:mb-4" style={{fontFamily: 'Montserrat-Bold, Helvetica'}}>
             Join Your Community
@@ -246,7 +394,7 @@ const JoinCommunityForm = () => {
                   <span className="font-medium">Loading communities...</span>
                 </div>
               ) : (
-                <Select value={selectedCommunity?.id || ''} onValueChange={handleCommunitySelect}>
+                <Select value={showOtherFlow ? 'other' : (selectedCommunity?.id || '')} onValueChange={handleCommunitySelect}>
                   <SelectTrigger className="h-14 bg-gray-50 border-2 border-gray-200 rounded-xl text-base font-medium">
                     <SelectValue placeholder="Choose your community" />
                   </SelectTrigger>
@@ -256,13 +404,32 @@ const JoinCommunityForm = () => {
                         {c.name}
                       </SelectItem>
                     ))}
+                    <SelectItem value="other" className="text-base font-semibold text-blue-600">
+                      Other (Create New Community)
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               )}
             </div>
 
+            {/* Show "Other" flow when selected */}
+            {showOtherFlow && (
+              <div className="space-y-6">
+                <PincodeLocalitySelector
+                  onLocalitySelected={handleLocalitySelected}
+                  onBack={handleBackFromOther}
+                />
+                {isCreatingCommunity && (
+                  <div className="flex items-center justify-center gap-3 text-gray-500 bg-gray-50 rounded-xl p-4">
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                    <span className="font-medium">Creating community...</span>
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* Block Selection */}
-            {selectedCommunity && (
+            {selectedCommunity && !showOtherFlow && (
               <div className="space-y-3">
                 <Label className="text-base font-semibold text-[#001F3F]">
                   Select Your Block
@@ -335,7 +502,7 @@ const JoinCommunityForm = () => {
             )}
 
             {/* Role Selection */}
-            {selectedCommunity && (
+            {selectedCommunity && !showOtherFlow && (
               <div className="space-y-3">
                 <Label className="text-base font-semibold text-[#001F3F]">
                   Are you a tenant or owner?
@@ -360,7 +527,7 @@ const JoinCommunityForm = () => {
             )}
 
             {/* Address Input */}
-            {selectedCommunity && (
+            {selectedCommunity && !showOtherFlow && (
               <div className="space-y-3">
                 <Label htmlFor="address" className="text-base font-semibold text-[#001F3F]">
                   Your Address
@@ -377,7 +544,7 @@ const JoinCommunityForm = () => {
             )}
 
             {/* Submit Button */}
-            {selectedCommunity && (
+            {selectedCommunity && !showOtherFlow && (
               <div className="space-y-3">
                 <Button
                   type="submit"
