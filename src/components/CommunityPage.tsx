@@ -84,30 +84,30 @@ const MobileBottomNavigation = () => {
     <div className="fixed bottom-0 left-0 right-0 z-40 md:hidden">
       <div className="bg-white border-t border-gray-200 shadow-lg">
         <div className="flex items-center justify-around py-2">
-          {user ? (
-            // Logged in user: Show Dashboard and Communities
-            <>
-              <button
-                onClick={() => navigate('/dashboard')}
-                className={`flex flex-col items-center justify-center py-2 px-4 rounded-lg transition-colors ${
-                  isActive('/dashboard') ? 'text-blue-600' : 'text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                <User className={`h-5 w-5 ${isActive('/dashboard') ? 'text-blue-600 fill-blue-600' : 'text-gray-500 fill-gray-500'}`} />
-                <span className="text-xs mt-1 font-medium">Dashboard</span>
-              </button>
-              
-              <button
-                onClick={handleCommunitiesClick}
-                className={`flex flex-col items-center justify-center py-2 px-4 rounded-lg transition-colors ${
-                  isActive('/communities') ? 'text-blue-600' : 'text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                <Building2 className={`h-5 w-5 ${isActive('/communities') ? 'text-blue-600 fill-blue-600' : 'text-gray-500 fill-gray-500'}`} />
-                <span className="text-xs mt-1 font-medium">Communities</span>
-              </button>
-            </>
-          ) : (
+                 {user ? (
+                   // Logged in user: Show Communities (left) and Dashboard (right)
+                   <>
+                     <button
+                       onClick={handleCommunitiesClick}
+                       className={`flex flex-col items-center justify-center py-2 px-4 rounded-lg transition-colors ${
+                         isActive('/communities') ? 'text-blue-600' : 'text-gray-500 hover:text-gray-700'
+                       }`}
+                     >
+                       <Building2 className={`h-5 w-5 ${isActive('/communities') ? 'text-blue-600 fill-blue-600' : 'text-gray-500 fill-gray-500'}`} />
+                       <span className="text-xs mt-1 font-medium">Communities</span>
+                     </button>
+                     
+                     <button
+                       onClick={() => navigate('/dashboard')}
+                       className={`flex flex-col items-center justify-center py-2 px-4 rounded-lg transition-colors ${
+                         isActive('/dashboard') ? 'text-blue-600' : 'text-gray-500 hover:text-gray-700'
+                       }`}
+                     >
+                       <User className={`h-5 w-5 ${isActive('/dashboard') ? 'text-blue-600 fill-blue-600' : 'text-gray-500 fill-gray-500'}`} />
+                       <span className="text-xs mt-1 font-medium">Dashboard</span>
+                     </button>
+                   </>
+                 ) : (
             // Not logged in: Show Home, Communities, and Login
             <>
               <button
@@ -231,6 +231,9 @@ const CommunityPage: React.FC = () => {
   const { communityName } = useParams<{ communityName: string }>();
   const navigate = useNavigate();
   const [complaints, setComplaints] = useState<CommunityComplaint[]>([]);
+  const [allCommunitiesComplaints, setAllCommunitiesComplaints] = useState<CommunityComplaint[]>([]);
+  const [myCommunityComplaints, setMyCommunityComplaints] = useState<CommunityComplaint[]>([]);
+  const [activeTab, setActiveTab] = useState<'all_communities' | 'my_community'>('all_communities');
   const [community, setCommunity] = useState<Community | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -288,6 +291,14 @@ const CommunityPage: React.FC = () => {
       fetchCommunityAndComplaints();
     }
   }, [communityName, user?.id]);
+
+  // Fetch both complaint feeds when community changes
+  useEffect(() => {
+    if (community) {
+      fetchAllCommunitiesComplaints();
+      fetchMyCommunityComplaints();
+    }
+  }, [community]);
 
   // Realtime: refresh complaints when any record for this community changes
   useEffect(() => {
@@ -498,6 +509,48 @@ const CommunityPage: React.FC = () => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Fetch complaints from all communities
+  const fetchAllCommunitiesComplaints = async () => {
+    try {
+      const { data, error } = await getAllCommunityComplaints();
+      if (error) throw error;
+      setAllCommunitiesComplaints(data || []);
+    } catch (error) {
+      console.error('Error fetching all communities complaints:', error);
+      toast({
+        title: "Error Loading All Communities Feed",
+        description: "Failed to load complaints from all communities. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Fetch complaints from user's specific community
+  const fetchMyCommunityComplaints = async () => {
+    try {
+      if (!community) return;
+      
+      if (community.name.toLowerCase() === 'india') {
+        // India community shows all complaints
+        const { data, error } = await getAllCommunityComplaints();
+        if (error) throw error;
+        setMyCommunityComplaints(data || []);
+      } else {
+        // Other communities show only their complaints
+        const { data, error } = await getCommunityComplaints(community.id);
+        if (error) throw error;
+        setMyCommunityComplaints(data || []);
+      }
+    } catch (error) {
+      console.error('Error fetching my community complaints:', error);
+      toast({
+        title: "Error Loading My Community Feed",
+        description: "Failed to load complaints from your community. Please try again.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -1454,30 +1507,28 @@ const CommunityPage: React.FC = () => {
         <div className="space-y-6">
 
         {/* Tabs for filtering complaints */}
-        <Tabs defaultValue="in_progress" className="w-full">
+        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'all_communities' | 'my_community')} className="w-full">
             <TabsList className="grid w-full grid-cols-2 mb-6 bg-gray-100 rounded-xl p-1">
-              <TabsTrigger value="in_progress" className="rounded-lg font-medium data-[state=active]:bg-white data-[state=active]:shadow-sm">
-              In Progress ({complaints.filter(c => c.status === 'pending' || c.status === 'in_progress').length})
-            </TabsTrigger>
-              <TabsTrigger value="resolved" className="rounded-lg font-medium data-[state=active]:bg-white data-[state=active]:shadow-sm">
-              Resolved ({complaints.filter(c => c.status === 'resolved').length})
-            </TabsTrigger>
+              <TabsTrigger value="all_communities" className="rounded-lg font-medium data-[state=active]:bg-white data-[state=active]:shadow-sm">
+                All Communities ({allCommunitiesComplaints.length})
+              </TabsTrigger>
+              <TabsTrigger value="my_community" className="rounded-lg font-medium data-[state=active]:bg-white data-[state=active]:shadow-sm">
+                My Community ({myCommunityComplaints.length})
+              </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="in_progress">
+          <TabsContent value="all_communities">
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-              {complaints.filter(c => c.status === 'pending' || c.status === 'in_progress').length === 0 ? (
+              {allCommunitiesComplaints.length === 0 ? (
                 <div className="col-span-full bg-white rounded-2xl shadow-lg border-0 p-12 text-center">
                   <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
                     <Eye className="h-8 w-8 text-gray-400" />
                   </div>
-                  <h3 className="text-xl font-bold mb-3 text-gray-900">No In Progress Complaints</h3>
-                  <p className="text-gray-600 mb-6">No pending or in-progress complaints in {community.name} community.</p>
+                  <h3 className="text-xl font-bold mb-3 text-gray-900">No Complaints Found</h3>
+                  <p className="text-gray-600 mb-6">No complaints from any community yet.</p>
                 </div>
               ) : (
-                complaints
-                  .filter(c => c.status === 'pending' || c.status === 'in_progress')
-                  .map((complaint) => (
+                allCommunitiesComplaints.map((complaint) => (
                     <div key={complaint.id} className="bg-white rounded-2xl shadow-lg border-0 hover:shadow-xl transition-all duration-300 overflow-hidden">
                     <div className="p-4 md:p-6">
                       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-4">
@@ -1488,6 +1539,7 @@ const CommunityPage: React.FC = () => {
                           <div>
                               <h3 className="font-bold text-gray-900 text-sm md:text-base mb-1">{complaint.users?.full_name || 'Anonymous User'}</h3>
                               <p className="text-xs text-gray-500 flex items-center gap-2"><Calendar className="h-3 w-3" />{formatDate(complaint.created_at)}</p>
+                              <p className="text-xs text-blue-600 font-medium">{complaint.communities?.name}</p>
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
@@ -1569,18 +1621,18 @@ const CommunityPage: React.FC = () => {
             </div>
           </TabsContent>
 
-          <TabsContent value="resolved">
+          <TabsContent value="my_community">
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-              {complaints.filter(c => c.status === 'resolved').length === 0 ? (
-                <div className="col-span-full bg-white rounded-lg border p-8 text-center">
-                  <Eye className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold mb-2 text-gray-900">No Resolved Complaints</h3>
-                  <p className="text-gray-600 mb-4">
-                    No resolved complaints in {community.name} community.
-                  </p>
+              {myCommunityComplaints.length === 0 ? (
+                <div className="col-span-full bg-white rounded-2xl shadow-lg border-0 p-12 text-center">
+                  <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                    <Eye className="h-8 w-8 text-gray-400" />
+                  </div>
+                  <h3 className="text-xl font-bold mb-3 text-gray-900">No Complaints in Your Community</h3>
+                  <p className="text-gray-600 mb-6">No complaints in {community?.name} community yet.</p>
                 </div>
               ) : (
-                complaints.filter(c => c.status === 'resolved').map((complaint) => (
+                myCommunityComplaints.map((complaint) => (
                   <div key={complaint.id} className="bg-white rounded-lg border shadow-sm hover:shadow-md transition-shadow">
                     <div className="p-4 md:p-6">
                       {/* Header Row */}

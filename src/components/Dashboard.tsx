@@ -82,30 +82,30 @@ const MobileBottomNavigation = () => {
     <div className="fixed bottom-0 left-0 right-0 z-40 md:hidden">
       <div className="bg-white border-t border-gray-200 shadow-lg">
         <div className="flex items-center justify-around py-2">
-          {user ? (
-            // Logged in user: Show Dashboard and Communities
-            <>
-              <button
-                onClick={() => navigate('/dashboard')}
-                className={`flex flex-col items-center justify-center py-2 px-4 rounded-lg transition-colors ${
-                  isActive('/dashboard') ? 'text-blue-600' : 'text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                <User className={`h-5 w-5 ${isActive('/dashboard') ? 'text-blue-600 fill-blue-600' : 'text-gray-500 fill-gray-500'}`} />
-                <span className="text-xs mt-1 font-medium">Dashboard</span>
-              </button>
-              
-              <button
-                onClick={handleCommunitiesClick}
-                className={`flex flex-col items-center justify-center py-2 px-4 rounded-lg transition-colors ${
-                  isActive('/communities') ? 'text-blue-600' : 'text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                <Building2 className={`h-5 w-5 ${isActive('/communities') ? 'text-blue-600 fill-blue-600' : 'text-gray-500 fill-gray-500'}`} />
-                <span className="text-xs mt-1 font-medium">Communities</span>
-              </button>
-            </>
-          ) : (
+                 {user ? (
+                   // Logged in user: Show Communities (left) and Dashboard (right)
+                   <>
+                     <button
+                       onClick={handleCommunitiesClick}
+                       className={`flex flex-col items-center justify-center py-2 px-4 rounded-lg transition-colors ${
+                         isActive('/communities') ? 'text-blue-600' : 'text-gray-500 hover:text-gray-700'
+                       }`}
+                     >
+                       <Building2 className={`h-5 w-5 ${isActive('/communities') ? 'text-blue-600 fill-blue-600' : 'text-gray-500 fill-gray-500'}`} />
+                       <span className="text-xs mt-1 font-medium">Communities</span>
+                     </button>
+                     
+                     <button
+                       onClick={() => navigate('/dashboard')}
+                       className={`flex flex-col items-center justify-center py-2 px-4 rounded-lg transition-colors ${
+                         isActive('/dashboard') ? 'text-blue-600' : 'text-gray-500 hover:text-gray-700'
+                       }`}
+                     >
+                       <User className={`h-5 w-5 ${isActive('/dashboard') ? 'text-blue-600 fill-blue-600' : 'text-gray-500 fill-gray-500'}`} />
+                       <span className="text-xs mt-1 font-medium">Dashboard</span>
+                     </button>
+                   </>
+                 ) : (
             // Not logged in: Show Home, Communities, and Login
             <>
               <button
