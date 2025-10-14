@@ -5,6 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useComplaint } from '@/contexts/ComplaintContext';
 import { useFiles } from '@/contexts/FileContext';
 import { createComplaint } from '@/lib/complaints';
+import { getUserCommunities } from '@/lib/communities';
 import { useToast } from '@/hooks/use-toast';
 
 export const AuthCallback = () => {
@@ -13,6 +14,26 @@ export const AuthCallback = () => {
   const { pendingComplaint, clearPendingComplaint } = useComplaint();
   const { pendingFiles, clearPendingFiles } = useFiles();
   const { toast } = useToast();
+
+  // Helper function to redirect to user's community or home page
+  const redirectToCommunity = async (userId: string) => {
+    try {
+      const { data: communities } = await getUserCommunities(userId);
+      if (communities && communities.length > 0) {
+        const communityName = communities[0].communities?.name;
+        if (communityName) {
+          navigate(`/communities/${encodeURIComponent(communityName)}`);
+        } else {
+          navigate("/");
+        }
+      } else {
+        navigate("/");
+      }
+    } catch (error) {
+      console.error('Error fetching user communities for redirect:', error);
+      navigate("/");
+    }
+  };
 
   console.log('AuthCallback mounted, pendingComplaint:', pendingComplaint);
 
@@ -99,8 +120,8 @@ export const AuthCallback = () => {
             }
           }
 
-          // Redirect to communities
-          navigate('/communities');
+          // Redirect to community if joined, otherwise home
+          await redirectToCommunity(data.session.user.id);
         } else {
           // No session, redirect to home
           navigate('/');

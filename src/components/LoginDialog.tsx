@@ -40,14 +40,14 @@ export const LoginDialog = ({ open, onOpenChange, onSuccess }: LoginDialogProps)
         if (communityName) {
           navigate(`/communities/${encodeURIComponent(communityName)}`);
         } else {
-          navigate("/communities");
+          navigate("/");
         }
       } else {
-        navigate("/communities");
+        navigate("/");
       }
     } catch (error) {
       console.error('Error fetching user communities for redirect:', error);
-      navigate("/communities");
+      navigate("/");
     }
   };
 

@@ -23,14 +23,40 @@ const MobileBottomNavigation = () => {
     return location.pathname === path;
   };
 
+  const handleHomeClick = async () => {
+    if (!user) {
+      navigate('/');
+      return;
+    }
+
+    // For logged-in users, redirect to their community if they have joined one
+    if (hasJoinedCommunity) {
+      try {
+        const { data: communities } = await getUserCommunities(user.id);
+        if (communities && communities.length > 0) {
+          const communityName = communities[0].communities?.name;
+          if (communityName) {
+            navigate(`/communities/${encodeURIComponent(communityName)}`);
+            return;
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching user communities:', error);
+      }
+    }
+
+    // If no community joined or error, stay on home page
+    navigate('/');
+  };
+
   const handleCommunitiesClick = async () => {
     if (!user) {
-      navigate('/communities');
+      setShowLoginDialog(true);
       return;
     }
 
     if (!hasJoinedCommunity) {
-      navigate('/communities');
+      alert("Please join a community first. You can join a community from the home page.");
       return;
     }
 
@@ -42,14 +68,14 @@ const MobileBottomNavigation = () => {
         if (communityName) {
           navigate(`/communities/${encodeURIComponent(communityName)}`);
         } else {
-          navigate('/communities');
+          alert("Please join a community first. You can join a community from the home page.");
         }
       } else {
-        navigate('/communities');
+        alert("Please join a community first. You can join a community from the home page.");
       }
     } catch (error) {
       console.error('Error fetching user communities:', error);
-      navigate('/communities');
+      alert("Please join a community first. You can join a community from the home page.");
     }
   };
 
@@ -57,44 +83,62 @@ const MobileBottomNavigation = () => {
     <div className="fixed bottom-0 left-0 right-0 z-40 md:hidden">
       <div className="bg-white border-t border-gray-200 shadow-lg">
         <div className="flex items-center justify-around py-2">
-          <button
-            onClick={() => navigate('/')}
-            className={`flex flex-col items-center justify-center py-2 px-4 rounded-lg transition-colors ${
-              isActive('/') ? 'text-blue-600' : 'text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            <Home className={`h-5 w-5 ${isActive('/') ? 'text-blue-600 fill-blue-600' : 'text-gray-500 fill-gray-500'}`} />
-            <span className="text-xs mt-1 font-medium">Home</span>
-          </button>
-          
-          <button
-            onClick={handleCommunitiesClick}
-            className={`flex flex-col items-center justify-center py-2 px-4 rounded-lg transition-colors ${
-              isActive('/communities') ? 'text-blue-600' : 'text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            <Building2 className={`h-5 w-5 ${isActive('/communities') ? 'text-blue-600 fill-blue-600' : 'text-gray-500 fill-gray-500'}`} />
-            <span className="text-xs mt-1 font-medium">Communities</span>
-          </button>
-          
           {user ? (
-            <button
-              onClick={() => navigate('/dashboard')}
-              className={`flex flex-col items-center justify-center py-2 px-4 rounded-lg transition-colors ${
-                isActive('/dashboard') ? 'text-blue-600' : 'text-gray-500 hover:text-gray-700'
-              }`}
-            >
-              <User className={`h-5 w-5 ${isActive('/dashboard') ? 'text-blue-600 fill-blue-600' : 'text-gray-500 fill-gray-500'}`} />
-              <span className="text-xs mt-1 font-medium">Profile</span>
-            </button>
+            // Logged in user: Show Dashboard and Communities
+            <>
+              <button
+                onClick={() => navigate('/dashboard')}
+                className={`flex flex-col items-center justify-center py-2 px-4 rounded-lg transition-colors ${
+                  isActive('/dashboard') ? 'text-blue-600' : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                <User className={`h-5 w-5 ${isActive('/dashboard') ? 'text-blue-600 fill-blue-600' : 'text-gray-500 fill-gray-500'}`} />
+                <span className="text-xs mt-1 font-medium">Dashboard</span>
+              </button>
+              
+              <button
+                onClick={handleCommunitiesClick}
+                className={`flex flex-col items-center justify-center py-2 px-4 rounded-lg transition-colors ${
+                  isActive('/communities') ? 'text-blue-600' : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                <Building2 className={`h-5 w-5 ${isActive('/communities') ? 'text-blue-600 fill-blue-600' : 'text-gray-500 fill-gray-500'}`} />
+                <span className="text-xs mt-1 font-medium">Communities</span>
+              </button>
+            </>
           ) : (
-            <button
-              onClick={() => setShowLoginDialog(true)}
-              className={`flex flex-col items-center justify-center py-2 px-4 rounded-lg transition-colors text-gray-500 hover:text-gray-700`}
-            >
-              <User className={`h-5 w-5 text-gray-500 fill-gray-500`} />
-              <span className="text-xs mt-1 font-medium">Login</span>
-            </button>
+            // Not logged in: Show Home, Communities, and Login
+            <>
+              <button
+                onClick={handleHomeClick}
+                className={`flex flex-col items-center justify-center py-2 px-4 rounded-lg transition-colors ${
+                  isActive('/') ? 'text-blue-600' : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                <Home className={`h-5 w-5 ${isActive('/') ? 'text-blue-600 fill-blue-600' : 'text-gray-500 fill-gray-500'}`} />
+                <span className="text-xs mt-1 font-medium">Home</span>
+              </button>
+              
+              <button
+                onClick={handleCommunitiesClick}
+                className={`flex flex-col items-center justify-center py-2 px-4 rounded-lg transition-colors ${
+                  isActive('/communities') ? 'text-blue-600' : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                <Building2 className={`h-5 w-5 ${isActive('/communities') ? 'text-blue-600 fill-blue-600' : 'text-gray-500 fill-gray-500'}`} />
+                <span className="text-xs mt-1 font-medium">Communities</span>
+              </button>
+              
+              <button
+                onClick={() => setShowLoginDialog(true)}
+                className={`flex flex-col items-center justify-center py-2 px-4 rounded-lg transition-colors ${
+                  showLoginDialog ? 'text-blue-600' : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                <User className={`h-5 w-5 ${showLoginDialog ? 'text-blue-600 fill-blue-600' : 'text-gray-500 fill-gray-500'}`} />
+                <span className="text-xs mt-1 font-medium">Login</span>
+              </button>
+            </>
           )}
         </div>
       </div>

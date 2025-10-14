@@ -6,8 +6,9 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { ThumbsUp, ThumbsDown, MapPin, Calendar, Eye, RefreshCw, AlertCircle, ArrowLeft, Building2, Users, Flag, Home, User, ChevronDown, ChevronUp, Settings, CheckCircle, Landmark } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { getPublicComplaints, getCommunityComplaints, getAllCommunityComplaints, updateComplaintStatus, getComplaintVoteSummary, upsertComplaintVote, removeComplaintVote, listComplaintComments, addComplaintComment } from '@/lib/complaints';
-import { getAllCommunities, getCommunityMembers, isUserMemberOfCommunity, isUserAdmin, getPendingMembershipRequests, updateMembershipStatus, updateCommunity, withdrawCommunityMembership, leaveCommunityWithAdminCheck } from '@/lib/communities';
+import { getAllCommunities, getCommunityMembers, isUserMemberOfCommunity, isUserAdmin, getPendingMembershipRequests, updateMembershipStatus, updateCommunity, withdrawCommunityMembership, leaveCommunityWithAdminCheck, getUserCommunities } from '@/lib/communities';
 import ComplaintForm from './ComplaintForm';
+import { LoginDialog } from './LoginDialog';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -23,46 +24,130 @@ import Navigation from './Navigation';
 const MobileBottomNavigation = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user } = useAuth();
+  const [showLoginDialog, setShowLoginDialog] = useState(false);
 
   const isActive = (path: string) => {
     return location.pathname === path;
+  };
+
+  const handleHomeClick = async () => {
+    if (!user) {
+      navigate('/');
+      return;
+    }
+
+    // For logged-in users, redirect to their community if they have joined one
+    try {
+      const { data: communities } = await getUserCommunities(user.id);
+      if (communities && communities.length > 0) {
+        const communityName = communities[0].communities?.name;
+        if (communityName) {
+          navigate(`/communities/${encodeURIComponent(communityName)}`);
+          return;
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching user communities:', error);
+    }
+
+    // If no community joined or error, stay on home page
+    navigate('/');
+  };
+
+  const handleCommunitiesClick = async () => {
+    if (!user) {
+      setShowLoginDialog(true);
+      return;
+    }
+
+    // For logged-in users, redirect to their specific community
+    try {
+      const { data: communities } = await getUserCommunities(user.id);
+      if (communities && communities.length > 0) {
+        const communityName = communities[0].communities?.name;
+        if (communityName) {
+          navigate(`/communities/${encodeURIComponent(communityName)}`);
+        } else {
+          alert("Please join a community first. You can join a community from the home page.");
+        }
+      } else {
+        alert("Please join a community first. You can join a community from the home page.");
+      }
+    } catch (error) {
+      console.error('Error fetching user communities:', error);
+      alert("Please join a community first. You can join a community from the home page.");
+    }
   };
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-40 md:hidden">
       <div className="bg-white border-t border-gray-200 shadow-lg">
         <div className="flex items-center justify-around py-2">
-          <button
-            onClick={() => navigate('/')}
-            className={`flex flex-col items-center justify-center py-2 px-4 rounded-lg transition-colors ${
-              isActive('/') ? 'text-blue-600' : 'text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            <Home className={`h-5 w-5 ${isActive('/') ? 'text-blue-600 fill-blue-600' : 'text-gray-500 fill-gray-500'}`} />
-            <span className="text-xs mt-1 font-medium">Home</span>
-          </button>
-          
-          <button
-            onClick={() => navigate('/communities')}
-            className={`flex flex-col items-center justify-center py-2 px-4 rounded-lg transition-colors ${
-              isActive('/communities') ? 'text-blue-600' : 'text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            <Building2 className={`h-5 w-5 ${isActive('/communities') ? 'text-blue-600 fill-blue-600' : 'text-gray-500 fill-gray-500'}`} />
-            <span className="text-xs mt-1 font-medium">Communities</span>
-          </button>
-          
-          <button
-            onClick={() => navigate('/dashboard')}
-            className={`flex flex-col items-center justify-center py-2 px-4 rounded-lg transition-colors ${
-              isActive('/dashboard') ? 'text-blue-600' : 'text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            <User className={`h-5 w-5 ${isActive('/dashboard') ? 'text-blue-600 fill-blue-600' : 'text-gray-500 fill-gray-500'}`} />
-            <span className="text-xs mt-1 font-medium">Profile</span>
-          </button>
+          {user ? (
+            // Logged in user: Show Dashboard and Communities
+            <>
+              <button
+                onClick={() => navigate('/dashboard')}
+                className={`flex flex-col items-center justify-center py-2 px-4 rounded-lg transition-colors ${
+                  isActive('/dashboard') ? 'text-blue-600' : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                <User className={`h-5 w-5 ${isActive('/dashboard') ? 'text-blue-600 fill-blue-600' : 'text-gray-500 fill-gray-500'}`} />
+                <span className="text-xs mt-1 font-medium">Dashboard</span>
+              </button>
+              
+              <button
+                onClick={handleCommunitiesClick}
+                className={`flex flex-col items-center justify-center py-2 px-4 rounded-lg transition-colors ${
+                  isActive('/communities') ? 'text-blue-600' : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                <Building2 className={`h-5 w-5 ${isActive('/communities') ? 'text-blue-600 fill-blue-600' : 'text-gray-500 fill-gray-500'}`} />
+                <span className="text-xs mt-1 font-medium">Communities</span>
+              </button>
+            </>
+          ) : (
+            // Not logged in: Show Home, Communities, and Login
+            <>
+              <button
+                onClick={handleHomeClick}
+                className={`flex flex-col items-center justify-center py-2 px-4 rounded-lg transition-colors ${
+                  isActive('/') ? 'text-blue-600' : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                <Home className={`h-5 w-5 ${isActive('/') ? 'text-blue-600 fill-blue-600' : 'text-gray-500 fill-gray-500'}`} />
+                <span className="text-xs mt-1 font-medium">Home</span>
+              </button>
+              
+              <button
+                onClick={handleCommunitiesClick}
+                className={`flex flex-col items-center justify-center py-2 px-4 rounded-lg transition-colors ${
+                  isActive('/communities') ? 'text-blue-600' : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                <Building2 className={`h-5 w-5 ${isActive('/communities') ? 'text-blue-600 fill-blue-600' : 'text-gray-500 fill-gray-500'}`} />
+                <span className="text-xs mt-1 font-medium">Communities</span>
+              </button>
+              
+              <button
+                onClick={() => setShowLoginDialog(true)}
+                className={`flex flex-col items-center justify-center py-2 px-4 rounded-lg transition-colors ${
+                  showLoginDialog ? 'text-blue-600' : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                <User className={`h-5 w-5 ${showLoginDialog ? 'text-blue-600 fill-blue-600' : 'text-gray-500 fill-gray-500'}`} />
+                <span className="text-xs mt-1 font-medium">Login</span>
+              </button>
+            </>
+          )}
         </div>
       </div>
+
+      <LoginDialog 
+        open={showLoginDialog}
+        onOpenChange={setShowLoginDialog}
+      />
     </div>
   );
 };
@@ -534,7 +619,7 @@ const CommunityPage: React.FC = () => {
   // Request to Join navigation
   const handleRequestToJoin = () => {
     if (!community) return;
-    navigate(`/communities`);
+    navigate(`/`);
   };
 
   const formatDate = (dateString: string) => {
@@ -635,7 +720,7 @@ const CommunityPage: React.FC = () => {
       
       setMembershipStatus('none');
       setIsUserMember(false);
-      navigate('/communities');
+      navigate('/');
     } catch (e: any) {
       toast({ title: 'Error', description: e.message || 'Failed to leave community', variant: 'destructive' });
     } finally {
@@ -883,9 +968,9 @@ const CommunityPage: React.FC = () => {
               {error || `The community "${communityName}" does not exist.`}
             </p>
             <div className="space-y-3">
-              <Button onClick={() => navigate('/communities')} className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
+              <Button onClick={() => navigate('/')} className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
                 <ArrowLeft className="h-5 w-5 mr-2" />
-                Back to Communities
+                Back to Home
               </Button>
               <Button variant="outline" onClick={() => window.location.reload()} className="w-full border-2 border-gray-200 text-gray-700 hover:bg-gray-50 font-semibold py-3 rounded-xl transition-all duration-300">
                 Reload Page
@@ -907,36 +992,32 @@ const CommunityPage: React.FC = () => {
       <div className="container mx-auto px-4 py-6 max-w-7xl">
         {/* Simplified Community Header */}
         <div className="bg-white rounded-2xl shadow-lg border-0 p-6 mb-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div className="flex items-center gap-4 min-w-0 flex-1">
+              <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0">
                 {community.name === 'India' ? (
                   <Flag className="h-7 w-7 text-white" />
                 ) : (
                   <Building2 className="h-7 w-7 text-white" />
                 )}
               </div>
-                <div>
-                <div className="flex items-center gap-3">
+                <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-3 flex-wrap">
                   <h1 className="text-2xl font-bold text-gray-900">
                     {community.name} Community
                   </h1>
-                  {/* Subtle Membership Status Indicator */}
+                  {/* Subtle Membership Status Indicator - Removed green tick */}
                   {community.name.toLowerCase() !== 'india' && user && !membershipLoading && (
                     <div className="flex items-center gap-1">
-                      {membershipStatus === 'approved' ? (
-                        <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center" title="Member">
-                          <CheckCircle className="h-4 w-4 text-green-600" />
-                        </div>
-                      ) : membershipStatus === 'pending' ? (
+                      {membershipStatus === 'pending' ? (
                         <div className="w-6 h-6 bg-amber-100 rounded-full flex items-center justify-center" title="Request Pending">
                           <Users className="h-3 w-3 text-amber-600" />
                         </div>
-                      ) : (
+                      ) : membershipStatus !== 'approved' ? (
                         <div className="w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center" title="Not a Member">
                           <Users className="h-3 w-3 text-gray-500" />
                         </div>
-                      )}
+                      ) : null}
                     </div>
                   )}
                 </div>
@@ -950,14 +1031,14 @@ const CommunityPage: React.FC = () => {
               </div>
             
             {/* Interactive Details Toggle and Join Request */}
-            <div className="flex items-center gap-3">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
               {/* Join Request Button for Non-Members */}
               {community.name.toLowerCase() !== 'india' && user && membershipStatus !== 'approved' && membershipStatus !== 'pending' && (
                     <Button
                       size="sm"
                   onClick={handleRequestToJoin}
                       disabled={membershipLoading}
-                  className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-2 px-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                  className="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-2 px-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 w-full sm:w-auto"
                     >
                       <Users className="h-4 w-4" />
                   Request to Join
@@ -967,7 +1048,7 @@ const CommunityPage: React.FC = () => {
               {/* Details Toggle */}
               <button
                 onClick={() => setShowDetails(!showDetails)}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-gray-200 hover:border-gray-300 text-gray-700 hover:bg-gray-50 transition-all duration-300"
+                className="flex items-center justify-center gap-2 px-4 py-2 rounded-xl border-2 border-gray-200 hover:border-gray-300 text-gray-700 hover:bg-gray-50 transition-all duration-300 w-full sm:w-auto"
               >
                 <Settings className="h-4 w-4" />
                 <span className="text-sm font-medium">Details</span>

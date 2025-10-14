@@ -86,10 +86,13 @@ const Navigation = () => {
               </a>
               <button 
                 onClick={() => {
-                  if (joinedCommunityName) {
+                  if (!user) {
+                    setIsLoginOpen(true);
+                  } else if (joinedCommunityName) {
                     navigate(`/communities/${encodeURIComponent(joinedCommunityName)}`)
                   } else {
-                    navigate("/communities")
+                    // Show message to join community
+                    alert("Please join a community first. You can join a community from the home page.");
                   }
                 }}
                 className="text-gray-200 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors"
