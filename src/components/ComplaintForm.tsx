@@ -14,7 +14,7 @@ import { useComplaint } from "@/contexts/ComplaintContext";
 import { useFiles } from "@/contexts/FileContext";
 import { LoginDialog } from "./LoginDialog";
 import { createComplaint, createComplaintData } from "@/lib/complaints";
-import { getUserApprovedCommunities } from "@/lib/communities";
+import { getUserApprovedCommunities, getUserCommunities } from "@/lib/communities";
 import { getIndiaCommunityId } from "@/lib/india-community";
 import { reverseGeocode } from "@/lib/geocoding";
 import { 
@@ -261,7 +261,23 @@ const ComplaintForm = ({ onSubmitted, stayOnPage = false }: ComplaintFormProps) 
         onSubmitted(data);
       }
       if (!stayOnPage) {
-        navigate("/dashboard");
+        // Redirect to user's community instead of dashboard
+        try {
+          const { data: communities } = await getUserCommunities(user.id);
+          if (communities && communities.length > 0) {
+            const communityName = communities[0].communities?.name;
+            if (communityName) {
+              navigate(`/communities/${encodeURIComponent(communityName)}`);
+            } else {
+              navigate("/dashboard");
+            }
+          } else {
+            navigate("/dashboard");
+          }
+        } catch (error) {
+          console.error('Error fetching user communities for redirect:', error);
+          navigate("/dashboard");
+        }
       }
     } catch (error: any) {
       toast({

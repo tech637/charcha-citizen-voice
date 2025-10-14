@@ -619,19 +619,215 @@ export const deleteCommunity = async (communityId: string, userId: string) => {
       throw new Error('Only super admin can delete the community')
     }
 
-    // Hard delete the community
-    const { error } = await supabase
+    // Step 1: Check for related complaints  
+    let complaintsData = []
+    try {
+      const { data } = await supabase
+        .from('complaints')
+        .select('id')
+        .eq('community_id', communityId)
+      complaintsData = data || []
+    } catch (e) {
+      console.log('Complaints table not accessible or no complaints found')
+    }
+
+    const complaintsExist = complaintsData && complaintsData.length > 0
+
+    if (complaintsExist) {
+      // Step 2: Handle complaints first (unassign them)
+      const { error: complaintsError } = await supabase
+        .from('complaints')
+        .update({ community_id: null })
+        .eq('community_id', communityId)
+
+      if (complaintsError) {
+        console.error('Error unassigning complaints:', complaintsError)
+        throw new Error('Failed to remove community references from complaints')
+      }
+
+      console.log('✅ Unassigned complaints from community')
+    }
+
+    // Step 3: Delete user_communities records
+    const { error: userCommunitiesError } = await supabase
+      .from('user_communities')
+      .delete()
+      .eq('community_id', communityId)
+
+    if (userCommunitiesError) {
+      console.error('Error deleting user_communities:', userCommunitiesError)
+      throw new Error('Failed to remove community memberships')
+    }
+
+    console.log('✅ Deleted user_communities records')
+
+    // Step 4: Finally delete the community
+    const { error: communityError } = await supabase
       .from('communities')
       .delete()
       .eq('id', communityId)
 
-    if (error) {
-      throw error
+    if (communityError) {
+      throw communityError
     }
 
-    return { data: true, error: null }
+    console.log('✅ Successfully deleted community and all related data')
+
+    return { 
+      data: { 
+        success: true, 
+        message: `Community deleted successfully. ${complaintsExist ? 'Related complaints were unassigned.' : 'No complaints were associated.'}`,
+        complaintsUnassigned: complaintsExist 
+      }, 
+      error: null 
+    }
   } catch (error) {
     return { data: null, error }
+  }
+}
+
+// Enhanced delete community with comprehensive foreign key handling
+export const enhancedDeleteCommunity = async (communityId: string, userId: string) => {
+  try {
+    // Check if user is a global admin
+    const isGlobalAdmin = await isUserAdmin(userId)
+    if (!isGlobalAdmin) {
+      throw new Error('Only super admin can delete the community')
+    }
+
+    console.log('🗑️ Starting enhanced community deletion for:', communityId)
+
+    // Step 1: Try using SQL function first
+    const { data: sqlResult, error: sqlError } = await supabase.rpc('safe_delete_community', {
+      community_uuid: communityId
+    })
+
+    if (!sqlError && sqlResult?.success) {
+      console.log('✅ Community deleted via SQL function')
+      return { data: sqlResult, error: null }
+    }
+
+    console.log('📝 SQL function failed or unavailable, using manual approach...')
+
+    // PERMANENT FIX: Step 2 - Based on debug analysis, fix exact blocking order
+    const cleanupSteps = [
+      // CRITICAL STEP 1: User communities FIRST (foreign key constraint blocks deletion)
+      { 
+        name: 'user_communities', 
+        action: 'delete', 
+        table: 'user_communities', 
+        where: 'community_id',
+        critical: true 
+      },
+      
+      // CRITICAL STEP 2: Complaints - unassign them (don't delete complaints)
+      { 
+        name: 'complaints', 
+        action: 'update', 
+        set: { community_id: null }, 
+        table: 'complaints', 
+        where: 'community_id',
+        critical: true 
+      },
+      
+      // STEP 3: Community transactions (foreign key found in debug)
+      { 
+        name: 'community_transactions', 
+        action: 'delete', 
+        table: 'community_transactions', 
+        where: 'community_id',
+        critical: false 
+      },
+      
+      // STEP 4: Blocks table (foreign key found in debug)
+      { 
+        name: 'blocks', 
+        action: 'delete', 
+        table: 'blocks', 
+        where: 'community_id',
+        critical: false 
+      },
+      
+      // FINAL STEP: Delete community last
+      { 
+        name: 'communities', 
+        action: 'delete', 
+        table: 'communities', 
+        where: 'id',
+        critical: true 
+      }
+    ]
+
+    const results = []
+    const criticalErrors = []
+    
+    for (const step of cleanupSteps) {
+      try {
+        const stepType = step.critical ? 'CRITICAL' : 'optional'
+        console.log(`🔄 Processing ${step.table} (${stepType})...`)
+        
+        if (step.action === 'update') {
+          const { data, error } = await supabase
+            .from(step.table)
+            .update(step.set)
+            .eq(step.where, communityId)
+          
+          if (error) {
+            console.error(`❌ FAILED to update ${step.table}:`, error.message)
+            if (step.critical) {
+              criticalErrors.push(`CRITICAL: Failed to update ${step.table}: ${error.message}`)
+            }
+          } else {
+            console.log(`✅ Updated ${step.name}`)
+            results.push(`Updated ${step.table}`)
+          }
+        } else if (step.action === 'delete') {
+          const { data, error } = await supabase
+            .from(step.table)
+            .delete()
+            .eq(step.where, communityId)
+          
+          if (error) {
+            console.error(`❌ FAILED to delete from ${step.table}:`, error.message)
+            if (step.critical) {
+              criticalErrors.push(`CRITICAL: Failed to delete from ${step.table}: ${error.message}`)
+            }
+          } else {
+            console.log(`✅ Deleted from ${step.name}`)
+            results.push(`Deleted from ${step.table}`)
+          }
+        }
+      } catch (error: any) {
+        console.error(`💥 EXCEPTION in ${step.table}:`, error.message)
+        if (step.critical) {
+          criticalErrors.push(`CRITICAL EXCEPTION: ${step.table}: ${error.message}`)
+        }
+      }
+    }
+    
+    // Check if any critical steps failed
+    if (criticalErrors.length > 0) {
+      console.error('🚨 CRITICAL ERRORS:', criticalErrors)
+      throw new Error(`Community deletion failed: ${criticalErrors.join('; ')}`)
+    }
+
+    return { 
+      data: { 
+        success: true, 
+        message: 'Community deleted via enhanced manual process',
+        steps: results,
+        method: 'enhanced'
+      }, 
+      error: null 
+    }
+
+  } catch (error) {
+    console.error('❌ Enhanced delete failed:', error)
+    return { 
+      data: null, 
+      error,
+      message: 'Enhanced deletion failed. Manual database intervention may be required.'
+    }
   }
 }
 

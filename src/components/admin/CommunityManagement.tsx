@@ -6,7 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { createCommunity, getAllCommunities, deleteCommunity, getPendingMembershipRequests, updateMembershipStatus, assignCommunityPresident } from '@/lib/communities';
+import { createCommunity, getAllCommunities, deleteCommunity, enhancedDeleteCommunity, getPendingMembershipRequests, updateMembershipStatus, assignCommunityPresident } from '@/lib/communities';
 import { useAuth } from '@/contexts/AuthContext';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { 
@@ -106,13 +106,39 @@ const CommunityManagement = () => {
 
     try {
       setDeletingId(communityId);
-      const { data, error } = await deleteCommunity(communityId, user.id);
-      if (error) throw error as any;
-      toast({ title: 'Community removed', description: `${communityName} is now inactive.` });
+      
+      // Try enhanced delete first, fallback to original delete
+      console.log('🔄 Attempting enhanced delete...');
+      let result = await enhancedDeleteCommunity(communityId, user.id);
+      
+      if (result.error) {
+        console.log('🔄 Enhanced delete failed, trying original method...');
+        result = await deleteCommunity(communityId, user.id);
+      }
+      
+      if (result.error) throw result.error as any;
+      
+      // Enhanced feedback based on method used
+      const message = result.data?.message || `Community ${communityName} deleted successfully.`;
+      toast({ 
+        title: 'Community Deleted', 
+        description: message,
+        variant: result.data?.method === 'enhanced' ? 'default' : 'default'
+      });
+      
+      // Log cleanup steps if available
+      if (result.data?.steps?.length > 0) {
+        console.log('🧹 Cleanup steps completed:', result.data.steps);
+      }
+      
       fetchCommunities();
     } catch (error: any) {
       console.error('Delete community error:', error);
-      toast({ title: 'Error', description: error.message || 'Failed to remove community', variant: 'destructive' });
+      toast({ 
+        title: 'Delete Failed', 
+        description: error.message || 'Failed to delete community. Please check console for details.',
+        variant: 'destructive'
+      });
     } finally {
       setDeletingId(null);
     }

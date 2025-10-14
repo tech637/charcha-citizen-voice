@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { useComplaint } from "@/contexts/ComplaintContext";
 import { useFiles } from "@/contexts/FileContext";
+import { getUserCommunities } from "@/lib/communities";
 import { createComplaint } from "@/lib/complaints";
 import { Chrome } from "lucide-react";
 
@@ -29,6 +30,26 @@ export const LoginDialog = ({ open, onOpenChange, onSuccess }: LoginDialogProps)
   const { pendingComplaint, clearPendingComplaint } = useComplaint();
   const { pendingFiles, clearPendingFiles } = useFiles();
   const navigate = useNavigate();
+
+  // Helper function to redirect to user's community or general communities page
+  const redirectToCommunity = async (userId: string) => {
+    try {
+      const { data: communities } = await getUserCommunities(userId);
+      if (communities && communities.length > 0) {
+        const communityName = communities[0].communities?.name;
+        if (communityName) {
+          navigate(`/communities/${encodeURIComponent(communityName)}`);
+        } else {
+          navigate("/communities");
+        }
+      } else {
+        navigate("/communities");
+      }
+    } catch (error) {
+      console.error('Error fetching user communities for redirect:', error);
+      navigate("/communities");
+    }
+  };
 
   // Handle pending complaint after successful authentication
   useEffect(() => {
@@ -76,7 +97,7 @@ export const LoginDialog = ({ open, onOpenChange, onSuccess }: LoginDialogProps)
           clearPendingComplaint();
           clearPendingFiles();
           onOpenChange(false);
-          navigate("/communities");
+          await redirectToCommunity(user.id);
         } catch (error: any) {
           console.error('Complaint submission error:', error);
           toast({
@@ -113,7 +134,7 @@ export const LoginDialog = ({ open, onOpenChange, onSuccess }: LoginDialogProps)
       });
       onSuccess?.();
       onOpenChange(false);
-      navigate("/communities");
+      await redirectToCommunity(user.id);
       // Don't close dialog here - let useEffect handle pending complaint submission
     }
   };
@@ -148,7 +169,7 @@ export const LoginDialog = ({ open, onOpenChange, onSuccess }: LoginDialogProps)
       });
       onSuccess?.();
       onOpenChange(false);
-      navigate("/communities");
+      await redirectToCommunity(user.id);
     }
   };
 

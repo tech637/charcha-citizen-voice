@@ -4,16 +4,53 @@ import Navigation from "@/components/Navigation";
 import JoinCommunityForm from "@/components/JoinCommunityForm";
 import HowItWorks from "@/components/HowItWorks";
 import { ComplaintNotificationsDemo } from "@/components/ComplaintNotifications";
+import { ConditionalLandingContent } from "@/components/ConditionalLandingContent";
+import { LoginDialog } from "@/components/LoginDialog";
+import { useUserCommunityStatus } from "@/hooks/useUserCommunityStatus";
+import { getUserCommunities } from "@/lib/communities";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Home, Building2, User } from "lucide-react";
+import { useState } from "react";
 
 // Mobile Bottom Navigation Component
 const MobileBottomNavigation = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user, hasJoinedCommunity } = useUserCommunityStatus();
+  const [showLoginDialog, setShowLoginDialog] = useState(false);
 
   const isActive = (path: string) => {
     return location.pathname === path;
+  };
+
+  const handleCommunitiesClick = async () => {
+    if (!user) {
+      navigate('/communities');
+      return;
+    }
+
+    if (!hasJoinedCommunity) {
+      navigate('/communities');
+      return;
+    }
+
+    // User is logged in and has joined a community, redirect to their specific community
+    try {
+      const { data: communities } = await getUserCommunities(user.id);
+      if (communities && communities.length > 0) {
+        const communityName = communities[0].communities?.name;
+        if (communityName) {
+          navigate(`/communities/${encodeURIComponent(communityName)}`);
+        } else {
+          navigate('/communities');
+        }
+      } else {
+        navigate('/communities');
+      }
+    } catch (error) {
+      console.error('Error fetching user communities:', error);
+      navigate('/communities');
+    }
   };
 
   return (
@@ -31,7 +68,7 @@ const MobileBottomNavigation = () => {
           </button>
           
           <button
-            onClick={() => navigate('/communities')}
+            onClick={handleCommunitiesClick}
             className={`flex flex-col items-center justify-center py-2 px-4 rounded-lg transition-colors ${
               isActive('/communities') ? 'text-blue-600' : 'text-gray-500 hover:text-gray-700'
             }`}
@@ -40,17 +77,33 @@ const MobileBottomNavigation = () => {
             <span className="text-xs mt-1 font-medium">Communities</span>
           </button>
           
-          <button
-            onClick={() => navigate('/dashboard')}
-            className={`flex flex-col items-center justify-center py-2 px-4 rounded-lg transition-colors ${
-              isActive('/dashboard') ? 'text-blue-600' : 'text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            <User className={`h-5 w-5 ${isActive('/dashboard') ? 'text-blue-600 fill-blue-600' : 'text-gray-500 fill-gray-500'}`} />
-            <span className="text-xs mt-1 font-medium">Profile</span>
-          </button>
+          {user ? (
+            <button
+              onClick={() => navigate('/dashboard')}
+              className={`flex flex-col items-center justify-center py-2 px-4 rounded-lg transition-colors ${
+                isActive('/dashboard') ? 'text-blue-600' : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              <User className={`h-5 w-5 ${isActive('/dashboard') ? 'text-blue-600 fill-blue-600' : 'text-gray-500 fill-gray-500'}`} />
+              <span className="text-xs mt-1 font-medium">Profile</span>
+            </button>
+          ) : (
+            <button
+              onClick={() => setShowLoginDialog(true)}
+              className={`flex flex-col items-center justify-center py-2 px-4 rounded-lg transition-colors text-gray-500 hover:text-gray-700`}
+            >
+              <User className={`h-5 w-5 text-gray-500 fill-gray-500`} />
+              <span className="text-xs mt-1 font-medium">Login</span>
+            </button>
+          )}
         </div>
       </div>
+
+      <LoginDialog 
+        open={showLoginDialog}
+        onOpenChange={setShowLoginDialog}
+        onSuccess={() => setShowLoginDialog(false)}
+      />
     </div>
   );
 };
@@ -117,7 +170,7 @@ const Index = () => {
                 <circle cx="9" cy="7" r="4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 <path d="m22 21-3-3m0 0a2 2 0 1 0-2.828-2.828l2.828 2.828Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
-              Join Your Community
+              File a Complaint
               <svg className="w-5 h-5 md:w-6 md:h-6" viewBox="0 0 24 24" fill="none">
                 <path d="m6 9 6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
@@ -126,10 +179,10 @@ const Index = () => {
         </div>
       </div>
 
-      {/* Join Community Form Section */}
+      {/* Conditional Content Section */}
       <div id="join-community-form" className="py-12 md:py-24 px-4 bg-white">
         <div className="max-w-4xl mx-auto">
-          <JoinCommunityForm />
+          <ConditionalLandingContent />
         </div>
       </div>
 

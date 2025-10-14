@@ -879,15 +879,30 @@ const CommunityPage: React.FC = () => {
 
                 {/* Leave Community action for all members (non-India only) */}
                 {membershipStatus === 'approved' && user && community.name.toLowerCase() !== 'india' && (
-                  <div className="mt-5 p-3 border-2 border-red-200 bg-red-50 rounded-lg">
-                    <div className="text-sm text-red-700 font-medium mb-2">🚪 Leave Community</div>
+                  <div className="mt-5 p-4 border border-red-300 bg-red-50 rounded-xl bg-gradient-to-r from-red-50 to-red-100">
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="w-8 h-8 bg-red-500 rounded-lg flex items-center justify-center">
+                        <span className="text-white text-sm font-bold">🚪</span>
+                      </div>
+                      <div>
+                        <div className="text-sm font-semibold text-red-800">Leave Community</div>
+                        <div className="text-xs text-red-600">You are currently a member</div>
+                      </div>
+                    </div>
                     <Button 
                       variant="outline" 
                       onClick={handleLeaveCommunity} 
                       disabled={leaving}
-                      className="bg-red-500 hover:bg-red-600 text-white border-red-500 hover:border-red-600"
+                      className="w-full bg-red-500 hover:bg-red-600 text-white border-red-500 hover:border-red-600 font-medium py-2 transition-all duration-200 hover:scale-[1.02] shadow-sm"
                     >
-                      {leaving ? 'Leaving…' : 'Leave GTB Nagar Community'}
+                      {leaving ? (
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                          Leaving Community…
+                        </div>
+                      ) : (
+                        `Leave ${community.name}`
+                      )}
                     </Button>
                   </div>
                 )}
