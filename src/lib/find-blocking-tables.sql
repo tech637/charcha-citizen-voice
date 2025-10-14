@@ -53,3 +53,4 @@ WHERE c.table_schema = 'public'
        OR t.table_name LIKE '%comm%')
 ORDER BY t.table_name, c.alumn_name;
 
+

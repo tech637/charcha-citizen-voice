@@ -42,3 +42,4 @@ SELECT 'DELETION STATUS' as check_type,
            ELSE 'FAILED: Community still exists'
        END as result;
 
+

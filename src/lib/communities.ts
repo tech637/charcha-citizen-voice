@@ -199,6 +199,7 @@ export const getAllCommunities = async () => {
         is_active,
         pincode,
         locality_name,
+        locality_data,
         created_by_user,
         created_at,
         updated_at,
@@ -571,7 +572,7 @@ export const getCommunityMembers = async (communityId: string) => {
 }
 
 // Update community
-export const updateCommunity = async (communityId: string, updates: Partial<CreateCommunityData>, userId: string) => {
+export const updateCommunity = async (communityId: string, updates: Partial<CreateCommunityData & { locality_data?: any; pincode?: string; locality_name?: string }>, userId: string) => {
   try {
     // Check if user is admin of this community OR a global admin
     const { data: community, error: fetchError } = await supabase
@@ -590,6 +591,14 @@ export const updateCommunity = async (communityId: string, updates: Partial<Crea
       throw new Error('Only community admin or a global admin can update the community')
     }
 
+    console.log('🔍 Updating community with data:', {
+      communityId,
+      updates: {
+        ...updates,
+        updated_at: new Date().toISOString()
+      }
+    });
+
     const { data, error } = await supabase
       .from('communities')
       .update({
@@ -601,9 +610,11 @@ export const updateCommunity = async (communityId: string, updates: Partial<Crea
       .single()
 
     if (error) {
+      console.error('❌ Supabase update error:', error);
       throw error
     }
 
+    console.log('✅ Community updated successfully:', data);
     return { data, error: null }
   } catch (error) {
     return { data: null, error }

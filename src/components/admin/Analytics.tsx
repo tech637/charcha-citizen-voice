@@ -118,6 +118,7 @@ const Analytics: React.FC = () => {
   const [communityAnalytics, setCommunityAnalytics] = useState<CommunityAnalytic[]>([]);
   const [priorityAnalytics, setPriorityAnalytics] = useState<PriorityAnalytic[]>([]);
   const [geographicAnalytics, setGeographicAnalytics] = useState<GeographicAnalytic[]>([]);
+  const [topLocations, setTopLocations] = useState<GeographicAnalytic[]>([]);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -135,7 +136,8 @@ const Analytics: React.FC = () => {
         fetchCategoryAnalytics(),
         fetchCommunityAnalytics(),
         fetchPriorityAnalytics(),
-        fetchGeographicAnalytics()
+        fetchGeographicAnalytics(),
+        fetchTopLocations()
       ]);
       
       // Show info toast if RPC functions are not available
@@ -218,12 +220,62 @@ const Analytics: React.FC = () => {
 
   const fetchCategoryAnalytics = async () => {
     try {
-      const { data, error } = await supabase.rpc('get_category_analytics');
-      if (error) {
-        console.warn('Category analytics RPC not available:', error.message);
+      // Try RPC function first
+      const { data: rpcData, error: rpcError } = await supabase.rpc('get_category_analytics');
+      if (!rpcError && rpcData) {
+        setCategoryAnalytics(rpcData);
         return;
       }
-      setCategoryAnalytics(data || []);
+      
+      console.warn('Category analytics RPC not available, using direct query:', rpcError?.message);
+      
+      // Fallback: Direct query to get category analytics
+      const { data: complaintsData, error: complaintsError } = await supabase
+        .from('complaints')
+        .select('category, status');
+      
+      if (complaintsError) {
+        console.error('Error fetching complaints for category analytics:', complaintsError);
+        return;
+      }
+      
+      // Process data to create category analytics
+      const categoryMap = new Map();
+      
+      complaintsData?.forEach(complaint => {
+        const category = complaint.category;
+        if (!categoryMap.has(category)) {
+          categoryMap.set(category, {
+            category_id: category,
+            category_name: category.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase()),
+            complaint_count: 0,
+            resolved_count: 0,
+            pending_count: 0,
+            resolution_rate: 0
+          });
+        }
+        
+        const categoryData = categoryMap.get(category);
+        categoryData.complaint_count++;
+        
+        if (complaint.status === 'resolved') {
+          categoryData.resolved_count++;
+        } else if (complaint.status === 'pending') {
+          categoryData.pending_count++;
+        }
+      });
+      
+      // Calculate resolution rates
+      const categoryAnalytics = Array.from(categoryMap.values()).map(category => ({
+        ...category,
+        resolution_rate: category.complaint_count > 0 
+          ? Math.round((category.resolved_count / category.complaint_count) * 100)
+          : 0
+      }));
+      
+      setCategoryAnalytics(categoryAnalytics);
+      console.log('✅ Category analytics generated from direct query:', categoryAnalytics);
+      
     } catch (error) {
       console.warn('Category analytics fetch failed:', error);
     }
@@ -244,12 +296,66 @@ const Analytics: React.FC = () => {
 
   const fetchPriorityAnalytics = async () => {
     try {
-      const { data, error } = await supabase.rpc('get_priority_analytics');
-      if (error) {
-        console.warn('Priority analytics RPC not available:', error.message);
+      console.log('📊 Fetching priority analytics (status data)...');
+      
+      // Try RPC function first
+      const { data: rpcData, error: rpcError } = await supabase.rpc('get_priority_analytics');
+      if (!rpcError && rpcData) {
+        setPriorityAnalytics(rpcData);
         return;
       }
-      setPriorityAnalytics(data || []);
+      
+      console.warn('Priority analytics RPC not available, using status distribution instead:', rpcError?.message);
+      
+      // Fallback: Since there's no priority field, show status distribution
+      const { data: complaintsData, error: complaintsError } = await supabase
+        .from('complaints')
+        .select('status');
+      
+      if (complaintsError) {
+        console.error('Error fetching complaints for status analytics:', complaintsError);
+        return;
+      }
+      
+      // Process data to create status analytics (as priority replacement)
+      const statusMap = new Map();
+      
+      complaintsData?.forEach(complaint => {
+        const status = complaint.status;
+        if (!statusMap.has(status)) {
+          statusMap.set(status, {
+            priority_id: status,
+            priority_name: status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()),
+            priority: status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()),
+            complaint_count: 0,
+            resolved_count: 0,
+            pending_count: 0,
+            resolution_rate: 0
+          });
+        }
+        
+        const statusData = statusMap.get(status);
+        statusData.complaint_count++;
+        
+        if (status === 'resolved') {
+          statusData.resolved_count++;
+        } else if (status === 'pending') {
+          statusData.pending_count++;
+        }
+      });
+      
+      // Calculate resolution rates
+      const statusAnalytics = Array.from(statusMap.values()).map(status => ({
+        ...status,
+        resolution_rate: status.complaint_count > 0 
+          ? Math.round((status.resolved_count / status.complaint_count) * 100)
+          : 0
+      }));
+      
+      setPriorityAnalytics(statusAnalytics);
+      console.log('✅ Status analytics generated from direct query (as priority replacement):', statusAnalytics);
+      console.log('📊 Raw complaints data for status:', complaintsData);
+      
     } catch (error) {
       console.warn('Priority analytics fetch failed:', error);
     }
@@ -265,6 +371,60 @@ const Analytics: React.FC = () => {
       setGeographicAnalytics(data || []);
     } catch (error) {
       console.warn('Geographic analytics fetch failed:', error);
+    }
+  };
+
+  const fetchTopLocations = async () => {
+    try {
+      console.log('📍 Fetching top locations...');
+      
+      // Fetch complaints with location data
+      const { data: complaintsData, error: complaintsError } = await supabase
+        .from('complaints')
+        .select('location_address, status')
+        .not('location_address', 'is', null)
+        .neq('location_address', '');
+      
+      if (complaintsError) {
+        console.error('Error fetching complaints for top locations:', complaintsError);
+        return;
+      }
+      
+      // Process data to create location analytics
+      const locationMap = new Map();
+      
+      complaintsData?.forEach(complaint => {
+        const location = complaint.location_address;
+        if (!locationMap.has(location)) {
+          locationMap.set(location, {
+            location: location,
+            complaint_count: 0,
+            resolved_count: 0,
+            pending_count: 0
+          });
+        }
+        
+        const locationData = locationMap.get(location);
+        locationData.complaint_count++;
+        
+        if (complaint.status === 'resolved') {
+          locationData.resolved_count++;
+        } else if (complaint.status === 'pending') {
+          locationData.pending_count++;
+        }
+      });
+      
+      // Sort by complaint count and take top 10
+      const topLocationsData = Array.from(locationMap.values())
+        .sort((a, b) => b.complaint_count - a.complaint_count)
+        .slice(0, 10);
+      
+      setTopLocations(topLocationsData);
+      console.log('✅ Top locations generated:', topLocationsData);
+      console.log('📍 Raw complaints data:', complaintsData);
+      
+    } catch (error) {
+      console.warn('Top locations fetch failed:', error);
     }
   };
 
@@ -582,7 +742,7 @@ const Analytics: React.FC = () => {
               <CardContent>
                 <div className="h-[300px]">
                   {registrationTrends.length > 0 ? (
-                    <ResponsiveContainer width="100%" height="100%">
+                    <ResponsiveContainer width="100%" height="100%" minWidth={300} minHeight={200}>
                       <RechartsLineChart data={registrationTrends}>
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis 
@@ -633,7 +793,7 @@ const Analytics: React.FC = () => {
               <CardContent>
                 {categoryAnalytics.length > 0 ? (
                   <div className="h-[300px]">
-                    <ResponsiveContainer width="100%" height="100%">
+                    <ResponsiveContainer width="100%" height="100%" minWidth={300} minHeight={200}>
                       <RechartsPieChart>
                         <Pie
                           data={categoryAnalytics.slice(0, 5).map(cat => ({
@@ -644,7 +804,7 @@ const Analytics: React.FC = () => {
                           cx="50%"
                           cy="50%"
                           labelLine={false}
-                          label={({ name, value, resolution_rate }) => `${name}: ${value} (${resolution_rate}%)`}
+                          label={({ name, value }) => `${name}: ${value}`}
                           outerRadius={80}
                           fill="#8884d8"
                           dataKey="value"
@@ -654,7 +814,7 @@ const Analytics: React.FC = () => {
                           ))}
                         </Pie>
                         <Tooltip formatter={(value, name, props) => [
-                          `${value} complaints (${props.payload.resolution_rate}% resolved)`,
+                          `${value} complaints`,
                           'Complaints'
                         ]} />
                       </RechartsPieChart>
@@ -679,15 +839,15 @@ const Analytics: React.FC = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <AlertTriangle className="h-5 w-5" />
-                  Priority Distribution
+                  Status Distribution
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 {priorityAnalytics.length > 0 ? (
                   <div className="h-[300px]">
-                    <ResponsiveContainer width="100%" height="100%">
+                    <ResponsiveContainer width="100%" height="100%" minWidth={300} minHeight={200}>
                       <RechartsBarChart data={priorityAnalytics.map(p => ({
-                        priority: p.priority ? p.priority.charAt(0).toUpperCase() + p.priority.slice(1) : 'Unknown',
+                        priority: p.priority || p.priority_name || 'Unknown',
                         complaints: p.complaint_count,
                         resolved: p.resolved_count,
                         resolution_rate: p.resolution_rate
@@ -697,7 +857,7 @@ const Analytics: React.FC = () => {
                         <YAxis />
                         <Tooltip 
                           formatter={(value, name, props) => [
-                            `${value} complaints (${props.payload.resolution_rate}% resolved)`,
+                            `${value} complaints`,
                             name === 'complaints' ? 'Total Complaints' : 'Resolved'
                           ]}
                         />
@@ -710,9 +870,9 @@ const Analytics: React.FC = () => {
                   <div className="h-[300px] flex items-center justify-center text-muted-foreground">
                     <div className="text-center">
                       <AlertTriangle className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                      <p>No priority data available</p>
+                      <p>No status data available</p>
                       <p className="text-xs mt-2">
-                        Run the SQL functions in Supabase to see data
+                        Debug: {priorityAnalytics.length} status items found
                       </p>
                     </div>
                   </div>
@@ -804,7 +964,7 @@ const Analytics: React.FC = () => {
             <CardContent>
               <div className="h-[300px]">
                 {registrationTrends.length > 0 ? (
-                  <ResponsiveContainer width="100%" height="100%">
+                  <ResponsiveContainer width="100%" height="100%" minWidth={300} minHeight={200}>
                     <RechartsLineChart data={registrationTrends}>
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis 
@@ -902,7 +1062,7 @@ const Analytics: React.FC = () => {
               <CardContent>
                 {categoryAnalytics.length > 0 ? (
                   <div className="h-[300px]">
-                    <ResponsiveContainer width="100%" height="100%">
+                    <ResponsiveContainer width="100%" height="100%" minWidth={300} minHeight={200}>
                       <RechartsPieChart>
                         <Pie
                           data={categoryAnalytics.slice(0, 5).map(cat => ({
@@ -913,7 +1073,7 @@ const Analytics: React.FC = () => {
                           cx="50%"
                           cy="50%"
                           labelLine={false}
-                          label={({ name, value, resolution_rate }) => `${name}: ${value} (${resolution_rate}%)`}
+                          label={({ name, value }) => `${name}: ${value}`}
                           outerRadius={80}
                           fill="#8884d8"
                           dataKey="value"
@@ -923,7 +1083,7 @@ const Analytics: React.FC = () => {
                           ))}
                         </Pie>
                         <Tooltip formatter={(value, name, props) => [
-                          `${value} complaints (${props.payload.resolution_rate}% resolved)`,
+                          `${value} complaints`,
                           'Complaints'
                         ]} />
                       </RechartsPieChart>
@@ -947,15 +1107,15 @@ const Analytics: React.FC = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <AlertTriangle className="h-5 w-5" />
-                  Priority Distribution
+                  Status Distribution
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 {priorityAnalytics.length > 0 ? (
                   <div className="h-[300px]">
-                    <ResponsiveContainer width="100%" height="100%">
+                    <ResponsiveContainer width="100%" height="100%" minWidth={300} minHeight={200}>
                       <RechartsBarChart data={priorityAnalytics.map(p => ({
-                        priority: p.priority ? p.priority.charAt(0).toUpperCase() + p.priority.slice(1) : 'Unknown',
+                        priority: p.priority || p.priority_name || 'Unknown',
                         complaints: p.complaint_count,
                         resolved: p.resolved_count,
                         resolution_rate: p.resolution_rate
@@ -965,7 +1125,7 @@ const Analytics: React.FC = () => {
                         <YAxis />
                         <Tooltip 
                           formatter={(value, name, props) => [
-                            `${value} complaints (${props.payload.resolution_rate}% resolved)`,
+                            `${value} complaints`,
                             name === 'complaints' ? 'Total Complaints' : 'Resolved'
                           ]}
                         />
@@ -978,9 +1138,9 @@ const Analytics: React.FC = () => {
                   <div className="h-[300px] flex items-center justify-center text-muted-foreground">
                     <div className="text-center">
                       <AlertTriangle className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                      <p>No priority data available</p>
+                      <p>No status data available</p>
                       <p className="text-xs mt-2">
-                        Run the SQL functions in Supabase to see data
+                        Debug: {priorityAnalytics.length} status items found
                       </p>
                     </div>
                   </div>
@@ -993,28 +1153,51 @@ const Analytics: React.FC = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <MapPin className="h-5 w-5" />
-                Top Locations
+                Top Complaint Locations
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-3">
-                {geographicAnalytics.slice(0, 5).map((location, index) => (
-                  <div key={index} className="flex justify-between items-center p-3 border rounded-lg">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center text-sm font-medium">
-                        {index + 1}
+              {topLocations.length > 0 ? (
+                <div className="space-y-3">
+                  {topLocations.map((location, index) => (
+                    <div key={location.location} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <div className="flex items-center justify-center w-8 h-8 bg-blue-100 text-blue-600 rounded-full font-bold text-sm">
+                          {index + 1}
+                        </div>
+                        <div>
+                          <p className="font-medium text-gray-900">{location.location}</p>
+                          <div className="flex items-center gap-4 text-sm text-gray-600">
+                            <span>{location.complaint_count} complaints</span>
+                            <span className="text-green-600">{location.resolved_count} resolved</span>
+                            <span className="text-yellow-600">{location.pending_count} pending</span>
+                          </div>
+                        </div>
                       </div>
-                      <div>
-                        <div className="font-medium">{location.location}</div>
-                        <div className="text-xs text-muted-foreground">
-                          {location.resolved_count} resolved, {location.pending_count} pending
+                      <div className="text-right">
+                        <div className="text-sm font-medium text-gray-900">
+                          {location.complaint_count > 0 
+                            ? Math.round((location.resolved_count / location.complaint_count) * 100)
+                            : 0}% resolved
                         </div>
                       </div>
                     </div>
-                    <Badge variant="secondary">{location.complaint_count}</Badge>
+                  ))}
+                </div>
+              ) : (
+                <div className="h-[200px] flex items-center justify-center text-muted-foreground">
+                  <div className="text-center">
+                    <MapPin className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                    <p>No location data available</p>
+                    <p className="text-xs mt-2">
+                      Complaints need location addresses to appear here
+                    </p>
+                    <p className="text-xs mt-1 text-gray-400">
+                      Debug: {topLocations.length} locations found
+                    </p>
                   </div>
-                ))}
-              </div>
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>

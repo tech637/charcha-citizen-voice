@@ -175,8 +175,8 @@ const IndiaMap: React.FC = () => {
       setLoading(true);
       console.log('🗺️ Fetching complaints with coordinates...');
       
-      // First try the new visibility_type system
-      const { data: newData, error: newError } = await supabase
+      // Fetch ALL complaints with coordinates (no visibility filtering)
+      const { data: complaintsData, error: complaintsError } = await supabase
         .from('complaints')
         .select(`
           id,
@@ -192,52 +192,18 @@ const IndiaMap: React.FC = () => {
           )
         `)
         .not('latitude', 'is', null)
-        .not('longitude', 'is', null)
-        .eq('visibility_type', 'community');
+        .not('longitude', 'is', null);
 
-      if (newError) {
-        console.warn('🗺️ New visibility_type query failed, falling back to is_public:', newError);
-        
-        // Fallback to old is_public system for backward compatibility
-        const { data: fallbackData, error: fallbackError } = await supabase
-          .from('complaints')
-          .select(`
-            id,
-            category,
-            description,
-            location_address,
-            latitude,
-            longitude,
-            status,
-            created_at,
-            users (
-              full_name
-            )
-          `)
-          .not('latitude', 'is', null)
-          .not('longitude', 'is', null)
-          .eq('is_public', true);
-
-        if (fallbackError) {
-          console.error('❌ Both new and fallback queries failed:', fallbackError);
-          throw fallbackError;
-        }
-
-        console.log('📍 Using fallback is_public query, found:', fallbackData?.length || 0, 'complaints');
-        setComplaints(fallbackData || []);
-        
-        toast({
-          title: "Complaints Loaded (Fallback)",
-          description: `Found ${fallbackData?.length || 0} complaints with coordinates using fallback method`,
-        });
-        return;
+      if (complaintsError) {
+        console.error('❌ Error fetching complaints:', complaintsError);
+        throw complaintsError;
       }
 
-      console.log('📍 Using new visibility_type query, found:', newData?.length || 0, 'complaints');
-      console.log('🗂️ Full complaints data:', newData);
+      console.log('📍 Fetched ALL complaints with coordinates:', complaintsData?.length || 0);
+      console.log('🗂️ Full complaints data:', complaintsData);
       
       // Log each complaint individually for better visibility
-      newData?.forEach((complaint, index) => {
+      complaintsData?.forEach((complaint, index) => {
         console.log(`Complaint ${index + 1}:`, {
           id: complaint.id,
           category: complaint.category,
@@ -249,11 +215,11 @@ const IndiaMap: React.FC = () => {
         });
       });
 
-      setComplaints(newData || []);
+      setComplaints(complaintsData || []);
       
       toast({
-        title: "Complaints Loaded",
-        description: `Found ${newData?.length || 0} complaints with coordinates`,
+        title: "All Complaints Loaded",
+        description: `Found ${complaintsData?.length || 0} complaints with coordinates`,
       });
     } catch (error: any) {
       console.error('❌ Error fetching complaints:', error);
@@ -278,7 +244,7 @@ const IndiaMap: React.FC = () => {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <CardTitle className="flex items-center gap-2">
             <MapPin className="h-5 w-5" />
-            India Map
+            All Complaints Map
           </CardTitle>
           <div className="flex items-center gap-2">
             <div className="text-sm text-gray-600">
@@ -323,7 +289,7 @@ const IndiaMap: React.FC = () => {
           
           {/* Legend */}
           <div className="bg-gray-50 rounded-lg p-3">
-            <p className="font-medium text-sm text-gray-900 mb-2">Marker Legend:</p>
+            <p className="font-medium text-sm text-gray-900 mb-2">All Complaints with Coordinates:</p>
             <div className="flex flex-wrap gap-4 text-xs">
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-yellow-500 border border-white shadow-sm"></div>

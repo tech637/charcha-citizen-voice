@@ -3,7 +3,7 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { ThumbsUp, ThumbsDown, MapPin, Calendar, Eye, RefreshCw, AlertCircle, ArrowLeft, Building2, Users, Flag, Home, User, ChevronDown, ChevronUp, Settings, CheckCircle } from 'lucide-react';
+import { ThumbsUp, ThumbsDown, MapPin, Calendar, Eye, RefreshCw, AlertCircle, ArrowLeft, Building2, Users, Flag, Home, User, ChevronDown, ChevronUp, Settings, CheckCircle, Landmark } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { getPublicComplaints, getCommunityComplaints, getAllCommunityComplaints, updateComplaintStatus, getComplaintVoteSummary, upsertComplaintVote, removeComplaintVote, listComplaintComments, addComplaintComment } from '@/lib/complaints';
 import { getAllCommunities, getCommunityMembers, isUserMemberOfCommunity, isUserAdmin, getPendingMembershipRequests, updateMembershipStatus, updateCommunity, withdrawCommunityMembership, leaveCommunityWithAdminCheck } from '@/lib/communities';
@@ -120,6 +120,25 @@ interface Community {
   location: string;
   admin_id: string;
   is_active: boolean;
+  pincode?: string;
+  locality_name?: string;
+  locality_data?: {
+    ward?: {
+      ward_name: string;
+      ward_number: number;
+      councillor_name: string;
+    };
+    mla?: {
+      mla_name: string;
+      constituency: string;
+      party_name: string;
+    };
+    mp?: {
+      mp_name: string;
+      constituency: string;
+      party: string;
+    };
+  };
   created_at: string;
 }
 
@@ -147,6 +166,25 @@ const CommunityPage: React.FC = () => {
   const [isAddingTx, setIsAddingTx] = useState(false);
   const [txForm, setTxForm] = useState<{ type: 'income'|'expense'; amount: string; note: string }>({ type: 'income', amount: '', note: '' });
   const [profileForm, setProfileForm] = useState<{ description: string; location: string }>({ description: '', location: '' });
+  const [showLocationUpdateDialog, setShowLocationUpdateDialog] = useState(false);
+  const [locationUpdateLoading, setLocationUpdateLoading] = useState(false);
+  const [manualFormData, setManualFormData] = useState({
+    ward: {
+      ward_name: '',
+      ward_number: '',
+      councillor_name: ''
+    },
+    mla: {
+      mla_name: '',
+      constituency: '',
+      party_name: ''
+    },
+    mp: {
+      mp_name: '',
+      constituency: '',
+      party: ''
+    }
+  });
   const { user } = useAuth();
   const { toast } = useToast();
   const [membershipStatus, setMembershipStatus] = useState<'none' | 'pending' | 'approved' | 'rejected'>('none');
@@ -240,6 +278,7 @@ const CommunityPage: React.FC = () => {
         return;
       }
 
+      console.log('🔍 Found community with locality_data:', foundCommunity.locality_data);
       setCommunity(foundCommunity);
       // Seed president details from community profile fields so non-admin viewers still see info
       if (foundCommunity.leader_name || foundCommunity.leader_email || foundCommunity.leader_mobile) {
@@ -642,6 +681,105 @@ const CommunityPage: React.FC = () => {
     }
   };
 
+  const handleManualLocationUpdate = async () => {
+    if (!community || !user) return;
+    
+    setLocationUpdateLoading(true);
+    try {
+      console.log('🔍 Form data being submitted:', manualFormData);
+      
+      // Validate that at least one section has meaningful data
+      const hasWardData = manualFormData.ward.ward_name.trim() || manualFormData.ward.councillor_name.trim();
+      const hasMLAData = manualFormData.mla.mla_name.trim() || manualFormData.mla.constituency.trim();
+      const hasMPData = manualFormData.mp.mp_name.trim() || manualFormData.mp.constituency.trim();
+      
+      console.log('🔍 Validation check:', { hasWardData, hasMLAData, hasMPData });
+      console.log('🔍 Raw form data:', manualFormData);
+      
+      if (!hasWardData && !hasMLAData && !hasMPData) {
+        toast({ title: 'No Data Entered', description: 'Please enter at least one representative information (name or constituency)', variant: 'destructive' });
+        setLocationUpdateLoading(false);
+        return;
+      }
+
+      // Prepare locality data (only include sections with data)
+      const localityData: any = {};
+      
+      if (hasWardData) {
+        localityData.ward = {
+          ward_name: manualFormData.ward.ward_name.trim() || 'Not specified',
+          ward_number: parseInt(manualFormData.ward.ward_number) || 0,
+          councillor_name: manualFormData.ward.councillor_name.trim() || 'Not specified'
+        };
+      }
+      
+      if (hasMLAData) {
+        localityData.mla = {
+          mla_name: manualFormData.mla.mla_name.trim() || 'Not specified',
+          constituency: manualFormData.mla.constituency.trim() || 'Not specified',
+          party_name: manualFormData.mla.party_name.trim() || 'Not specified'
+        };
+      }
+      
+      if (hasMPData) {
+        localityData.mp = {
+          mp_name: manualFormData.mp.mp_name.trim() || 'Not specified',
+          constituency: manualFormData.mp.constituency.trim() || 'Not specified',
+          party: manualFormData.mp.party.trim() || 'Not specified'
+        };
+      }
+
+      console.log('🔍 Prepared locality data:', localityData);
+
+      // Update the community with locality data
+      console.log('🔍 Calling updateCommunity with:', {
+        communityId: community.id,
+        updates: { locality_data: localityData },
+        userId: user.id
+      });
+      
+      const { error } = await updateCommunity(
+        community.id, 
+        { 
+          locality_data: localityData
+        }, 
+        user.id
+      );
+
+      if (error) {
+        console.error('❌ Update community error:', error);
+        throw error as any;
+      }
+
+      console.log('✅ Community updated successfully');
+
+      toast({ 
+        title: 'Representative Information Updated', 
+        description: 'MP/MLA/Ward Councillor information has been added successfully' 
+      });
+      
+      console.log('🔍 Closing dialog and resetting form...');
+      setShowLocationUpdateDialog(false);
+      // Reset form
+      setManualFormData({
+        ward: { ward_name: '', ward_number: '', councillor_name: '' },
+        mla: { mla_name: '', constituency: '', party_name: '' },
+        mp: { mp_name: '', constituency: '', party: '' }
+      });
+      
+      console.log('🔍 Refreshing community data...');
+      await fetchCommunityAndComplaints();
+      console.log('✅ Community data refreshed');
+      console.log('🔍 Current community data after refresh:', community);
+      
+    } catch (e: any) {
+      console.error('❌ Error in handleManualLocationUpdate:', e);
+      toast({ title: 'Error', description: e.message || 'Failed to update representative information', variant: 'destructive' });
+    } finally {
+      setLocationUpdateLoading(false);
+    }
+  };
+
   const handleVote = async (complaintId: string, vote: 'up' | 'down') => {
     if (!user || membershipStatus !== 'approved') return;
     const current = userVote[complaintId] || null;
@@ -986,6 +1124,123 @@ const CommunityPage: React.FC = () => {
                 </div>
           </div>
         </div>
+
+            {/* MP/MLA/Ward Councillor Information */}
+            {console.log('🔍 Rendering representative info section. Community:', community, 'Has locality_data:', !!community?.locality_data)}
+            {community?.locality_data ? (
+              <div className="bg-white rounded-2xl shadow-lg border-0 p-6">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl flex items-center justify-center">
+                    <Landmark className="h-5 w-5 text-white" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900">Representative Information</h3>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {/* Ward Information */}
+                  {community.locality_data.ward && (
+                    <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4">
+                      <div className="flex items-center gap-3 mb-3">
+                        <Building2 className="h-5 w-5 text-blue-600" />
+                        <h4 className="font-semibold text-blue-900">Ward Information</h4>
+                      </div>
+                      <div className="space-y-2">
+                        <div className="text-sm">
+                          <span className="font-medium text-gray-700">Ward:</span>
+                          <span className="ml-2 text-gray-600">
+                            {community.locality_data.ward.ward_name} (Ward {community.locality_data.ward.ward_number})
+                          </span>
+                        </div>
+                        <div className="text-sm">
+                          <span className="font-medium text-gray-700">Councillor:</span>
+                          <span className="ml-2 text-gray-600">{community.locality_data.ward.councillor_name}</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* MLA Information */}
+                  {community.locality_data.mla && (
+                    <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4">
+                      <div className="flex items-center gap-3 mb-3">
+                        <User className="h-5 w-5 text-green-600" />
+                        <h4 className="font-semibold text-green-900">MLA Information</h4>
+                      </div>
+                      <div className="space-y-2">
+                        <div className="text-sm">
+                          <span className="font-medium text-gray-700">Name:</span>
+                          <span className="ml-2 text-gray-600">{community.locality_data.mla.mla_name}</span>
+                        </div>
+                        <div className="text-sm">
+                          <span className="font-medium text-gray-700">Constituency:</span>
+                          <span className="ml-2 text-gray-600">{community.locality_data.mla.constituency}</span>
+                        </div>
+                        <div className="text-sm">
+                          <span className="font-medium text-gray-700">Party:</span>
+                          <span className="ml-2 text-gray-600">{community.locality_data.mla.party_name}</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* MP Information */}
+                  {community.locality_data.mp && (
+                    <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4">
+                      <div className="flex items-center gap-3 mb-3">
+                        <Landmark className="h-5 w-5 text-purple-600" />
+                        <h4 className="font-semibold text-purple-900">MP Information</h4>
+                      </div>
+                      <div className="space-y-2">
+                        <div className="text-sm">
+                          <span className="font-medium text-gray-700">Name:</span>
+                          <span className="ml-2 text-gray-600">{community.locality_data.mp.mp_name}</span>
+                        </div>
+                        <div className="text-sm">
+                          <span className="font-medium text-gray-700">Constituency:</span>
+                          <span className="ml-2 text-gray-600">{community.locality_data.mp.constituency}</span>
+                        </div>
+                        <div className="text-sm">
+                          <span className="font-medium text-gray-700">Party:</span>
+                          <span className="ml-2 text-gray-600">{community.locality_data.mp.party}</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : (
+              /* Update Location Info Button for communities without locality data */
+              <div className="bg-white rounded-2xl shadow-lg border-0 p-6">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 bg-gradient-to-br from-gray-400 to-gray-500 rounded-xl flex items-center justify-center">
+                    <Landmark className="h-5 w-5 text-white" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900">Representative Information</h3>
+                </div>
+                
+                <div className="text-center py-8">
+                  <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <MapPin className="h-8 w-8 text-gray-400" />
+                  </div>
+                  <h4 className="text-lg font-semibold text-gray-900 mb-2">No Location Data Available</h4>
+                  <p className="text-gray-600 mb-6 max-w-md mx-auto">
+                    This community doesn't have MP/MLA/Ward Councillor information yet. 
+                    Community admins can manually add this information.
+                  </p>
+                  
+                  {/* Show update button only for community admins */}
+                  {isPresidentOrAdmin && (
+                    <Button 
+                      onClick={() => setShowLocationUpdateDialog(true)}
+                      className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg font-medium"
+                    >
+                      <Landmark className="h-4 w-4 mr-2" />
+                      Add Representative Info
+                    </Button>
+                  )}
+                </div>
+              </div>
+            )}
 
             {/* President Panel */}
             {isPresidentOrAdmin && (
@@ -1453,6 +1708,197 @@ const CommunityPage: React.FC = () => {
           </Dialog>
         )
       )}
+
+      {/* Manual Representative Information Dialog */}
+      <Dialog open={showLocationUpdateDialog} onOpenChange={setShowLocationUpdateDialog}>
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Landmark className="h-5 w-5 text-indigo-600" />
+              Add Representative Information
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-6">
+            {/* Ward Councillor Information */}
+            <div className="bg-blue-50 rounded-lg p-4">
+              <h3 className="text-lg font-semibold text-blue-900 mb-4 flex items-center gap-2">
+                <Building2 className="h-5 w-5" />
+                Ward Councillor Information
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-700 mb-1 block">Ward Name</label>
+                  <input
+                    type="text"
+                    value={manualFormData.ward.ward_name}
+                    onChange={(e) => setManualFormData(prev => ({
+                      ...prev,
+                      ward: { ...prev.ward, ward_name: e.target.value }
+                    }))}
+                    placeholder="e.g., Civil Lines"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-700 mb-1 block">Ward Number</label>
+                  <input
+                    type="number"
+                    value={manualFormData.ward.ward_number}
+                    onChange={(e) => setManualFormData(prev => ({
+                      ...prev,
+                      ward: { ...prev.ward, ward_number: e.target.value }
+                    }))}
+                    placeholder="e.g., 15"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="text-sm font-medium text-gray-700 mb-1 block">Councillor Name</label>
+                  <input
+                    type="text"
+                    value={manualFormData.ward.councillor_name}
+                    onChange={(e) => setManualFormData(prev => ({
+                      ...prev,
+                      ward: { ...prev.ward, councillor_name: e.target.value }
+                    }))}
+                    placeholder="e.g., Rajesh Kumar"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* MLA Information */}
+            <div className="bg-green-50 rounded-lg p-4">
+              <h3 className="text-lg font-semibold text-green-900 mb-4 flex items-center gap-2">
+                <User className="h-5 w-5" />
+                MLA Information
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-700 mb-1 block">MLA Name</label>
+                  <input
+                    type="text"
+                    value={manualFormData.mla.mla_name}
+                    onChange={(e) => setManualFormData(prev => ({
+                      ...prev,
+                      mla: { ...prev.mla, mla_name: e.target.value }
+                    }))}
+                    placeholder="e.g., Priya Sharma"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-700 mb-1 block">Constituency</label>
+                  <input
+                    type="text"
+                    value={manualFormData.mla.constituency}
+                    onChange={(e) => setManualFormData(prev => ({
+                      ...prev,
+                      mla: { ...prev.mla, constituency: e.target.value }
+                    }))}
+                    placeholder="e.g., Delhi Cantonment"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="text-sm font-medium text-gray-700 mb-1 block">Party</label>
+                  <input
+                    type="text"
+                    value={manualFormData.mla.party_name}
+                    onChange={(e) => setManualFormData(prev => ({
+                      ...prev,
+                      mla: { ...prev.mla, party_name: e.target.value }
+                    }))}
+                    placeholder="e.g., BJP"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* MP Information */}
+            <div className="bg-purple-50 rounded-lg p-4">
+              <h3 className="text-lg font-semibold text-purple-900 mb-4 flex items-center gap-2">
+                <Landmark className="h-5 w-5" />
+                MP Information
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-700 mb-1 block">MP Name</label>
+                  <input
+                    type="text"
+                    value={manualFormData.mp.mp_name}
+                    onChange={(e) => setManualFormData(prev => ({
+                      ...prev,
+                      mp: { ...prev.mp, mp_name: e.target.value }
+                    }))}
+                    placeholder="e.g., Amit Kumar"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-700 mb-1 block">Constituency</label>
+                  <input
+                    type="text"
+                    value={manualFormData.mp.constituency}
+                    onChange={(e) => setManualFormData(prev => ({
+                      ...prev,
+                      mp: { ...prev.mp, constituency: e.target.value }
+                    }))}
+                    placeholder="e.g., New Delhi"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="text-sm font-medium text-gray-700 mb-1 block">Party</label>
+                  <input
+                    type="text"
+                    value={manualFormData.mp.party}
+                    onChange={(e) => setManualFormData(prev => ({
+                      ...prev,
+                      mp: { ...prev.mp, party: e.target.value }
+                    }))}
+                    placeholder="e.g., BJP"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="flex gap-3 pt-4 border-t">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowLocationUpdateDialog(false);
+                  setManualFormData({
+                    ward: { ward_name: '', ward_number: '', councillor_name: '' },
+                    mla: { mla_name: '', constituency: '', party_name: '' },
+                    mp: { mp_name: '', constituency: '', party: '' }
+                  });
+                }}
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleManualLocationUpdate}
+                disabled={locationUpdateLoading}
+                className="flex-1 bg-indigo-600 hover:bg-indigo-700"
+              >
+                {locationUpdateLoading ? (
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    Updating...
+                  </div>
+                ) : (
+                  'Save Representative Information'
+                )}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
