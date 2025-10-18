@@ -4,6 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription } from "@/components/ui/drawer";
 import { useAuth } from "@/contexts/AuthContext";
 import { useComplaint } from "@/contexts/ComplaintContext";
 import { getUserComplaints, createComplaint } from "@/lib/complaints";
@@ -17,6 +19,7 @@ import { useLocationFormat } from "@/hooks/useLocationFormat";
 import Navigation from "./Navigation";
 import JoinRequestsTab from "./JoinRequestsTab";
 import { LoginDialog } from "./LoginDialog";
+import ComplaintForm from "./ComplaintForm";
 
 // Mobile Bottom Navigation Component
 const MobileBottomNavigation = () => {
@@ -184,6 +187,7 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("complaints");
   const [hasApprovedMembership, setHasApprovedMembership] = useState(false);
+  const [complaintOpen, setComplaintOpen] = useState(false);
   const { toast } = useToast();
 
   // Initialize tab from URL parameters
@@ -384,7 +388,18 @@ const Dashboard = () => {
           <TabsContent value="complaints" className="space-y-6">
             {/* My Complaints List */}
             <div>
-              <h2 className="text-xl font-semibold mb-6 text-gray-900">My Complaints</h2>
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-semibold text-gray-900">My Complaints</h2>
+                {complaints.length > 0 && (
+                  <Button 
+                    onClick={() => setComplaintOpen(true)} 
+                    className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-2 px-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Complaint
+                  </Button>
+                )}
+              </div>
               {loading ? (
                 <div className="text-center py-12">
                   <div className="inline-flex items-center justify-center w-16 h-16 bg-gray-100 rounded-2xl mb-4">
@@ -399,7 +414,7 @@ const Dashboard = () => {
                   </div>
                   <h3 className="text-lg font-semibold text-gray-900 mb-2">No Complaints Yet</h3>
                   <p className="text-gray-600 mb-6">You haven't filed any complaints yet.</p>
-                  <Button onClick={() => navigate("/")} className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
+                  <Button onClick={() => setComplaintOpen(true)} className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
                     <Plus className="h-4 w-4 mr-2" />
                     File Your First Complaint
                   </Button>
@@ -459,6 +474,68 @@ const Dashboard = () => {
 
       {/* Mobile Bottom Navigation */}
       <MobileBottomNavigation />
+      
+      {/* Floating Add Complaint Button - Only show on mobile when user has complaints */}
+      {complaints.length > 0 && (
+        <div className="fixed bottom-20 right-4 z-50 md:hidden">
+          <Button
+            onClick={() => setComplaintOpen(true)}
+            className="w-14 h-14 rounded-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl transition-all duration-300"
+            size="icon"
+          >
+            <Plus className="h-6 w-6" />
+          </Button>
+        </div>
+      )}
+
+      {/* Complaint modal/drawer reusing ComplaintForm */}
+      <Drawer open={complaintOpen} onOpenChange={setComplaintOpen}>
+        <DrawerContent className="max-h-[90vh]">
+          <DrawerHeader>
+            <DrawerTitle>File a Complaint</DrawerTitle>
+            <DrawerDescription>
+              Submit a new complaint to your community
+            </DrawerDescription>
+          </DrawerHeader>
+          <div className="px-4 pb-4 overflow-y-auto">
+            <ComplaintForm
+              onSubmitted={() => {
+                setComplaintOpen(false);
+                // Refresh complaints list
+                if (user) {
+                  getUserComplaints(user.id).then(({ data }) => {
+                    setComplaints(data || []);
+                  });
+                }
+              }}
+              stayOnPage={true}
+            />
+          </div>
+        </DrawerContent>
+      </Drawer>
+
+      <Dialog open={complaintOpen} onOpenChange={setComplaintOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>File a Complaint</DialogTitle>
+            <DialogDescription>
+              Submit a new complaint to your community
+            </DialogDescription>
+          </DialogHeader>
+          <ComplaintForm
+            onSubmitted={() => {
+              setComplaintOpen(false);
+              // Refresh complaints list
+              if (user) {
+                getUserComplaints(user.id).then(({ data }) => {
+                  setComplaints(data || []);
+                });
+              }
+            }}
+            stayOnPage={true}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

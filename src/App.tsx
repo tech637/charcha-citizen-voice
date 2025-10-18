@@ -17,6 +17,9 @@ import CommunityFeed from "./components/CommunityFeed";
 import IndiaCommunityFeed from "./components/IndiaCommunityFeed";
 import CommunityPage from "./components/CommunityPage";
 import JoinCommunities from "./components/JoinCommunities";
+import MPDashboard from "./components/leaders/MPDashboard";
+import MLADashboard from "./components/leaders/MLADashboard";
+import CouncillorDashboard from "./components/leaders/CouncillorDashboard";
 
 const queryClient = new QueryClient();
 
@@ -39,6 +42,10 @@ const App = () => (
               <Route path="/admin" element={<AdminPanel />} />
               <Route path="/admin-test" element={<AdminTest />} />
               <Route path="/auth/callback" element={<AuthCallback />} />
+              {/* Leader Dashboard Routes */}
+              <Route path="/mp-dashboard" element={<MPDashboard />} />
+              <Route path="/mla-dashboard" element={<MLADashboard />} />
+              <Route path="/councillor-dashboard" element={<CouncillorDashboard />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

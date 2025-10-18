@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { createCommunity, getAllCommunities, deleteCommunity, enhancedDeleteCommunity, getPendingMembershipRequests, updateMembershipStatus, assignCommunityPresident } from '@/lib/communities';
+import { assignCommunityLeader, removeCommunityLeader, getCommunityLeaders } from '@/lib/leaders';
 import { useAuth } from '@/contexts/AuthContext';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { 
@@ -18,7 +19,10 @@ import {
   Edit, 
   Trash2,
   CheckCircle,
-  AlertCircle
+  AlertCircle,
+  Shield,
+  User,
+  X
 } from 'lucide-react';
 
 interface Community {
@@ -58,6 +62,11 @@ const CommunityManagement = () => {
   const [presidentEmails, setPresidentEmails] = useState<{ [key: string]: string }>({});
   const [assigningPresidentId, setAssigningPresidentId] = useState<string | null>(null);
   
+  // Leader assignment state
+  const [leaderEmails, setLeaderEmails] = useState<{ [key: string]: { mp: string; mla: string; councillor: string } }>({});
+  const [assigningLeaderId, setAssigningLeaderId] = useState<string | null>(null);
+  const [communityLeaders, setCommunityLeaders] = useState<{ [key: string]: any[] }>({});
+  
   // Form state
   const [formData, setFormData] = useState({
     name: '',
@@ -74,6 +83,13 @@ const CommunityManagement = () => {
   useEffect(() => {
     fetchCommunities();
   }, []);
+
+  // Fetch leaders for each community
+  useEffect(() => {
+    if (communities.length > 0) {
+      fetchAllCommunityLeaders();
+    }
+  }, [communities]);
 
   const fetchCommunities = async () => {
     try {
@@ -281,6 +297,62 @@ const CommunityManagement = () => {
       toast({ title: 'Error', description: e.message || 'Failed to assign president', variant: 'destructive' });
     } finally {
       setAssigningPresidentId(null);
+    }
+  };
+
+  const fetchAllCommunityLeaders = async () => {
+    try {
+      const leadersData: { [key: string]: any[] } = {};
+      await Promise.all(
+        communities.map(async (community) => {
+          const { data, error } = await getCommunityLeaders(community.id);
+          if (!error && data) {
+            leadersData[community.id] = data;
+          }
+        })
+      );
+      setCommunityLeaders(leadersData);
+    } catch (error) {
+      console.error('Error fetching community leaders:', error);
+    }
+  };
+
+  const handleAssignLeader = async (communityId: string, leaderType: 'mp' | 'mla' | 'councillor') => {
+    if (!user) return;
+    const email = leaderEmails[communityId]?.[leaderType] || '';
+    if (!email.trim()) {
+      toast({ title: `${leaderType.toUpperCase()} email required`, variant: 'destructive' });
+      return;
+    }
+    try {
+      setAssigningLeaderId(communityId);
+      const { error } = await assignCommunityLeader(communityId, email.trim(), leaderType, user.id);
+      if (error) throw error as any;
+      toast({ title: `${leaderType.toUpperCase()} Assigned`, description: `Assigned ${email}` });
+      setLeaderEmails(prev => ({
+        ...prev,
+        [communityId]: {
+          ...prev[communityId],
+          [leaderType]: ''
+        }
+      }));
+      fetchAllCommunityLeaders();
+    } catch (e: any) {
+      toast({ title: 'Error', description: e.message || `Failed to assign ${leaderType.toUpperCase()}`, variant: 'destructive' });
+    } finally {
+      setAssigningLeaderId(null);
+    }
+  };
+
+  const handleRemoveLeader = async (leaderId: string, leaderType: string) => {
+    if (!user) return;
+    try {
+      const { error } = await removeCommunityLeader(leaderId, user.id);
+      if (error) throw error as any;
+      toast({ title: `${leaderType.toUpperCase()} Removed`, description: 'Leader assignment removed successfully' });
+      fetchAllCommunityLeaders();
+    } catch (e: any) {
+      toast({ title: 'Error', description: e.message || 'Failed to remove leader', variant: 'destructive' });
     }
   };
 
@@ -610,6 +682,118 @@ const CommunityManagement = () => {
                     >
                       {assigningPresidentId === community.id ? 'Assigning…' : 'Assign'}
                     </Button>
+                  </div>
+                </div>
+
+                {/* Assign Leaders */}
+                <div className="mt-3 border-t pt-3">
+                  <div className="text-xs font-medium mb-2">Assign Leaders (MP, MLA, Councillor)</div>
+                  
+                  {/* Current Leaders */}
+                  {communityLeaders[community.id] && communityLeaders[community.id].length > 0 && (
+                    <div className="mb-3 space-y-1">
+                      {communityLeaders[community.id].map((leader) => (
+                        <div key={leader.leader_id} className="flex items-center justify-between bg-gray-50 p-2 rounded text-xs">
+                          <div className="flex items-center gap-2">
+                            <Badge className={
+                              leader.leader_type === 'mp' ? 'bg-purple-100 text-purple-800' :
+                              leader.leader_type === 'mla' ? 'bg-green-100 text-green-800' :
+                              'bg-blue-100 text-blue-800'
+                            }>
+                              {leader.leader_type.toUpperCase()}
+                            </Badge>
+                            <span className="font-medium">{leader.user_name}</span>
+                            <span className="text-gray-500">({leader.user_email})</span>
+                          </div>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => handleRemoveLeader(leader.leader_id, leader.leader_type)}
+                            className="h-6 w-6 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                          >
+                            <X className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Leader Assignment Inputs */}
+                  <div className="space-y-2">
+                    {/* MP Assignment */}
+                    <div className="flex gap-2">
+                      <Input
+                        type="email"
+                        placeholder="MP email"
+                        value={leaderEmails[community.id]?.mp || ''}
+                        onChange={(e) => setLeaderEmails(prev => ({
+                          ...prev,
+                          [community.id]: {
+                            ...prev[community.id],
+                            mp: e.target.value
+                          }
+                        }))}
+                        className="flex-1 text-xs"
+                      />
+                      <Button
+                        size="sm"
+                        onClick={() => handleAssignLeader(community.id, 'mp')}
+                        disabled={assigningLeaderId === community.id}
+                        className="text-xs px-2"
+                      >
+                        {assigningLeaderId === community.id ? '...' : 'MP'}
+                      </Button>
+                    </div>
+
+                    {/* MLA Assignment */}
+                    <div className="flex gap-2">
+                      <Input
+                        type="email"
+                        placeholder="MLA email"
+                        value={leaderEmails[community.id]?.mla || ''}
+                        onChange={(e) => setLeaderEmails(prev => ({
+                          ...prev,
+                          [community.id]: {
+                            ...prev[community.id],
+                            mla: e.target.value
+                          }
+                        }))}
+                        className="flex-1 text-xs"
+                      />
+                      <Button
+                        size="sm"
+                        onClick={() => handleAssignLeader(community.id, 'mla')}
+                        disabled={assigningLeaderId === community.id}
+                        className="text-xs px-2"
+                      >
+                        {assigningLeaderId === community.id ? '...' : 'MLA'}
+                      </Button>
+                    </div>
+
+                    {/* Councillor Assignment */}
+                    <div className="flex gap-2">
+                      <Input
+                        type="email"
+                        placeholder="Councillor email"
+                        value={leaderEmails[community.id]?.councillor || ''}
+                        onChange={(e) => setLeaderEmails(prev => ({
+                          ...prev,
+                          [community.id]: {
+                            ...prev[community.id],
+                            councillor: e.target.value
+                          }
+                        }))}
+                        className="flex-1 text-xs"
+                      />
+                      <Button
+                        size="sm"
+                        onClick={() => handleAssignLeader(community.id, 'councillor')}
+                        disabled={assigningLeaderId === community.id}
+                        className="text-xs px-2"
+                      >
+                        {assigningLeaderId === community.id ? '...' : 'Councillor'}
+                      </Button>
+                    </div>
                   </div>
                 </div>
                 </CardContent>

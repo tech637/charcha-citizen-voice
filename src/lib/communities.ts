@@ -307,40 +307,51 @@ export const joinCommunity = async (joinData: {
   address?: string
 }) => {
   try {
-    // First check if user already has an active membership in any other community
-    const { data: otherMembership, error: otherError } = await supabase
-      .from('user_communities')
-      .select('id, community_id, status, communities!inner(name)')
+    // Check if user is an active leader (leaders can join multiple communities)
+    const { data: isLeader } = await supabase
+      .from('community_leaders')
+      .select('id')
       .eq('user_id', joinData.userId)
-      .eq('status', 'approved')
-      .neq('community_id', joinData.communityId)
+      .eq('is_active', true)
       .maybeSingle()
 
-    if (otherError && otherError.code !== 'PGRST116') {
-      throw otherError
-    }
+    // Only enforce single-membership for non-leaders
+    if (!isLeader) {
+      // First check if user already has an active membership in any other community
+      const { data: otherMembership, error: otherError } = await supabase
+        .from('user_communities')
+        .select('id, community_id, status, communities!inner(name)')
+        .eq('user_id', joinData.userId)
+        .eq('status', 'approved')
+        .neq('community_id', joinData.communityId)
+        .maybeSingle()
 
-    // If user has an active membership in another community, prevent joining
-    if (otherMembership) {
-      throw new Error(`You already have an active membership in "${otherMembership.communities?.name}". Please leave your current community first before joining another one.`)
-    }
+      if (otherError && otherError.code !== 'PGRST116') {
+        throw otherError
+      }
 
-    // Check if user has a pending membership in any other community
-    const { data: pendingMembership, error: pendingError } = await supabase
-      .from('user_communities')
-      .select('id, community_id, status, communities!inner(name)')
-      .eq('user_id', joinData.userId)
-      .eq('status', 'pending')
-      .neq('community_id', joinData.communityId)
-      .maybeSingle()
+      // If user has an active membership in another community, prevent joining
+      if (otherMembership) {
+        throw new Error(`You already have an active membership in "${otherMembership.communities?.name}". Please leave your current community first before joining another one.`)
+      }
 
-    if (pendingError && pendingError.code !== 'PGRST116') {
-      throw pendingError
-    }
+      // Check if user has a pending membership in any other community
+      const { data: pendingMembership, error: pendingError } = await supabase
+        .from('user_communities')
+        .select('id, community_id, status, communities!inner(name)')
+        .eq('user_id', joinData.userId)
+        .eq('status', 'pending')
+        .neq('community_id', joinData.communityId)
+        .maybeSingle()
 
-    // If user has a pending membership in another community, prevent joining
-    if (pendingMembership) {
-      throw new Error(`You already have a pending request for "${pendingMembership.communities?.name}". Please wait for approval or cancel your request before joining another community.`)
+      if (pendingError && pendingError.code !== 'PGRST116') {
+        throw pendingError
+      }
+
+      // If user has a pending membership in another community, prevent joining
+      if (pendingMembership) {
+        throw new Error(`You already have a pending request for "${pendingMembership.communities?.name}". Please wait for approval or cancel your request before joining another community.`)
+      }
     }
 
     // Check if user already has a membership in this community

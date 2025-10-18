@@ -1,34 +1,45 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { LogOut, Shield, User } from "lucide-react";
+import { LogOut, Shield, User, Crown } from "lucide-react";
 import { LoginDialog } from "./LoginDialog";
 import { useAuth } from "@/contexts/AuthContext";
 import { isUserAdmin, getUserApprovedCommunities } from "@/lib/communities";
+import { isUserAnyLeader, getUserLeaderTypes } from "@/lib/leaders";
 
 const Navigation = () => {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isLeader, setIsLeader] = useState(false);
+  const [leaderTypes, setLeaderTypes] = useState<string[]>([]);
   const [joinedCommunityName, setJoinedCommunityName] = useState<string | null>(null);
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
 
-  // Check if user is admin
+  // Check if user is admin and leader
   useEffect(() => {
-    const checkAdminStatus = async () => {
+    const checkUserStatus = async () => {
       if (user) {
         try {
-          const adminStatus = await isUserAdmin(user.id);
+          const [adminStatus, leaderStatus, userLeaderTypes] = await Promise.all([
+            isUserAdmin(user.id),
+            isUserAnyLeader(user.id),
+            getUserLeaderTypes(user.id)
+          ]);
           setIsAdmin(adminStatus);
+          setIsLeader(leaderStatus);
+          setLeaderTypes(userLeaderTypes);
         } catch (error) {
-          console.error('Error checking admin status:', error);
+          console.error('Error checking user status:', error);
         }
       } else {
         setIsAdmin(false);
+        setIsLeader(false);
+        setLeaderTypes([]);
       }
     };
 
-    checkAdminStatus();
+    checkUserStatus();
   }, [user]);
 
   // Fetch user's approved community (single-membership)
@@ -81,9 +92,6 @@ const Navigation = () => {
               >
                 Home
               </button>
-              <a href="#how-it-works" className="text-gray-200 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">
-                How It Works
-              </a>
               <button 
                 onClick={() => {
                   if (!user) {
@@ -97,7 +105,7 @@ const Navigation = () => {
                 }}
                 className="text-gray-200 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors"
               >
-                Communities
+                {user ? "My Circle" : "Communities"}
               </button>
               {/* Dashboard link removed from top navbar */}
             </div>
@@ -107,15 +115,15 @@ const Navigation = () => {
           <div className="hidden md:block">
             {user ? (
               <div className="flex items-center gap-2 lg:gap-4">
-                {/* Dashboard icon button */}
+                {/* Dashboard button */}
                 <Button 
                   variant="outline" 
                   onClick={() => navigate("/dashboard")}
-                  size="icon"
-                  className="h-8 w-8"
-                  title="User Dashboard"
+                  className="flex items-center gap-1 lg:gap-2 text-xs lg:text-sm"
+                  size="sm"
                 >
-                  <User className="h-4 w-4" />
+                  <span className="hidden lg:inline">My Dashboard</span>
+                  <span className="lg:hidden">Dashboard</span>
                 </Button>
                 <Button 
                   variant="outline" 
@@ -126,6 +134,20 @@ const Navigation = () => {
                 >
                   <LogOut className="h-4 w-4" />
                 </Button>
+                {/* Leader Dashboard Buttons */}
+                {isLeader && leaderTypes.map((leaderType) => (
+                  <Button
+                    key={leaderType}
+                    variant="outline"
+                    onClick={() => navigate(`/${leaderType}-dashboard`)}
+                    className="flex items-center gap-1 lg:gap-2 text-xs lg:text-sm"
+                    size="sm"
+                  >
+                    <Crown className="h-3 w-3 lg:h-4 lg:w-4" />
+                    <span className="hidden lg:inline">{leaderType.toUpperCase()}</span>
+                  </Button>
+                ))}
+                
                 {isAdmin && (
                   <Button 
                     variant="outline"
@@ -167,12 +189,38 @@ const Navigation = () => {
                 <Button 
                   variant="outline" 
                   onClick={() => navigate("/dashboard")}
-                  size="icon"
-                  className="h-8 w-8 text-white border-white/30 hover:bg-white/20"
-                  title="User Dashboard"
+                  size="sm"
+                  className="text-xs text-white border-white/30 hover:bg-white/20"
                 >
-                  <User className="h-4 w-4" style={{ color: 'white', fill: 'white' }} />
+                  Dashboard
                 </Button>
+                
+                {/* Mobile Leader Dashboard Buttons */}
+                {isLeader && leaderTypes.map((leaderType) => (
+                  <Button
+                    key={leaderType}
+                    variant="outline"
+                    onClick={() => navigate(`/${leaderType}-dashboard`)}
+                    size="icon"
+                    className="h-8 w-8 text-white border-white/30 hover:bg-white/20"
+                    title={`${leaderType.toUpperCase()} Dashboard`}
+                  >
+                    <Crown className="h-4 w-4" style={{ color: 'white', fill: 'white' }} />
+                  </Button>
+                ))}
+                
+                {isAdmin && (
+                  <Button 
+                    variant="outline"
+                    onClick={() => navigate("/admin")}
+                    size="icon"
+                    className="h-8 w-8 text-white border-white/30 hover:bg-white/20"
+                    title="Admin Panel"
+                  >
+                    <Shield className="h-4 w-4" style={{ color: 'white', fill: 'white' }} />
+                  </Button>
+                )}
+                
                 <Button 
                   variant="outline" 
                   onClick={handleSignOut}

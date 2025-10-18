@@ -123,7 +123,7 @@ export const createComplaint = async (complaintData: CreateComplaintData, userId
         is_public: is_public,
         visibility_type: visibility_type,
         community_id: community_id,
-        status: 'pending'
+        status: 'acknowledged'
       })
       .select()
       .single()
@@ -376,6 +376,8 @@ export const getAllCommunityComplaints = async () => {
 
 export const updateComplaintStatus = async (complaintId: string, status: string) => {
   try {
+    console.log('Updating complaint status:', { complaintId, status });
+    
     const { data, error } = await supabase
       .from('complaints')
       .update({ status, updated_at: new Date().toISOString() })
@@ -384,11 +386,14 @@ export const updateComplaintStatus = async (complaintId: string, status: string)
       .maybeSingle()
 
     if (error) {
+      console.error('Error updating complaint status:', error);
       throw error
     }
 
+    console.log('Complaint status updated successfully:', data);
     return { data, error: null }
   } catch (error) {
+    console.error('Exception in updateComplaintStatus:', error);
     return { data: null, error }
   }
 }

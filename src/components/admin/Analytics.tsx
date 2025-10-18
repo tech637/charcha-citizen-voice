@@ -53,10 +53,9 @@ interface UserAnalytics {
 
 interface ComplaintAnalytics {
   total_complaints: number;
-  pending_complaints: number;
-  in_progress_complaints: number;
+  acknowledged_complaints: number;
+  forwarded_complaints: number;
   resolved_complaints: number;
-  rejected_complaints: number;
   complaints_this_week: number;
   complaints_this_month: number;
   avg_resolution_days: number;
@@ -69,10 +68,9 @@ interface RegistrationTrend {
 
 interface StatusTrend {
   date: string;
-  pending_count: number;
-  in_progress_count: number;
+  acknowledged_count: number;
+  forwarded_count: number;
   resolved_count: number;
-  rejected_count: number;
 }
 
 interface CategoryAnalytic {
@@ -80,7 +78,7 @@ interface CategoryAnalytic {
   category_name: string;
   complaint_count: number;
   resolved_count: number;
-  pending_count: number;
+  acknowledged_count: number;
   resolution_rate: number;
 }
 
@@ -96,7 +94,7 @@ interface PriorityAnalytic {
   priority: string;
   complaint_count: number;
   resolved_count: number;
-  pending_count: number;
+  acknowledged_count: number;
   resolution_rate: number;
 }
 
@@ -104,7 +102,7 @@ interface GeographicAnalytic {
   location: string;
   complaint_count: number;
   resolved_count: number;
-  pending_count: number;
+  acknowledged_count: number;
 }
 
 const Analytics: React.FC = () => {
@@ -250,7 +248,7 @@ const Analytics: React.FC = () => {
             category_name: category.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase()),
             complaint_count: 0,
             resolved_count: 0,
-            pending_count: 0,
+            acknowledged_count: 0,
             resolution_rate: 0
           });
         }
@@ -260,8 +258,8 @@ const Analytics: React.FC = () => {
         
         if (complaint.status === 'resolved') {
           categoryData.resolved_count++;
-        } else if (complaint.status === 'pending') {
-          categoryData.pending_count++;
+        } else if (complaint.status === 'acknowledged') {
+          categoryData.acknowledged_count++;
         }
       });
       
@@ -329,7 +327,7 @@ const Analytics: React.FC = () => {
             priority: status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()),
             complaint_count: 0,
             resolved_count: 0,
-            pending_count: 0,
+            acknowledged_count: 0,
             resolution_rate: 0
           });
         }
@@ -339,8 +337,8 @@ const Analytics: React.FC = () => {
         
         if (status === 'resolved') {
           statusData.resolved_count++;
-        } else if (status === 'pending') {
-          statusData.pending_count++;
+        } else if (status === 'acknowledged') {
+          statusData.acknowledged_count++;
         }
       });
       
@@ -400,7 +398,7 @@ const Analytics: React.FC = () => {
             location: location,
             complaint_count: 0,
             resolved_count: 0,
-            pending_count: 0
+            acknowledged_count: 0
           });
         }
         
@@ -409,8 +407,8 @@ const Analytics: React.FC = () => {
         
         if (complaint.status === 'resolved') {
           locationData.resolved_count++;
-        } else if (complaint.status === 'pending') {
-          locationData.pending_count++;
+        } else if (complaint.status === 'acknowledged') {
+          locationData.acknowledged_count++;
         }
       });
       
@@ -430,10 +428,9 @@ const Analytics: React.FC = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'pending': return 'bg-yellow-100 text-yellow-800';
-      case 'in_progress': return 'bg-blue-100 text-blue-800';
+      case 'acknowledged': return 'bg-yellow-100 text-yellow-800';
+      case 'forwarded': return 'bg-blue-100 text-blue-800';
       case 'resolved': return 'bg-green-100 text-green-800';
-      case 'rejected': return 'bg-red-100 text-red-800';
       default: return 'bg-gray-100 text-gray-800';
     }
   };
@@ -605,34 +602,34 @@ const Analytics: React.FC = () => {
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-                          <span className="text-sm">Pending</span>
+                          <span className="text-sm">Acknowledged</span>
                         </div>
                         <div className="text-right">
-                          <div className="font-medium">{complaintAnalytics.pending_complaints}</div>
+                          <div className="font-medium">{complaintAnalytics.acknowledged_complaints}</div>
                           <div className="text-xs text-muted-foreground">
-                            {((complaintAnalytics.pending_complaints / complaintAnalytics.total_complaints) * 100).toFixed(1)}%
+                            {((complaintAnalytics.acknowledged_complaints / complaintAnalytics.total_complaints) * 100).toFixed(1)}%
                           </div>
                         </div>
                       </div>
                       <Progress 
-                        value={(complaintAnalytics.pending_complaints / complaintAnalytics.total_complaints) * 100} 
+                        value={(complaintAnalytics.acknowledged_complaints / complaintAnalytics.total_complaints) * 100} 
                         className="h-2"
                       />
 
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                          <span className="text-sm">In Progress</span>
+                          <span className="text-sm">Forwarded</span>
                         </div>
                         <div className="text-right">
-                          <div className="font-medium">{complaintAnalytics.in_progress_complaints}</div>
+                          <div className="font-medium">{complaintAnalytics.forwarded_complaints}</div>
                           <div className="text-xs text-muted-foreground">
-                            {((complaintAnalytics.in_progress_complaints / complaintAnalytics.total_complaints) * 100).toFixed(1)}%
+                            {((complaintAnalytics.forwarded_complaints / complaintAnalytics.total_complaints) * 100).toFixed(1)}%
                           </div>
                         </div>
                       </div>
                       <Progress 
-                        value={(complaintAnalytics.in_progress_complaints / complaintAnalytics.total_complaints) * 100} 
+                        value={(complaintAnalytics.forwarded_complaints / complaintAnalytics.total_complaints) * 100} 
                         className="h-2"
                       />
 
@@ -653,22 +650,6 @@ const Analytics: React.FC = () => {
                         className="h-2"
                       />
 
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                          <span className="text-sm">Rejected</span>
-                        </div>
-                        <div className="text-right">
-                          <div className="font-medium">{complaintAnalytics.rejected_complaints}</div>
-                          <div className="text-xs text-muted-foreground">
-                            {((complaintAnalytics.rejected_complaints / complaintAnalytics.total_complaints) * 100).toFixed(1)}%
-                          </div>
-                        </div>
-                      </div>
-                      <Progress 
-                        value={(complaintAnalytics.rejected_complaints / complaintAnalytics.total_complaints) * 100} 
-                        className="h-2"
-                      />
                     </>
                   )}
                 </div>
@@ -899,7 +880,7 @@ const Analytics: React.FC = () => {
                         <div>
                           <div className="font-medium">{location.location}</div>
                           <div className="text-xs text-muted-foreground">
-                            {location.resolved_count} resolved, {location.pending_count} pending
+                            {location.resolved_count} resolved, {location.acknowledged_count} acknowledged
                           </div>
                         </div>
                       </div>

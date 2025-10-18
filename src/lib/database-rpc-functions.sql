@@ -89,3 +89,99 @@ BEGIN
   RETURN updated_count;
 END;
 $$ LANGUAGE plpgsql;
+
+-- =============================================
+-- LEADER DASHBOARD RPC FUNCTIONS
+-- =============================================
+
+-- Function 6: Check if user is assigned as leader for a community
+CREATE OR REPLACE FUNCTION is_user_leader(
+  user_uuid UUID,
+  community_uuid UUID,
+  leader_type_text TEXT
+)
+RETURNS BOOLEAN AS $$
+BEGIN
+  RETURN EXISTS (
+    SELECT 1 FROM community_leaders 
+    WHERE user_id = user_uuid 
+    AND community_id = community_uuid 
+    AND leader_type = leader_type_text
+    AND is_active = true
+  );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Function 7: Get all communities where user is assigned as specific leader type
+CREATE OR REPLACE FUNCTION get_user_leader_communities(
+  user_uuid UUID,
+  leader_type_text TEXT
+)
+RETURNS TABLE (
+  community_id UUID,
+  community_name TEXT,
+  community_description TEXT,
+  community_location TEXT,
+  assigned_at TIMESTAMPTZ
+) AS $$
+BEGIN
+  RETURN QUERY
+  SELECT 
+    c.id as community_id,
+    c.name as community_name,
+    c.description as community_description,
+    c.location as community_location,
+    cl.assigned_at
+  FROM community_leaders cl
+  JOIN communities c ON c.id = cl.community_id
+  WHERE cl.user_id = user_uuid 
+  AND cl.leader_type = leader_type_text
+  AND cl.is_active = true
+  AND c.is_active = true
+  ORDER BY cl.assigned_at DESC;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Function 8: Get all leaders (MP, MLA, Councillor) for a community
+CREATE OR REPLACE FUNCTION get_community_leaders(community_uuid UUID)
+RETURNS TABLE (
+  leader_id UUID,
+  user_id UUID,
+  leader_type VARCHAR(20),
+  user_name TEXT,
+  user_email TEXT,
+  assigned_at TIMESTAMPTZ,
+  assigned_by_name TEXT
+) AS $$
+BEGIN
+  RETURN QUERY
+  SELECT 
+    cl.id as leader_id,
+    cl.user_id,
+    cl.leader_type,
+    u.full_name as user_name,
+    u.email as user_email,
+    cl.assigned_at,
+    assigner.full_name as assigned_by_name
+  FROM community_leaders cl
+  JOIN users u ON u.id = cl.user_id
+  JOIN users assigner ON assigner.id = cl.assigned_by
+  WHERE cl.community_id = community_uuid 
+  AND cl.is_active = true
+  ORDER BY cl.leader_type, cl.assigned_at DESC;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Function 9: Get user ID by email (for leader assignment)
+CREATE OR REPLACE FUNCTION get_user_id_by_email(email_address TEXT)
+RETURNS UUID AS $$
+DECLARE
+  user_uuid UUID;
+BEGIN
+  SELECT id INTO user_uuid 
+  FROM users 
+  WHERE email = email_address;
+  
+  RETURN user_uuid;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;

@@ -53,7 +53,7 @@ export interface Complaint {
   is_public: boolean
   visibility_type?: 'private' | 'community'
   community_id?: string
-  status: 'pending' | 'in-progress' | 'resolved' | 'rejected'
+  status: 'acknowledged' | 'forwarded' | 'resolved'
   created_at: string
   updated_at: string
 }

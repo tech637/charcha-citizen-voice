@@ -3,14 +3,16 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { ThumbsUp, ThumbsDown, MapPin, Calendar, Eye, RefreshCw, AlertCircle, ArrowLeft, Building2, Users, Flag, Home, User, ChevronDown, ChevronUp, Settings, CheckCircle, Landmark } from 'lucide-react';
+import { ThumbsUp, ThumbsDown, MapPin, Calendar, Eye, RefreshCw, AlertCircle, ArrowLeft, Building2, Users, Flag, Home, User, ChevronDown, ChevronUp, Settings, CheckCircle, Landmark, Crown } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { getPublicComplaints, getCommunityComplaints, getAllCommunityComplaints, updateComplaintStatus, getComplaintVoteSummary, upsertComplaintVote, removeComplaintVote, listComplaintComments, addComplaintComment } from '@/lib/complaints';
 import { getAllCommunities, getCommunityMembers, isUserMemberOfCommunity, isUserAdmin, getPendingMembershipRequests, updateMembershipStatus, updateCommunity, withdrawCommunityMembership, leaveCommunityWithAdminCheck, getUserCommunities } from '@/lib/communities';
+import { getCommunityLeaders } from '@/lib/leaders';
 import ComplaintForm from './ComplaintForm';
 import { LoginDialog } from './LoginDialog';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer';
+import { ImageModal } from '@/components/ui/image-modal';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { supabase } from '@/lib/supabase';
 import { getCommunityFinanceSummary, getCommunityTransactions, addCommunityTransaction } from '@/lib/finance';
@@ -244,6 +246,7 @@ const CommunityPage: React.FC = () => {
   const [isUserMember, setIsUserMember] = useState<boolean | null>(null);
   const [membershipLoading, setMembershipLoading] = useState(false);
   const [president, setPresident] = useState<{ full_name?: string | null; email?: string | null; phone?: string | null } | null>(null);
+  const [communityLeaders, setCommunityLeaders] = useState<any[]>([]);
   const [finance, setFinance] = useState<{ collected: number; spent: number; balance: number }>({ collected: 0, spent: 0, balance: 0 });
   const [recentTx, setRecentTx] = useState<Array<{ id: string; type: 'income'|'expense'; amount: number; note?: string|null; created_at: string }>>([]);
   const [isPresidentOrAdmin, setIsPresidentOrAdmin] = useState(false);
@@ -285,6 +288,19 @@ const CommunityPage: React.FC = () => {
   const [commentDraft, setCommentDraft] = useState<Record<string, string>>({});
   const [showDetails, setShowDetails] = useState(false);
   const [leaving, setLeaving] = useState(false);
+  
+  // Image modal state
+  const [imageModal, setImageModal] = useState<{
+    isOpen: boolean;
+    imageUrl: string;
+    imageName: string;
+    fileType?: string;
+  }>({
+    isOpen: false,
+    imageUrl: '',
+    imageName: '',
+    fileType: ''
+  });
 
   useEffect(() => {
     if (communityName) {
@@ -375,6 +391,8 @@ const CommunityPage: React.FC = () => {
       }
 
       console.log('🔍 Found community with locality_data:', foundCommunity.locality_data);
+      console.log('🔍 Community data type:', typeof foundCommunity.locality_data);
+      console.log('🔍 Community data value:', JSON.stringify(foundCommunity.locality_data));
       setCommunity(foundCommunity);
       // Seed president details from community profile fields so non-admin viewers still see info
       if (foundCommunity.leader_name || foundCommunity.leader_email || foundCommunity.leader_mobile) {
@@ -400,21 +418,55 @@ const CommunityPage: React.FC = () => {
 
       // Load president user details (may be restricted by RLS for non-admins)
       try {
-        const { data: presidentUser } = await supabase
+        console.log('Fetching president data for admin_id:', foundCommunity.admin_id);
+        const { data: presidentUser, error: presidentError } = await supabase
           .from('users')
           .select('full_name, email, phone')
           .eq('id', foundCommunity.admin_id)
           .maybeSingle();
+        
+        console.log('President data:', presidentUser, 'Error:', presidentError);
+        
+        if (presidentError) {
+          console.error('Error fetching president:', presidentError);
+        }
+        
         if (presidentUser) {
           setPresident(presidentUser as any);
+        } else {
+          console.log('No president user found for admin_id:', foundCommunity.admin_id);
+          // Fallback: show community basic info if user data can't be fetched
+          setPresident({
+            full_name: foundCommunity.name + ' President',
+            email: 'Contact community for details',
+            phone: null
+          });
         }
-      } catch {}
+      } catch (error) {
+        console.error('Exception fetching president:', error);
+        // Fallback: show community basic info if user data can't be fetched
+        setPresident({
+          full_name: foundCommunity.name + ' President',
+          email: 'Contact community for details',
+          phone: null
+        });
+      }
 
       // Load finance summary
       try {
         const { data: summary } = await getCommunityFinanceSummary(foundCommunity.id);
         if (summary) setFinance(summary);
       } catch {}
+
+      // Load community leaders
+      try {
+        const { data: leaders, error: leadersError } = await getCommunityLeaders(foundCommunity.id);
+        if (!leadersError && leaders) {
+          setCommunityLeaders(leaders);
+        }
+      } catch (error) {
+        console.error('Error loading community leaders:', error);
+      }
 
       // Check if current user is a member of this community
       if (user) {
@@ -641,14 +693,12 @@ const CommunityPage: React.FC = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'pending':
+      case 'acknowledged':
         return 'bg-yellow-100 text-yellow-800';
-      case 'in_progress':
+      case 'forwarded':
         return 'bg-blue-100 text-blue-800';
       case 'resolved':
         return 'bg-green-100 text-green-800';
-      case 'rejected':
-        return 'bg-red-100 text-red-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
@@ -656,14 +706,12 @@ const CommunityPage: React.FC = () => {
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case 'pending':
-        return 'Pending';
-      case 'in_progress':
-        return 'In Progress';
+      case 'acknowledged':
+        return 'Acknowledged';
+      case 'forwarded':
+        return 'Forwarded';
       case 'resolved':
         return 'Resolved';
-      case 'rejected':
-        return 'Rejected';
       default:
         return status;
     }
@@ -949,6 +997,24 @@ const CommunityPage: React.FC = () => {
     }
   };
 
+  const handleImageClick = (fileUrl: string, fileName: string, fileType: string) => {
+    setImageModal({
+      isOpen: true,
+      imageUrl: fileUrl,
+      imageName: fileName,
+      fileType: fileType
+    });
+  };
+
+  const closeImageModal = () => {
+    setImageModal({
+      isOpen: false,
+      imageUrl: '',
+      imageName: '',
+      fileType: ''
+    });
+  };
+
   const toggleComments = async (complaintId: string) => {
     const open = new Set(openComments);
     if (open.has(complaintId)) {
@@ -1200,6 +1266,48 @@ const CommunityPage: React.FC = () => {
           </div>
         </div>
 
+            {/* Community Leaders */}
+            {communityLeaders.length > 0 && (
+              <div className="bg-white rounded-2xl shadow-lg border-0 p-6">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center">
+                    <Crown className="h-5 w-5 text-white" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900">Community Leaders</h3>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {communityLeaders.map((leader) => (
+                    <div key={leader.leader_id} className="bg-gray-50 rounded-xl p-4">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center">
+                          <span className="text-white font-bold text-sm">
+                            {leader.user_name ? leader.user_name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : 'U'}
+                          </span>
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <h4 className="font-semibold text-gray-900">{leader.user_name}</h4>
+                            <Badge className={
+                              leader.leader_type === 'mp' ? 'bg-purple-100 text-purple-800' :
+                              leader.leader_type === 'mla' ? 'bg-green-100 text-green-800' :
+                              'bg-blue-100 text-blue-800'
+                            }>
+                              {leader.leader_type.toUpperCase()}
+                            </Badge>
+                          </div>
+                          <p className="text-sm text-gray-600">{leader.user_email}</p>
+                        </div>
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        Assigned {new Date(leader.assigned_at).toLocaleDateString()}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Community Stats */}
             <div className="bg-white rounded-2xl shadow-lg border-0 p-6">
               <h3 className="text-lg font-bold text-gray-900 mb-6">Community Stats</h3>
@@ -1442,10 +1550,9 @@ const CommunityPage: React.FC = () => {
                               onChange={(e) => handleUpdateComplaintStatus(c.id, e.target.value as any)}
                               disabled={updatingComplaintId === c.id}
                             >
-                              <option value="pending">Pending</option>
-                              <option value="in_progress">In Progress</option>
+                              <option value="acknowledged">Acknowledged</option>
+                              <option value="forwarded">Forwarded</option>
                               <option value="resolved">Resolved</option>
-                              <option value="rejected">Rejected</option>
                             </select>
                           ) : (
                             <Badge className={`${getStatusColor(c.status)} text-xs`}>{getStatusText(c.status)}</Badge>
@@ -1575,9 +1682,20 @@ const CommunityPage: React.FC = () => {
                               {complaint.complaint_files.map((file) => (
                                 <div key={file.id} className="relative">
                                   {file.file_type.startsWith('image/') ? (
-                                      <img src={file.file_url} alt={file.file_name} className="w-full h-20 md:h-24 xl:h-28 object-cover rounded-xl border-2 border-gray-200 shadow-sm" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+                                      <img 
+                                        src={file.file_url} 
+                                        alt={file.file_name} 
+                                        className="w-full h-20 md:h-24 xl:h-28 object-cover rounded-xl border-2 border-gray-200 shadow-sm cursor-pointer hover:opacity-80 transition-opacity" 
+                                        onClick={() => handleImageClick(file.file_url, file.file_name, file.file_type)}
+                                        onError={(e) => { e.currentTarget.style.display = 'none'; }} 
+                                      />
                                     ) : (
-                                      <div className="w-full h-20 md:h-24 xl:h-28 bg-gray-100 rounded-xl border-2 border-gray-200 flex items-center justify-center shadow-sm"><span className="text-xs text-gray-500 font-medium">{file.file_name}</span></div>
+                                      <div 
+                                        className="w-full h-20 md:h-24 xl:h-28 bg-gray-100 rounded-xl border-2 border-gray-200 flex items-center justify-center shadow-sm cursor-pointer hover:opacity-80 transition-opacity"
+                                        onClick={() => handleImageClick(file.file_url, file.file_name, file.file_type)}
+                                      >
+                                        <span className="text-xs text-gray-500 font-medium">{file.file_name}</span>
+                                      </div>
                                   )}
                                 </div>
                               ))}
@@ -1664,10 +1782,9 @@ const CommunityPage: React.FC = () => {
                               onChange={(e) => handleUpdateComplaintStatus(complaint.id, e.target.value as any)}
                               disabled={updatingComplaintId === complaint.id}
                             >
-                              <option value="pending">Pending</option>
-                              <option value="in_progress">In Progress</option>
+                              <option value="acknowledged">Acknowledged</option>
+                              <option value="forwarded">Forwarded</option>
                               <option value="resolved">Resolved</option>
-                              <option value="rejected">Rejected</option>
                             </select>
                           ) : (
                           <Badge className={`${getStatusColor(complaint.status)} text-xs`}>
@@ -1705,14 +1822,18 @@ const CommunityPage: React.FC = () => {
                                     <img
                                       src={file.file_url}
                                       alt={file.file_name}
-                                      className="w-full h-20 md:h-24 object-cover rounded-md border"
+                                      className="w-full h-20 md:h-24 object-cover rounded-md border cursor-pointer hover:opacity-80 transition-opacity"
+                                      onClick={() => handleImageClick(file.file_url, file.file_name, file.file_type)}
                                       onError={(e) => {
                                         console.error('Image load error for file:', file.file_name);
                                         e.currentTarget.style.display = 'none';
                                       }}
                                     />
                                   ) : (
-                                    <div className="w-full h-20 md:h-24 bg-gray-100 rounded-md border flex items-center justify-center">
+                                    <div 
+                                      className="w-full h-20 md:h-24 bg-gray-100 rounded-md border flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity"
+                                      onClick={() => handleImageClick(file.file_url, file.file_name, file.file_type)}
+                                    >
                                       <span className="text-xs text-gray-500">
                                         {file.file_name}
                                       </span>
@@ -1753,8 +1874,48 @@ const CommunityPage: React.FC = () => {
                               <ThumbsDown className="h-3 w-3" />
                               <span>Dislike</span>
                             </Button>
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="text-xs text-gray-600 px-3 py-2 rounded-xl font-medium hover:bg-gray-50 transition-all duration-300" 
+                              onClick={() => toggleComments(complaint.id)}
+                            >
+                              Comments
+                            </Button>
                           </div>
                         </div>
+                        
+                        {/* Comments Section */}
+                        {openComments.has(complaint.id) && (
+                          <div className="mt-6 space-y-4 bg-gray-50 rounded-xl p-4">
+                            <div className="flex gap-3">
+                              <input 
+                                className="flex-1 border-2 border-gray-200 rounded-xl px-4 py-3 text-sm font-medium focus:border-blue-500 focus:outline-none" 
+                                placeholder="Write a comment..." 
+                                value={commentDraft[complaint.id] || ''} 
+                                onChange={(e) => setCommentDraft((prev) => ({ ...prev, [complaint.id]: e.target.value }))} 
+                              />
+                              <Button 
+                                size="sm" 
+                                onClick={() => submitComment(complaint.id)} 
+                                disabled={!(commentDraft[complaint.id] || '').trim()} 
+                                className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                              >
+                                Post
+                              </Button>
+                            </div>
+                            <div className="space-y-3">
+                              {(commentsById[complaint.id] || []).map((cm) => (
+                                <div key={cm.id} className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+                                  <div className="text-xs text-gray-600 mb-2 font-medium">
+                                    {cm.users?.full_name || 'User'} • {formatDate(cm.created_at)}
+                                  </div>
+                                  <div className="text-sm text-gray-900">{cm.content}</div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -2032,6 +2193,15 @@ const CommunityPage: React.FC = () => {
           </div>
         </DialogContent>
       </Dialog>
+      
+      {/* Image Modal */}
+      <ImageModal
+        isOpen={imageModal.isOpen}
+        onClose={closeImageModal}
+        imageUrl={imageModal.imageUrl}
+        imageName={imageModal.imageName}
+        fileType={imageModal.fileType}
+      />
     </div>
   );
 };

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { ImageModal } from '@/components/ui/image-modal';
 import { useAuth } from '@/contexts/AuthContext';
 import { getPublicComplaints, getAllCommunityComplaints } from '@/lib/complaints';
 import { getIndiaCommunityId } from '@/lib/india-community';
@@ -42,6 +43,12 @@ interface Complaint {
     name: string;
     icon: string;
   };
+  complaint_files: Array<{
+    id: string;
+    file_url: string;
+    file_name: string;
+    file_type: string;
+  }>;
 }
 
 // Location display component
@@ -75,6 +82,19 @@ const IndiaCommunityFeed = () => {
   const [complaints, setComplaints] = useState<Complaint[]>([]);
   const [loading, setLoading] = useState(true);
   const [indiaCommunityId, setIndiaCommunityId] = useState<string | null>(null);
+  
+  // Image modal state
+  const [imageModal, setImageModal] = useState<{
+    isOpen: boolean;
+    imageUrl: string;
+    imageName: string;
+    fileType?: string;
+  }>({
+    isOpen: false,
+    imageUrl: '',
+    imageName: '',
+    fileType: ''
+  });
 
   useEffect(() => {
     fetchIndiaCommunityAndComplaints();
@@ -129,10 +149,10 @@ const IndiaCommunityFeed = () => {
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case "pending":
-        return <Badge variant="secondary"><Clock className="w-3 h-3 mr-1" />Pending</Badge>;
-      case "in_progress":
-        return <Badge className="bg-orange-500"><AlertCircle className="w-3 h-3 mr-1" />In Progress</Badge>;
+      case "acknowledged":
+        return <Badge className="bg-yellow-500"><Clock className="w-3 h-3 mr-1" />Acknowledged</Badge>;
+      case "forwarded":
+        return <Badge className="bg-blue-500"><AlertCircle className="w-3 h-3 mr-1" />Forwarded</Badge>;
       case "resolved":
         return <Badge className="bg-green-500"><CheckCircle className="w-3 h-3 mr-1" />Resolved</Badge>;
       default:
@@ -153,6 +173,24 @@ const IndiaCommunityFeed = () => {
       default:
         return <Badge variant="outline">{priority}</Badge>;
     }
+  };
+
+  const handleImageClick = (fileUrl: string, fileName: string, fileType: string) => {
+    setImageModal({
+      isOpen: true,
+      imageUrl: fileUrl,
+      imageName: fileName,
+      fileType: fileType
+    });
+  };
+
+  const closeImageModal = () => {
+    setImageModal({
+      isOpen: false,
+      imageUrl: '',
+      imageName: '',
+      fileType: ''
+    });
   };
 
   const formatDate = (dateString: string) => {
@@ -205,18 +243,18 @@ const IndiaCommunityFeed = () => {
           </Card>
           <Card className="text-center">
             <CardContent className="pt-6">
-              <div className="text-2xl font-bold text-orange-500">
-                {complaints.filter(c => c.status === 'pending').length}
+              <div className="text-2xl font-bold text-yellow-500">
+                {complaints.filter(c => c.status === 'acknowledged').length}
               </div>
-              <p className="text-sm text-muted-foreground">Pending</p>
+              <p className="text-sm text-muted-foreground">Acknowledged</p>
             </CardContent>
           </Card>
           <Card className="text-center">
             <CardContent className="pt-6">
               <div className="text-2xl font-bold text-blue-500">
-                {complaints.filter(c => c.status === 'in_progress').length}
+                {complaints.filter(c => c.status === 'forwarded').length}
               </div>
-              <p className="text-sm text-muted-foreground">In Progress</p>
+              <p className="text-sm text-muted-foreground">Forwarded</p>
             </CardContent>
           </Card>
           <Card className="text-center">
@@ -286,6 +324,40 @@ const IndiaCommunityFeed = () => {
                     <h4 className="font-semibold text-blue-900 mb-2">Complaint Description:</h4>
                     <p className="text-gray-700 leading-relaxed">{complaint.description}</p>
                   </div>
+                  
+                  {/* Attachments */}
+                  {complaint.complaint_files && complaint.complaint_files.length > 0 && (
+                    <div className="space-y-2 mb-4">
+                      <h4 className="font-semibold text-gray-900 text-sm">Attachments:</h4>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                        {complaint.complaint_files.map((file) => (
+                          <div key={file.id} className="relative">
+                            {file.file_type.startsWith('image/') ? (
+                              <img
+                                src={file.file_url}
+                                alt={file.file_name}
+                                className="w-full h-20 object-cover rounded-md border cursor-pointer hover:opacity-80 transition-opacity"
+                                onClick={() => handleImageClick(file.file_url, file.file_name, file.file_type)}
+                                onError={(e) => {
+                                  console.error('Image load error for file:', file.file_name);
+                                  e.currentTarget.style.display = 'none';
+                                }}
+                              />
+                            ) : (
+                              <div 
+                                className="w-full h-20 bg-gray-100 rounded-md border flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity"
+                                onClick={() => handleImageClick(file.file_url, file.file_name, file.file_type)}
+                              >
+                                <span className="text-xs text-gray-500 text-center px-1">
+                                  {file.file_name}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             ))}
@@ -311,6 +383,15 @@ const IndiaCommunityFeed = () => {
           </Card>
         </div>
       </div>
+      
+      {/* Image Modal */}
+      <ImageModal
+        isOpen={imageModal.isOpen}
+        onClose={closeImageModal}
+        imageUrl={imageModal.imageUrl}
+        imageName={imageModal.imageName}
+        fileType={imageModal.fileType}
+      />
     </div>
   );
 };

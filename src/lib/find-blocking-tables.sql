@@ -54,3 +54,7 @@ WHERE c.table_schema = 'public'
 ORDER BY t.table_name, c.alumn_name;
 
 
+
+
+
+

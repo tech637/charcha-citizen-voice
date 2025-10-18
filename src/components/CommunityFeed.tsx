@@ -31,7 +31,8 @@ import {
   LogOut,
   Shield,
   Home,
-  User
+  User,
+  FileText
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { hasLocationData } from '@/lib/locationUtils';
@@ -144,14 +145,11 @@ const CommunitiesNavigation = () => {
               >
                 Home
               </button>
-              <a href="#how-it-works" className="text-gray-200 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
-                How It Works
-              </a>
               <button 
-                onClick={() => navigate("/join-communities")}
+                onClick={() => navigate("/communities")}
                 className="text-gray-200 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors"
               >
-                Join Communities
+                Communities
               </button>
             </div>
           </div>
@@ -240,7 +238,7 @@ interface CommunityComplaint {
   location_address?: string;
   latitude?: number;
   longitude?: number;
-  status: 'pending' | 'in_progress' | 'resolved' | 'rejected';
+  status: 'acknowledged' | 'forwarded' | 'resolved';
   created_at: string;
   community_id?: string;
   users: {
@@ -333,6 +331,53 @@ const CommunityFeed = () => {
       fetchDiscoverComplaints();
     }
   }, [communities, userCommunities]);
+
+  // Real-time subscription for complaint updates
+  useEffect(() => {
+    if (!user) return;
+
+    console.log('Setting up real-time subscription for complaints...');
+    
+    const channel = supabase
+      .channel('complaint-updates')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'complaints'
+        },
+        (payload) => {
+          console.log('Complaint updated:', payload);
+          // Show a subtle notification that data was refreshed
+          toast({
+            title: "Complaints Updated",
+            description: "Complaint status has been updated.",
+            duration: 2000,
+          });
+          // Refresh complaints when any complaint is updated
+          if (communities.length > 0 && userCommunities.size > 0) {
+            fetchAllJoinedCommunityComplaints();
+          }
+          if (communities.length > 0) {
+            fetchDiscoverComplaints();
+          }
+        }
+      )
+      .subscribe((status) => {
+        console.log('Real-time subscription status:', status);
+        if (status === 'SUBSCRIBED') {
+          console.log('✅ Successfully subscribed to complaint updates');
+        } else if (status === 'CHANNEL_ERROR') {
+          console.error('❌ Failed to subscribe to complaint updates');
+        }
+      });
+
+    return () => {
+      console.log('Cleaning up real-time subscription...');
+      supabase.removeChannel(channel);
+    };
+  }, [user, communities, userCommunities]);
 
   const fetchCommunities = async () => {
     try {
@@ -677,14 +722,12 @@ const CommunityFeed = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'pending':
+      case 'acknowledged':
         return 'bg-yellow-100 text-yellow-800';
-      case 'in_progress':
+      case 'forwarded':
         return 'bg-blue-100 text-blue-800';
       case 'resolved':
         return 'bg-green-100 text-green-800';
-      case 'rejected':
-        return 'bg-red-100 text-red-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
@@ -692,14 +735,12 @@ const CommunityFeed = () => {
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case 'pending':
-        return 'Pending';
-      case 'in_progress':
-        return 'In Progress';
+      case 'acknowledged':
+        return 'Acknowledged';
+      case 'forwarded':
+        return 'Forwarded';
       case 'resolved':
         return 'Resolved';
-      case 'rejected':
-        return 'Rejected';
       default:
         return status;
     }
@@ -856,11 +897,108 @@ const CommunityFeed = () => {
               ? 'You are a member of the community shown below.'
               : 'Browse all communities and send a request to join. India community is public and available to everyone.'}
           </p>
+          
+          {/* Manual Refresh Button */}
+          <div className="mt-4">
+            <Button
+              onClick={() => {
+                if (communities.length > 0 && userCommunities.size > 0) {
+                  fetchAllJoinedCommunityComplaints();
+                }
+                if (communities.length > 0) {
+                  fetchDiscoverComplaints();
+                }
+                toast({
+                  title: "Refreshed",
+                  description: "Complaints have been refreshed.",
+                  duration: 2000,
+                });
+              }}
+              variant="outline"
+              size="sm"
+              className="text-gray-600 hover:text-gray-800"
+            >
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Refresh Complaints
+            </Button>
+          </div>
         </div>
 
         {/* Communities Grid - if user has a joined community, show only joined; else show all with join options */}
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* My Complaints Card - Only show for logged-in users */}
+            {user && (
+              <Card className="group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border-0 overflow-hidden">
+                {/* Card Header */}
+                <CardHeader className="pb-4">
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className="w-14 h-14 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow duration-300">
+                        <Plus className="h-7 w-7 text-white" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <CardTitle className="text-xl font-bold text-gray-900 mb-1 truncate">
+                          My Complaints
+                        </CardTitle>
+                        <div className="flex items-center gap-1 text-gray-500">
+                          <User className="h-4 w-4 flex-shrink-0" />
+                          <span className="text-sm truncate">Personal Dashboard</span>
+                        </div>
+                      </div>
+                    </div>
+                    <Badge 
+                      variant="default"
+                      className="text-xs px-3 py-1 rounded-full font-medium bg-green-100 text-green-700 border border-green-200"
+                    >
+                      Personal
+                    </Badge>
+                  </div>
+                </CardHeader>
+
+                {/* Card Content */}
+                <CardContent className="space-y-6">
+                  {/* Description */}
+                  <p className="text-gray-600 leading-relaxed line-clamp-3">
+                    View and manage all your submitted complaints. Track their status and see updates from community leaders.
+                  </p>
+
+                  {/* Stats Row */}
+                  <div className="flex items-center justify-between bg-gray-50 rounded-xl p-4">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                        <FileText className="h-4 w-4 text-green-600" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-gray-900">Your</p>
+                        <p className="text-xs text-gray-500">complaints</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <Calendar className="h-4 w-4 text-blue-600" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-gray-900">Track</p>
+                        <p className="text-xs text-gray-500">progress</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Action Button */}
+                  <div className="pt-2">
+                    <Button
+                      className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-semibold py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                      onClick={() => navigate("/dashboard")}
+                    >
+                      <Plus className="h-5 w-5 mr-2" />
+                      View My Complaints
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+            
             {(userCommunities.size === 0 ? communities : communities.filter((c) => userCommunities.has(c.id)))
               .map((community) => (
               <Card key={community.id} className="group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border-0 overflow-hidden">

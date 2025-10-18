@@ -2,7 +2,6 @@
 import { Button } from "@/components/ui/button";
 import Navigation from "@/components/Navigation";
 import JoinCommunityForm from "@/components/JoinCommunityForm";
-import HowItWorks from "@/components/HowItWorks";
 import { ComplaintNotificationsDemo } from "@/components/ComplaintNotifications";
 import { ConditionalLandingContent } from "@/components/ConditionalLandingContent";
 import { LoginDialog } from "@/components/LoginDialog";
@@ -93,7 +92,7 @@ const MobileBottomNavigation = () => {
                        }`}
                      >
                        <Building2 className={`h-5 w-5 ${isActive('/communities') ? 'text-blue-600 fill-blue-600' : 'text-gray-500 fill-gray-500'}`} />
-                       <span className="text-xs mt-1 font-medium">Communities</span>
+                       <span className="text-xs mt-1 font-medium">My Circle</span>
                      </button>
                      
                      <button
@@ -103,7 +102,7 @@ const MobileBottomNavigation = () => {
                        }`}
                      >
                        <User className={`h-5 w-5 ${isActive('/dashboard') ? 'text-blue-600 fill-blue-600' : 'text-gray-500 fill-gray-500'}`} />
-                       <span className="text-xs mt-1 font-medium">Dashboard</span>
+                       <span className="text-xs mt-1 font-medium">My Dashboard</span>
                      </button>
                    </>
                  ) : (
@@ -230,12 +229,6 @@ const Index = () => {
         </div>
       </div>
 
-      {/* How It Works Section */}
-      <div className="py-12 md:py-24 px-4 bg-gray-50">
-        <div className="max-w-7xl mx-auto">
-          <HowItWorks />
-        </div>
-      </div>
 
       {/* Live Community Activity Section */}
       <div className="py-12 md:py-24 px-4 bg-white">
