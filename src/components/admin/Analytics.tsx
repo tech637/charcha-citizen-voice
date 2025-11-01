@@ -1015,7 +1015,8 @@ const Analytics: React.FC = () => {
                       </p>
                     </div>
                   </div>
-                )}
+                );
+                })()}
               </CardContent>
             </Card>
 
