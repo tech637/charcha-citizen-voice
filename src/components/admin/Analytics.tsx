@@ -315,30 +315,52 @@ const Analytics: React.FC = () => {
         return;
       }
       
-      // Helper function to format status names properly
-      const formatStatusName = (status: string): string => {
-        const statusMap: Record<string, string> = {
-          'acknowledged': 'Acknowledged',
-          'forwarded': 'Forwarded',
-          'resolved': 'Resolved',
-          'pending': 'Pending',
-          'in_progress': 'In Progress',
-          'rejected': 'Rejected'
-        };
-        return statusMap[status] || status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+      // Status name mapping - ensure no Unknown values
+      const statusNameMap: Record<string, string> = {
+        'acknowledged': 'Acknowledged',
+        'forwarded': 'Forwarded',
+        'resolved': 'Resolved',
+        'pending': 'Pending',
+        'in_progress': 'In Progress',
+        'rejected': 'Rejected'
       };
       
-      // Process data to create status analytics (as priority replacement)
-      const statusMap = new Map();
+      // Helper function to format status names - NEVER return Unknown
+      const formatStatusName = (status: string | null | undefined): string => {
+        if (!status || typeof status !== 'string') {
+          return 'Pending'; // Default to Pending instead of Unknown
+        }
+        const normalizedStatus = status.toLowerCase().trim();
+        return statusNameMap[normalizedStatus] || normalizedStatus
+          .split('_')
+          .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(' ');
+      };
+      
+      // Process data to create status analytics - filter out invalid data
+      const statusMap = new Map<string, {
+        status: string;
+        status_display: string;
+        complaint_count: number;
+        resolved_count: number;
+        acknowledged_count: number;
+        forwarded_count: number;
+        resolution_rate: number;
+      }>();
       
       complaintsData?.forEach(complaint => {
         const status = complaint.status;
-        if (!statusMap.has(status)) {
-          const formattedName = formatStatusName(status);
-          statusMap.set(status, {
-            priority_id: status,
-            priority_name: formattedName,
-            priority: formattedName,
+        if (!status || typeof status !== 'string') {
+          return; // Skip invalid statuses
+        }
+        
+        const normalizedStatus = status.toLowerCase().trim();
+        const displayName = formatStatusName(status);
+        
+        if (!statusMap.has(normalizedStatus)) {
+          statusMap.set(normalizedStatus, {
+            status: normalizedStatus,
+            status_display: displayName,
             complaint_count: 0,
             resolved_count: 0,
             acknowledged_count: 0,
@@ -347,25 +369,34 @@ const Analytics: React.FC = () => {
           });
         }
         
-        const statusData = statusMap.get(status);
+        const statusData = statusMap.get(normalizedStatus)!;
         statusData.complaint_count++;
         
-        if (status === 'resolved') {
+        if (normalizedStatus === 'resolved') {
           statusData.resolved_count++;
-        } else if (status === 'acknowledged') {
+        } else if (normalizedStatus === 'acknowledged') {
           statusData.acknowledged_count++;
-        } else if (status === 'forwarded') {
+        } else if (normalizedStatus === 'forwarded') {
           statusData.forwarded_count++;
         }
       });
       
-      // Calculate resolution rates
-      const statusAnalytics = Array.from(statusMap.values()).map(status => ({
-        ...status,
-        resolution_rate: status.complaint_count > 0 
-          ? Math.round((status.resolved_count / status.complaint_count) * 100)
-          : 0
-      }));
+      // Calculate resolution rates and convert to format expected by chart
+      const statusAnalytics = Array.from(statusMap.values())
+        .map(status => ({
+          priority_id: status.status,
+          priority_name: status.status_display,
+          priority: status.status_display,
+          status_display: status.status_display,
+          complaint_count: status.complaint_count,
+          resolved_count: status.resolved_count,
+          acknowledged_count: status.acknowledged_count,
+          forwarded_count: status.forwarded_count,
+          resolution_rate: status.complaint_count > 0 
+            ? Math.round((status.resolved_count / status.complaint_count) * 100)
+            : 0
+        }))
+        .filter(item => item.status_display && item.status_display !== 'Unknown' && item.status_display !== 'unknown'); // Filter out any Unknown values
       
       // Sort by complaint count descending for better visualization
       statusAnalytics.sort((a, b) => b.complaint_count - a.complaint_count);
@@ -848,22 +879,38 @@ const Analytics: React.FC = () => {
                   <div className="h-[350px]">
                     <ResponsiveContainer width="100%" height="100%" minWidth={300} minHeight={250}>
                       <RechartsBarChart 
-                        data={priorityAnalytics.map(p => {
-                          // Format status name properly
-                          const statusName = p.priority || p.priority_name || 'Unknown';
-                          // Capitalize first letter and handle underscores
-                          const formattedStatus = statusName
-                            .split('_')
-                            .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-                            .join(' ');
-                          
-                          return {
-                            status: formattedStatus,
-                            complaints: p.complaint_count,
-                            resolved: p.resolved_count,
-                            resolution_rate: p.resolution_rate
-                          };
-                        })}
+                        data={priorityAnalytics
+                          .filter(p => {
+                            // Filter out any items with Unknown status
+                            const statusDisplay = p.status_display || p.priority_name || p.priority || '';
+                            return statusDisplay && 
+                                   statusDisplay.toLowerCase() !== 'unknown' && 
+                                   statusDisplay.trim() !== '' &&
+                                   p.complaint_count > 0;
+                          })
+                          .map(p => {
+                            // Use the status_display field first, then fallback to priority_name or priority
+                            const statusDisplay = p.status_display || p.priority_name || p.priority || '';
+                            
+                            // Ensure we never show Unknown - use a fallback
+                            let formattedStatus = statusDisplay;
+                            if (!formattedStatus || formattedStatus.toLowerCase() === 'unknown') {
+                              formattedStatus = 'Pending'; // Default to Pending
+                            }
+                            
+                            // Final formatting: capitalize properly
+                            formattedStatus = formattedStatus
+                              .split(' ')
+                              .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+                              .join(' ');
+                            
+                            return {
+                              status: formattedStatus,
+                              complaints: p.complaint_count || 0,
+                              resolved: p.resolved_count || 0,
+                              resolution_rate: p.resolution_rate || 0
+                            };
+                          })}
                         margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
                       >
                         <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
@@ -1181,22 +1228,38 @@ const Analytics: React.FC = () => {
                   <div className="h-[350px]">
                     <ResponsiveContainer width="100%" height="100%" minWidth={300} minHeight={250}>
                       <RechartsBarChart 
-                        data={priorityAnalytics.map(p => {
-                          // Format status name properly
-                          const statusName = p.priority || p.priority_name || 'Unknown';
-                          // Capitalize first letter and handle underscores
-                          const formattedStatus = statusName
-                            .split('_')
-                            .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-                            .join(' ');
-                          
-                          return {
-                            status: formattedStatus,
-                            complaints: p.complaint_count,
-                            resolved: p.resolved_count,
-                            resolution_rate: p.resolution_rate
-                          };
-                        })}
+                        data={priorityAnalytics
+                          .filter(p => {
+                            // Filter out any items with Unknown status
+                            const statusDisplay = p.status_display || p.priority_name || p.priority || '';
+                            return statusDisplay && 
+                                   statusDisplay.toLowerCase() !== 'unknown' && 
+                                   statusDisplay.trim() !== '' &&
+                                   p.complaint_count > 0;
+                          })
+                          .map(p => {
+                            // Use the status_display field first, then fallback to priority_name or priority
+                            const statusDisplay = p.status_display || p.priority_name || p.priority || '';
+                            
+                            // Ensure we never show Unknown - use a fallback
+                            let formattedStatus = statusDisplay;
+                            if (!formattedStatus || formattedStatus.toLowerCase() === 'unknown') {
+                              formattedStatus = 'Pending'; // Default to Pending
+                            }
+                            
+                            // Final formatting: capitalize properly
+                            formattedStatus = formattedStatus
+                              .split(' ')
+                              .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+                              .join(' ');
+                            
+                            return {
+                              status: formattedStatus,
+                              complaints: p.complaint_count || 0,
+                              resolved: p.resolved_count || 0,
+                              resolution_rate: p.resolution_rate || 0
+                            };
+                          })}
                         margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
                       >
                         <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
