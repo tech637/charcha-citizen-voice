@@ -1,0 +1,4484 @@
+{
+    "NARELA": {
+      "ward": {
+        "name": "NARELA",
+        "number": 1,
+        "councillor": "SWETA KHATRI",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "NARELA",
+        "name": "Raj Karan Khatri",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "North West Delhi",
+        "name": "YOGENDER CHANDOLIYA",
+        "party": "BJP"
+      }
+    },
+    "BANKNER": {
+      "ward": {
+        "name": "BANKNER",
+        "number": 2,
+        "councillor": "DINESH KUMAR",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "NARELA",
+        "name": "Raj Karan Khatri",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "North West Delhi",
+        "name": "YOGENDER CHANDOLIYA",
+        "party": "BJP"
+      }
+    },
+    "HOLAMBI KALAN": {
+      "ward": {
+        "name": "HOLAMBI KALAN",
+        "number": 3,
+        "councillor": "NEHA",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "NARELA",
+        "name": "Raj Karan Khatri",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "North West Delhi",
+        "name": "YOGENDER CHANDOLIYA",
+        "party": "BJP"
+      }
+    },
+    "ALIPUR": {
+      "ward": {
+        "name": "ALIPUR",
+        "number": 4,
+        "councillor": "YOGESH",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "NARELA",
+        "name": "Raj Karan Khatri",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "North West Delhi",
+        "name": "YOGENDER CHANDOLIYA",
+        "party": "BJP"
+      }
+    },
+    "BAKHTAWARPUR": {
+      "ward": {
+        "name": "BAKHTAWARPUR",
+        "number": 5,
+        "councillor": "JANTA DEVI",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "NARELA",
+        "name": "Raj Karan Khatri",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "North West Delhi",
+        "name": "YOGENDER CHANDOLIYA",
+        "party": "BJP"
+      }
+    },
+    "BURARI": {
+      "ward": {
+        "name": "BURARI",
+        "number": 6,
+        "councillor": "ANIL KUMAR TYAGI",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "BURARI",
+        "name": "Sanjeev Jha",
+        "party": "AAP"
+      },
+      "mp": {
+        "constituency": "North East Delhi",
+        "name": "MANOJ TIWARI",
+        "party": "BJP"
+      }
+    },
+    "KADIPUR": {
+      "ward": {
+        "name": "KADIPUR",
+        "number": 7,
+        "councillor": "MUNESH DEVI",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "BURARI",
+        "name": "Sanjeev Jha",
+        "party": "AAP"
+      },
+      "mp": {
+        "constituency": "North East Delhi",
+        "name": "MANOJ TIWARI",
+        "party": "BJP"
+      }
+    },
+    "MUKUNDPUR": {
+      "ward": {
+        "name": "MUKUNDPUR",
+        "number": 8,
+        "councillor": "GULAB SINGH",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "BURARI",
+        "name": "Sanjeev Jha",
+        "party": "AAP"
+      },
+      "mp": {
+        "constituency": "North East Delhi",
+        "name": "MANOJ TIWARI",
+        "party": "BJP"
+      }
+    },
+    "SANT NAGAR": {
+      "ward": {
+        "name": "SANT NAGAR",
+        "number": 9,
+        "councillor": "RUBI",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "BURARI",
+        "name": "Sanjeev Jha",
+        "party": "AAP"
+      },
+      "mp": {
+        "constituency": "North East Delhi",
+        "name": "MANOJ TIWARI",
+        "party": "BJP"
+      }
+    },
+    "JHARODA": {
+      "ward": {
+        "name": "JHARODA",
+        "number": 10,
+        "councillor": "GAGAN CHOUDHARY",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "BURARI",
+        "name": "Sanjeev Jha",
+        "party": "AAP"
+      },
+      "mp": {
+        "constituency": "North East Delhi",
+        "name": "MANOJ TIWARI",
+        "party": "BJP"
+      }
+    },
+    "TIMARPUR": {
+      "ward": {
+        "name": "TIMARPUR",
+        "number": 11,
+        "councillor": "PROMILA GUPTA",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "TIMARPUR",
+        "name": "Surya Prakash Khatri",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "North East Delhi",
+        "name": "MANOJ TIWARI",
+        "party": "BJP"
+      }
+    },
+    "MALKA GANJ": {
+      "ward": {
+        "name": "MALKA GANJ",
+        "number": 12,
+        "councillor": "REKHA",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "TIMARPUR",
+        "name": "Surya Prakash Khatri",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "North East Delhi",
+        "name": "MANOJ TIWARI",
+        "party": "BJP"
+      }
+    },
+    "MUKHERJEE NAGAR": {
+      "ward": {
+        "name": "MUKHERJEE NAGAR",
+        "number": 13,
+        "councillor": "RAJA IQBAL SINGH",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "TIMARPUR",
+        "name": "Surya Prakash Khatri",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "North East Delhi",
+        "name": "MANOJ TIWARI",
+        "party": "BJP"
+      }
+    },
+    "DHIRPUR": {
+      "ward": {
+        "name": "DHIRPUR",
+        "number": 14,
+        "councillor": "NEHA AGGARWAL",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "ADARSH NAGAR",
+        "name": "Raj Kumar Bhatia",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "Chandni Chowk",
+        "name": "PRAVEEN KHANDELWAL",
+        "party": "BJP"
+      }
+    },
+    "ADARSH NAGAR": {
+      "ward": {
+        "name": "ADARSH NAGAR",
+        "number": 15,
+        "councillor": "MUKESH KUMAR GOEL",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "ADARSH NAGAR",
+        "name": "Raj Kumar Bhatia",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "Chandni Chowk",
+        "name": "PRAVEEN KHANDELWAL",
+        "party": "BJP"
+      }
+    },
+    "AZADPUR": {
+      "ward": {
+        "name": "AZADPUR",
+        "number": 16,
+        "councillor": "SUMAN KUMARI",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "ADARSH NAGAR",
+        "name": "Raj Kumar Bhatia",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "Chandni Chowk",
+        "name": "PRAVEEN KHANDELWAL",
+        "party": "BJP"
+      }
+    },
+    "BHALSWA": {
+      "ward": {
+        "name": "BHALSWA",
+        "number": 17,
+        "councillor": "AJEET SINGH YADAV",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "BADLI",
+        "name": "Deepak Chaudhary",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "North West Delhi",
+        "name": "YOGENDER CHANDOLIYA",
+        "party": "BJP"
+      }
+    },
+    "JAHANGIR PURI": {
+      "ward": {
+        "name": "JAHANGIR PURI",
+        "number": 18,
+        "councillor": "TIMSY SHARMA",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "BADLI",
+        "name": "Deepak Chaudhary",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "North West Delhi",
+        "name": "YOGENDER CHANDOLIYA",
+        "party": "BJP"
+      }
+    },
+    "SARUP NAGAR": {
+      "ward": {
+        "name": "SARUP NAGAR",
+        "number": 19,
+        "councillor": "JOGINDER SINGH",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "BADLI",
+        "name": "Deepak Chaudhary",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "North West Delhi",
+        "name": "YOGENDER CHANDOLIYA",
+        "party": "BJP"
+      }
+    },
+    "SAMAYPUR BADLI": {
+      "ward": {
+        "name": "SAMAYPUR BADLI",
+        "number": 20,
+        "councillor": "GAYATRI YADAV",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "BADLI",
+        "name": "Deepak Chaudhary",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "North West Delhi",
+        "name": "YOGENDER CHANDOLIYA",
+        "party": "BJP"
+      }
+    },
+    "ROHINI-A": {
+      "ward": {
+        "name": "ROHINI-A",
+        "number": 21,
+        "councillor": "PARDEEP MITTAL",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "RITHALA",
+        "name": "Kulwant Rana",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "North West Delhi",
+        "name": "YOGENDER CHANDOLIYA",
+        "party": "BJP"
+      }
+    },
+    "ROHINI-B": {
+      "ward": {
+        "name": "ROHINI-B",
+        "number": 22,
+        "councillor": "SUMAN ANIL RANA",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "RITHALA",
+        "name": "Kulwant Rana",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "North West Delhi",
+        "name": "YOGENDER CHANDOLIYA",
+        "party": "BJP"
+      }
+    },
+    "RITHALA": {
+      "ward": {
+        "name": "RITHALA",
+        "number": 23,
+        "councillor": "NARENDER KUMAR SINGH",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "RITHALA",
+        "name": "Kulwant Rana",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "North West Delhi",
+        "name": "YOGENDER CHANDOLIYA",
+        "party": "BJP"
+      }
+    },
+    "VIJAY VIHAR": {
+      "ward": {
+        "name": "VIJAY VIHAR",
+        "number": 24,
+        "councillor": "PUSHPA",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "RITHALA",
+        "name": "Kulwant Rana",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "North West Delhi",
+        "name": "YOGENDER CHANDOLIYA",
+        "party": "BJP"
+      }
+    },
+    "BUDH VIHAR": {
+      "ward": {
+        "name": "BUDH VIHAR",
+        "number": 25,
+        "councillor": "AMRIT JAIN",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "RITHALA",
+        "name": "Kulwant Rana",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "North West Delhi",
+        "name": "YOGENDER CHANDOLIYA",
+        "party": "BJP"
+      }
+    },
+    "POOTH KALAN": {
+      "ward": {
+        "name": "POOTH KALAN",
+        "number": 26,
+        "councillor": "RITU MUKESH KUMAR",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "BAWANA",
+        "name": "Ravinder Indraj Singh",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "North West Delhi",
+        "name": "YOGENDER CHANDOLIYA",
+        "party": "BJP"
+      }
+    },
+    "BEGUMPUR": {
+      "ward": {
+        "name": "BEGUMPUR",
+        "number": 27,
+        "councillor": "JAI BHAGWAN YADAV",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "BAWANA",
+        "name": "Ravinder Indraj Singh",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "North West Delhi",
+        "name": "YOGENDER CHANDOLIYA",
+        "party": "BJP"
+      }
+    },
+    "SHAHBAAD DAIRY": {
+      "ward": {
+        "name": "SHAHBAAD DAIRY",
+        "number": 28,
+        "councillor": "RAM CHANDER",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "BAWANA",
+        "name": "Ravinder Indraj Singh",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "North West Delhi",
+        "name": "YOGENDER CHANDOLIYA",
+        "party": "BJP"
+      }
+    },
+    "POOTH KHURD": {
+      "ward": {
+        "name": "POOTH KHURD",
+        "number": 29,
+        "councillor": "ANJU DEVI",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "BAWANA",
+        "name": "Ravinder Indraj Singh",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "North West Delhi",
+        "name": "YOGENDER CHANDOLIYA",
+        "party": "BJP"
+      }
+    },
+    "BAWANA": {
+      "ward": {
+        "name": "BAWANA",
+        "number": 30,
+        "councillor": "PAWAN KUMAR",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "BAWANA",
+        "name": "Ravinder Indraj Singh",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "North West Delhi",
+        "name": "YOGENDER CHANDOLIYA",
+        "party": "BJP"
+      }
+    },
+    "NANGAL THAKRAN": {
+      "ward": {
+        "name": "NANGAL THAKRAN",
+        "number": 31,
+        "councillor": "BABITA",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "BAWANA",
+        "name": "Ravinder Indraj Singh",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "North West Delhi",
+        "name": "YOGENDER CHANDOLIYA",
+        "party": "BJP"
+      }
+    },
+    "KANJHAWALA": {
+      "ward": {
+        "name": "KANJHAWALA",
+        "number": 32,
+        "councillor": "SANDEEP",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "MUNDKA",
+        "name": "Gajender Drall",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "North West Delhi",
+        "name": "YOGENDER CHANDOLIYA",
+        "party": "BJP"
+      }
+    },
+    "RANI KHERA": {
+      "ward": {
+        "name": "RANI KHERA",
+        "number": 33,
+        "councillor": "MANISHA JASBIR KARALA",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "MUNDKA",
+        "name": "Gajender Drall",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "North West Delhi",
+        "name": "YOGENDER CHANDOLIYA",
+        "party": "BJP"
+      }
+    },
+    "NANGLOI": {
+      "ward": {
+        "name": "NANGLOI",
+        "number": 34,
+        "councillor": "HEMLATA",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "MUNDKA",
+        "name": "Gajender Drall",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "North West Delhi",
+        "name": "YOGENDER CHANDOLIYA",
+        "party": "BJP"
+      }
+    },
+    "MUNDKA": {
+      "ward": {
+        "name": "MUNDKA",
+        "number": 35,
+        "councillor": "GAJENDER SINGH DARAL",
+        "party": "INDEPENDENT"
+      },
+      "mla": {
+        "constituency": "MUNDKA",
+        "name": "Gajender Drall",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "North West Delhi",
+        "name": "YOGENDER CHANDOLIYA",
+        "party": "BJP"
+      }
+    },
+    "NILOTHI": {
+      "ward": {
+        "name": "NILOTHI",
+        "number": 36,
+        "councillor": "BABINA SHOKEEN",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "MUNDKA",
+        "name": "Gajender Drall",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "North West Delhi",
+        "name": "YOGENDER CHANDOLIYA",
+        "party": "BJP"
+      }
+    },
+    "KIRARI": {
+      "ward": {
+        "name": "KIRARI",
+        "number": 37,
+        "councillor": "RAMESH CHAND",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "KIRARI",
+        "name": "Anil Jha Vats",
+        "party": "AAP"
+      },
+      "mp": {
+        "constituency": "North West Delhi",
+        "name": "YOGENDER CHANDOLIYA",
+        "party": "BJP"
+      }
+    },
+    "PREM NAGAR": {
+      "ward": {
+        "name": "PREM NAGAR",
+        "number": 38,
+        "councillor": "NEELA KUMARI",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "KIRARI",
+        "name": "Anil Jha Vats",
+        "party": "AAP"
+      },
+      "mp": {
+        "constituency": "North West Delhi",
+        "name": "YOGENDER CHANDOLIYA",
+        "party": "BJP"
+      }
+    },
+    "MUBARIKPUR": {
+      "ward": {
+        "name": "MUBARIKPUR",
+        "number": 39,
+        "councillor": "RAJESH KUMAR GUPTA",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "KIRARI",
+        "name": "Anil Jha Vats",
+        "party": "AAP"
+      },
+      "mp": {
+        "constituency": "North West Delhi",
+        "name": "YOGENDER CHANDOLIYA",
+        "party": "BJP"
+      }
+    },
+    "NITHARI": {
+      "ward": {
+        "name": "NITHARI",
+        "number": 40,
+        "councillor": "MAMTA GUPTA",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "KIRARI",
+        "name": "Anil Jha Vats",
+        "party": "AAP"
+      },
+      "mp": {
+        "constituency": "North West Delhi",
+        "name": "YOGENDER CHANDOLIYA",
+        "party": "BJP"
+      }
+    },
+    "AMAN VIHAR": {
+      "ward": {
+        "name": "AMAN VIHAR",
+        "number": 41,
+        "councillor": "RAVINDER BHARDWAJ",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "KIRARI",
+        "name": "Anil Jha Vats",
+        "party": "AAP"
+      },
+      "mp": {
+        "constituency": "North West Delhi",
+        "name": "YOGENDER CHANDOLIYA",
+        "party": "BJP"
+      }
+    },
+    "MANGOL PURI": {
+      "ward": {
+        "name": "MANGOL PURI",
+        "number": 42,
+        "councillor": "RAJESH KUMAR",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "SULTANPUR MAJRA",
+        "name": "Mukesh Kumar Ahlawat",
+        "party": "AAP"
+      },
+      "mp": {
+        "constituency": "North West Delhi",
+        "name": "YOGENDER CHANDOLIYA",
+        "party": "BJP"
+      }
+    },
+    "SULTANPURI-A": {
+      "ward": {
+        "name": "SULTANPURI-A",
+        "number": 43,
+        "councillor": "BOBI",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "SULTANPUR MAJRA",
+        "name": "Mukesh Kumar Ahlawat",
+        "party": "AAP"
+      },
+      "mp": {
+        "constituency": "North West Delhi",
+        "name": "YOGENDER CHANDOLIYA",
+        "party": "BJP"
+      }
+    },
+    "SULTANPURI-B": {
+      "ward": {
+        "name": "SULTANPURI-B",
+        "number": 44,
+        "councillor": "DAULAT",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "SULTANPUR MAJRA",
+        "name": "Mukesh Kumar Ahlawat",
+        "party": "AAP"
+      },
+      "mp": {
+        "constituency": "North West Delhi",
+        "name": "YOGENDER CHANDOLIYA",
+        "party": "BJP"
+      }
+    },
+    "JAWALAPURI": {
+      "ward": {
+        "name": "JAWALAPURI",
+        "number": 45,
+        "councillor": "SANTOSH DEVI",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "NANGLOI JAT",
+        "name": "Manoj Kumar Shokeen",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "North West Delhi",
+        "name": "YOGENDER CHANDOLIYA",
+        "party": "BJP"
+      }
+    },
+    "NANGLOI JAT": {
+      "ward": {
+        "name": "NANGLOI JAT",
+        "number": 46,
+        "councillor": "POONAM SAINI",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "NANGLOI JAT",
+        "name": "Manoj Kumar Shokeen",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "North West Delhi",
+        "name": "YOGENDER CHANDOLIYA",
+        "party": "BJP"
+      }
+    },
+    "NIHAL VIHAR": {
+      "ward": {
+        "name": "NIHAL VIHAR",
+        "number": 47,
+        "councillor": "MANDEEP SINGH",
+        "party": "INDIAN NATIONAL CONGRESS"
+      },
+      "mla": {
+        "constituency": "NANGLOI JAT",
+        "name": "Manoj Kumar Shokeen",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "North West Delhi",
+        "name": "YOGENDER CHANDOLIYA",
+        "party": "BJP"
+      }
+    },
+    "GURU HARKISHAN NAGAR": {
+      "ward": {
+        "name": "GURU HARKISHAN NAGAR",
+        "number": 48,
+        "councillor": "MONIKA GOYAL",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "NANGLOI JAT",
+        "name": "Manoj Kumar Shokeen",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "North West Delhi",
+        "name": "YOGENDER CHANDOLIYA",
+        "party": "BJP"
+      }
+    },
+    "MANGOLPURI-A": {
+      "ward": {
+        "name": "MANGOLPURI-A",
+        "number": 49,
+        "councillor": "DHARAM RAKSHAK",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "MANGOL PURI",
+        "name": "Raj Kumar Chauhan",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "North West Delhi",
+        "name": "YOGENDER CHANDOLIYA",
+        "party": "BJP"
+      }
+    },
+    "MANGOLPURI-B": {
+      "ward": {
+        "name": "MANGOLPURI-B",
+        "number": 50,
+        "councillor": "SUMAN",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "MANGOL PURI",
+        "name": "Raj Kumar Chauhan",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "North West Delhi",
+        "name": "YOGENDER CHANDOLIYA",
+        "party": "BJP"
+      }
+    },
+    "ROHINI-C": {
+      "ward": {
+        "name": "ROHINI-C",
+        "number": 51,
+        "councillor": "DHARAMBIR SHARMA",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "MANGOL PURI",
+        "name": "Raj Kumar Chauhan",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "North West Delhi",
+        "name": "YOGENDER CHANDOLIYA",
+        "party": "BJP"
+      }
+    },
+    "ROHINI-F": {
+      "ward": {
+        "name": "ROHINI-F",
+        "number": 52,
+        "councillor": "RITU GOEL",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "ROHINI",
+        "name": "Vijender Gupta",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "North West Delhi",
+        "name": "YOGENDER CHANDOLIYA",
+        "party": "BJP"
+      }
+    },
+    "ROHINI-E": {
+      "ward": {
+        "name": "ROHINI-E",
+        "number": 53,
+        "councillor": "PRAVESH WAHI",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "ROHINI",
+        "name": "Vijender Gupta",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "North West Delhi",
+        "name": "YOGENDER CHANDOLIYA",
+        "party": "BJP"
+      }
+    },
+    "ROHINI-D": {
+      "ward": {
+        "name": "ROHINI-D",
+        "number": 54,
+        "councillor": "SMITA",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "ROHINI",
+        "name": "Vijender Gupta",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "North West Delhi",
+        "name": "YOGENDER CHANDOLIYA",
+        "party": "BJP"
+      }
+    },
+    "SHALIMAR BAGH-A": {
+      "ward": {
+        "name": "SHALIMAR BAGH-A",
+        "number": 55,
+        "councillor": "JALAJ KUMAR",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "SHALIMAR BAGH",
+        "name": "Rekha Gupta",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "Chandni Chowk",
+        "name": "PRAVEEN KHANDELWAL",
+        "party": "BJP"
+      }
+    },
+    "SHALIMAR BAGH-B": {
+      "ward": {
+        "name": "SHALIMAR BAGH-B",
+        "number": 56,
+        "councillor": "REKHA GUPTA",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "SHALIMAR BAGH",
+        "name": "Rekha Gupta",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "Chandni Chowk",
+        "name": "PRAVEEN KHANDELWAL",
+        "party": "BJP"
+      }
+    },
+    "PITAM PURA": {
+      "ward": {
+        "name": "PITAM PURA",
+        "number": 57,
+        "councillor": "AMIT NAGPAL",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "SHALIMAR BAGH",
+        "name": "Rekha Gupta",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "Chandni Chowk",
+        "name": "PRAVEEN KHANDELWAL",
+        "party": "BJP"
+      }
+    },
+    "SARASWATI VIHAR": {
+      "ward": {
+        "name": "SARASWATI VIHAR",
+        "number": 58,
+        "councillor": "SHIKHA BHARDWAJ",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "SHAKUR BASTI",
+        "name": "Karnail Singh",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "Chandni Chowk",
+        "name": "PRAVEEN KHANDELWAL",
+        "party": "BJP"
+      }
+    },
+    "PASCHIM VIHAR": {
+      "ward": {
+        "name": "PASCHIM VIHAR",
+        "number": 59,
+        "councillor": "VINEET VOHRA",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "SHAKUR BASTI",
+        "name": "Karnail Singh",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "Chandni Chowk",
+        "name": "PRAVEEN KHANDELWAL",
+        "party": "BJP"
+      }
+    },
+    "RANI BAGH": {
+      "ward": {
+        "name": "RANI BAGH",
+        "number": 60,
+        "councillor": "JYOTI AGGARWAL",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "SHAKUR BASTI",
+        "name": "Karnail Singh",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "Chandni Chowk",
+        "name": "PRAVEEN KHANDELWAL",
+        "party": "BJP"
+      }
+    },
+    "KOHAT ENCLAVE": {
+      "ward": {
+        "name": "KOHAT ENCLAVE",
+        "number": 61,
+        "councillor": "AJAY RAVI HANS",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "TRI NAGAR",
+        "name": "Tilak Ram Gupta",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "Chandni Chowk",
+        "name": "PRAVEEN KHANDELWAL",
+        "party": "BJP"
+      }
+    },
+    "SHAKUR PUR": {
+      "ward": {
+        "name": "SHAKUR PUR",
+        "number": 62,
+        "councillor": "KISHAN LAL",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "TRI NAGAR",
+        "name": "Tilak Ram Gupta",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "Chandni Chowk",
+        "name": "PRAVEEN KHANDELWAL",
+        "party": "BJP"
+      }
+    },
+    "TRI NAGAR": {
+      "ward": {
+        "name": "TRI NAGAR",
+        "number": 63,
+        "councillor": "MEENU GOEL",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "TRI NAGAR",
+        "name": "Tilak Ram Gupta",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "Chandni Chowk",
+        "name": "PRAVEEN KHANDELWAL",
+        "party": "BJP"
+      }
+    },
+    "KESHAV PURAM": {
+      "ward": {
+        "name": "KESHAV PURAM",
+        "number": 64,
+        "councillor": "YOGESH VERMA",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "WAZIRPUR",
+        "name": "Poonam Sharma",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "Chandni Chowk",
+        "name": "PRAVEEN KHANDELWAL",
+        "party": "BJP"
+      }
+    },
+    "ASHOK VIHAR": {
+      "ward": {
+        "name": "ASHOK VIHAR",
+        "number": 65,
+        "councillor": "POONAM SHARMA",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "WAZIRPUR",
+        "name": "Poonam Sharma",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "Chandni Chowk",
+        "name": "PRAVEEN KHANDELWAL",
+        "party": "BJP"
+      }
+    },
+    "WAZIR PUR": {
+      "ward": {
+        "name": "WAZIR PUR",
+        "number": 66,
+        "councillor": "CHITRA VIDYARTHI",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "WAZIRPUR",
+        "name": "Poonam Sharma",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "Chandni Chowk",
+        "name": "PRAVEEN KHANDELWAL",
+        "party": "BJP"
+      }
+    },
+    "SANGAM PARK": {
+      "ward": {
+        "name": "SANGAM PARK",
+        "number": 67,
+        "councillor": "SUSHIL",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "MODEL TOWN",
+        "name": "Ashok Goel",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "Chandni Chowk",
+        "name": "PRAVEEN KHANDELWAL",
+        "party": "BJP"
+      }
+    },
+    "MODEL TOWN": {
+      "ward": {
+        "name": "MODEL TOWN",
+        "number": 68,
+        "councillor": "VIKESH SETHI",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "MODEL TOWN",
+        "name": "Ashok Goel",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "Chandni Chowk",
+        "name": "PRAVEEN KHANDELWAL",
+        "party": "BJP"
+      }
+    },
+    "KAMLA NAGAR": {
+      "ward": {
+        "name": "KAMLA NAGAR",
+        "number": 69,
+        "councillor": "RENU AGGARWAL",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "MODEL TOWN",
+        "name": "Ashok Goel",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "Chandni Chowk",
+        "name": "PRAVEEN KHANDELWAL",
+        "party": "BJP"
+      }
+    },
+    "SHASTRI NAGAR": {
+      "ward": {
+        "name": "SHASTRI NAGAR",
+        "number": 70,
+        "councillor": "MANOJ KUMAR JINDAL",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "SADAR BAZAR",
+        "name": "Som Dutt",
+        "party": "AAP"
+      },
+      "mp": {
+        "constituency": "Chandni Chowk",
+        "name": "PRAVEEN KHANDELWAL",
+        "party": "BJP"
+      }
+    },
+    "KISHAN GANJ": {
+      "ward": {
+        "name": "KISHAN GANJ",
+        "number": 71,
+        "councillor": "POOJA",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "SADAR BAZAR",
+        "name": "Som Dutt",
+        "party": "AAP"
+      },
+      "mp": {
+        "constituency": "Chandni Chowk",
+        "name": "PRAVEEN KHANDELWAL",
+        "party": "BJP"
+      }
+    },
+    "SADAR BAZAR": {
+      "ward": {
+        "name": "SADAR BAZAR",
+        "number": 72,
+        "councillor": "USHA SHARMA",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "SADAR BAZAR",
+        "name": "Som Dutt",
+        "party": "AAP"
+      },
+      "mp": {
+        "constituency": "Chandni Chowk",
+        "name": "PRAVEEN KHANDELWAL",
+        "party": "BJP"
+      }
+    },
+    "CIVIL LINES": {
+      "ward": {
+        "name": "CIVIL LINES",
+        "number": 73,
+        "councillor": "VIKAS",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "CHANDNI CHOWK",
+        "name": "Punardeep Sawhney",
+        "party": "AAP"
+      },
+      "mp": {
+        "constituency": "Chandni Chowk",
+        "name": "PRAVEEN KHANDELWAL",
+        "party": "BJP"
+      }
+    },
+    "CHANDNI CHOWK": {
+      "ward": {
+        "name": "CHANDNI CHOWK",
+        "number": 74,
+        "councillor": "PUNARDEEP SINGH SAWHNEY",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "CHANDNI CHOWK",
+        "name": "Punardeep Sawhney",
+        "party": "AAP"
+      },
+      "mp": {
+        "constituency": "Chandni Chowk",
+        "name": "PRAVEEN KHANDELWAL",
+        "party": "BJP"
+      }
+    },
+    "JAMA MASJID": {
+      "ward": {
+        "name": "JAMA MASJID",
+        "number": 75,
+        "councillor": "SULTANA ABAD",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "CHANDNI CHOWK",
+        "name": "Punardeep Sawhney",
+        "party": "AAP"
+      },
+      "mp": {
+        "constituency": "Chandni Chowk",
+        "name": "PRAVEEN KHANDELWAL",
+        "party": "BJP"
+      }
+    },
+    "CHANDANI MAHAL": {
+      "ward": {
+        "name": "CHANDANI MAHAL",
+        "number": 76,
+        "councillor": "AALEY MOHAMMED IQBAL",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "MATIA MAHAL",
+        "name": "Aaley Mohammad Iqbal",
+        "party": "AAP"
+      },
+      "mp": {
+        "constituency": "Chandni Chowk",
+        "name": "PRAVEEN KHANDELWAL",
+        "party": "BJP"
+      }
+    },
+    "DELHI GATE": {
+      "ward": {
+        "name": "DELHI GATE",
+        "number": 77,
+        "councillor": "KIRAN BALA",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "MATIA MAHAL",
+        "name": "Aaley Mohammad Iqbal",
+        "party": "AAP"
+      },
+      "mp": {
+        "constituency": "Chandni Chowk",
+        "name": "PRAVEEN KHANDELWAL",
+        "party": "BJP"
+      }
+    },
+    "BAZAR SITARAM": {
+      "ward": {
+        "name": "BAZAR SITARAM",
+        "number": 78,
+        "councillor": "RAFIA MAHIR",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "MATIA MAHAL",
+        "name": "Aaley Mohammad Iqbal",
+        "party": "AAP"
+      },
+      "mp": {
+        "constituency": "Chandni Chowk",
+        "name": "PRAVEEN KHANDELWAL",
+        "party": "BJP"
+      }
+    },
+    "BALLIMARAN": {
+      "ward": {
+        "name": "BALLIMARAN",
+        "number": 79,
+        "councillor": "MOHD SADIQ",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "BALLIMARAN",
+        "name": "Imran Hussain",
+        "party": "AAP"
+      },
+      "mp": {
+        "constituency": "Chandni Chowk",
+        "name": "PRAVEEN KHANDELWAL",
+        "party": "BJP"
+      }
+    },
+    "RAM NAGAR": {
+      "ward": {
+        "name": "RAM NAGAR",
+        "number": 80,
+        "councillor": "KAMAL BAGRI",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "BALLIMARAN",
+        "name": "Imran Hussain",
+        "party": "AAP"
+      },
+      "mp": {
+        "constituency": "Chandni Chowk",
+        "name": "PRAVEEN KHANDELWAL",
+        "party": "BJP"
+      }
+    },
+    "QURAISH NAGAR": {
+      "ward": {
+        "name": "QURAISH NAGAR",
+        "number": 81,
+        "councillor": "SHAMIM BANO",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "BALLIMARAN",
+        "name": "Imran Hussain",
+        "party": "AAP"
+      },
+      "mp": {
+        "constituency": "Chandni Chowk",
+        "name": "PRAVEEN KHANDELWAL",
+        "party": "BJP"
+      }
+    },
+    "PAHAR GANJ": {
+      "ward": {
+        "name": "PAHAR GANJ",
+        "number": 82,
+        "councillor": "MANISH CHADDA",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "KAROL BAGH",
+        "name": "Vishesh Ravi",
+        "party": "AAP"
+      },
+      "mp": {
+        "constituency": "New Delhi",
+        "name": "BANSURI SWARAJ",
+        "party": "BJP"
+      }
+    },
+    "KAROL BAGH": {
+      "ward": {
+        "name": "KAROL BAGH",
+        "number": 83,
+        "councillor": "URMILA DEVI",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "KAROL BAGH",
+        "name": "Vishesh Ravi",
+        "party": "AAP"
+      },
+      "mp": {
+        "constituency": "New Delhi",
+        "name": "BANSURI SWARAJ",
+        "party": "BJP"
+      }
+    },
+    "DEV NAGAR": {
+      "ward": {
+        "name": "DEV NAGAR",
+        "number": 84,
+        "councillor": "MAHESH KUMAR",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "KAROL BAGH",
+        "name": "Vishesh Ravi",
+        "party": "AAP"
+      },
+      "mp": {
+        "constituency": "New Delhi",
+        "name": "BANSURI SWARAJ",
+        "party": "BJP"
+      }
+    },
+    "WEST PATEL NAGAR": {
+      "ward": {
+        "name": "WEST PATEL NAGAR",
+        "number": 85,
+        "councillor": "KAVITA CHAUHAN",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "PATEL NAGAR",
+        "name": "Pravesh Ratn",
+        "party": "AAP"
+      },
+      "mp": {
+        "constituency": "New Delhi",
+        "name": "BANSURI SWARAJ",
+        "party": "BJP"
+      }
+    },
+    "EAST PATEL NAGAR": {
+      "ward": {
+        "name": "EAST PATEL NAGAR",
+        "number": 86,
+        "councillor": "SHELLY OBEROI",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "PATEL NAGAR",
+        "name": "Pravesh Ratn",
+        "party": "AAP"
+      },
+      "mp": {
+        "constituency": "New Delhi",
+        "name": "BANSURI SWARAJ",
+        "party": "BJP"
+      }
+    },
+    "RANJEET NAGAR": {
+      "ward": {
+        "name": "RANJEET NAGAR",
+        "number": 87,
+        "councillor": "ANKUSH NARANG",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "PATEL NAGAR",
+        "name": "Pravesh Ratn",
+        "party": "AAP"
+      },
+      "mp": {
+        "constituency": "New Delhi",
+        "name": "BANSURI SWARAJ",
+        "party": "BJP"
+      }
+    },
+    "BALJEET NAGAR": {
+      "ward": {
+        "name": "BALJEET NAGAR",
+        "number": 88,
+        "councillor": "RUNAKSHI SHARMA",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "PATEL NAGAR",
+        "name": "Pravesh Ratn",
+        "party": "AAP"
+      },
+      "mp": {
+        "constituency": "New Delhi",
+        "name": "BANSURI SWARAJ",
+        "party": "BJP"
+      }
+    },
+    "KARAM PURA": {
+      "ward": {
+        "name": "KARAM PURA",
+        "number": 89,
+        "councillor": "RAKESH JOSHI",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "MOTI NAGAR",
+        "name": "Harish Khurana",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "New Delhi",
+        "name": "BANSURI SWARAJ",
+        "party": "BJP"
+      }
+    },
+    "MOTI NAGAR": {
+      "ward": {
+        "name": "MOTI NAGAR",
+        "number": 90,
+        "councillor": "ALKA DHINGRA",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "MOTI NAGAR",
+        "name": "Harish Khurana",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "New Delhi",
+        "name": "BANSURI SWARAJ",
+        "party": "BJP"
+      }
+    },
+    "RAMESH NAGAR": {
+      "ward": {
+        "name": "RAMESH NAGAR",
+        "number": 91,
+        "councillor": "PUNEET RAI",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "MOTI NAGAR",
+        "name": "Harish Khurana",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "New Delhi",
+        "name": "BANSURI SWARAJ",
+        "party": "BJP"
+      }
+    },
+    "PUNJABI BAGH": {
+      "ward": {
+        "name": "PUNJABI BAGH",
+        "number": 92,
+        "councillor": "SUMAN TYAGI",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "MADIPUR",
+        "name": "Kailash Gangwal",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "West Delhi",
+        "name": "KAMALJEET SEHRAWAT",
+        "party": "BJP"
+      }
+    },
+    "MADIPUR": {
+      "ward": {
+        "name": "MADIPUR",
+        "number": 93,
+        "councillor": "SAHIL GANGWAL",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "MADIPUR",
+        "name": "Kailash Gangwal",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "West Delhi",
+        "name": "KAMALJEET SEHRAWAT",
+        "party": "BJP"
+      }
+    },
+    "RAGHUBIR NAGAR": {
+      "ward": {
+        "name": "RAGHUBIR NAGAR",
+        "number": 94,
+        "councillor": "URMILA GANGWAL",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "MADIPUR",
+        "name": "Kailash Gangwal",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "West Delhi",
+        "name": "KAMALJEET SEHRAWAT",
+        "party": "BJP"
+      }
+    },
+    "VISHNU GARDEN": {
+      "ward": {
+        "name": "VISHNU GARDEN",
+        "number": 95,
+        "councillor": "MEENAKSHI CHANDELA",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "RAJOURI GARDEN",
+        "name": "Manjinder Singh Sirsa",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "West Delhi",
+        "name": "KAMALJEET SEHRAWAT",
+        "party": "BJP"
+      }
+    },
+    "RAJOURI GARDEN": {
+      "ward": {
+        "name": "RAJOURI GARDEN",
+        "number": 96,
+        "councillor": "SHASHI TALWAR",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "RAJOURI GARDEN",
+        "name": "Manjinder Singh Sirsa",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "West Delhi",
+        "name": "KAMALJEET SEHRAWAT",
+        "party": "BJP"
+      }
+    },
+    "CHAUKHANDI NAGAR": {
+      "ward": {
+        "name": "CHAUKHANDI NAGAR",
+        "number": 97,
+        "councillor": "SUNIL KUMAR CHADHA",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "RAJOURI GARDEN",
+        "name": "Manjinder Singh Sirsa",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "West Delhi",
+        "name": "KAMALJEET SEHRAWAT",
+        "party": "BJP"
+      }
+    },
+    "SUBHASH NAGAR": {
+      "ward": {
+        "name": "SUBHASH NAGAR",
+        "number": 98,
+        "councillor": "MANJU SETIA",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "HARI NAGAR",
+        "name": "Shyam Sharma",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "West Delhi",
+        "name": "KAMALJEET SEHRAWAT",
+        "party": "BJP"
+      }
+    },
+    "HARI NAGAR": {
+      "ward": {
+        "name": "HARI NAGAR",
+        "number": 99,
+        "councillor": "RAJESH KUMAR LADI",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "HARI NAGAR",
+        "name": "Shyam Sharma",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "West Delhi",
+        "name": "KAMALJEET SEHRAWAT",
+        "party": "BJP"
+      }
+    },
+    "FATEH NAGAR": {
+      "ward": {
+        "name": "FATEH NAGAR",
+        "number": 100,
+        "councillor": "RAMINDER KAUR",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "HARI NAGAR",
+        "name": "Shyam Sharma",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "West Delhi",
+        "name": "KAMALJEET SEHRAWAT",
+        "party": "BJP"
+      }
+    },
+    "TILAK NAGAR": {
+      "ward": {
+        "name": "TILAK NAGAR",
+        "number": 101,
+        "councillor": "ASHOK KUMAR MAANU",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "TILAK NAGAR",
+        "name": "Jarnail Singh",
+        "party": "AAP"
+      },
+      "mp": {
+        "constituency": "West Delhi",
+        "name": "KAMALJEET SEHRAWAT",
+        "party": "BJP"
+      }
+    },
+    "KHYALA": {
+      "ward": {
+        "name": "KHYALA",
+        "number": 102,
+        "councillor": "SHILPA KAUR",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "TILAK NAGAR",
+        "name": "Jarnail Singh",
+        "party": "AAP"
+      },
+      "mp": {
+        "constituency": "West Delhi",
+        "name": "KAMALJEET SEHRAWAT",
+        "party": "BJP"
+      }
+    },
+    "KESHOPUR": {
+      "ward": {
+        "name": "KESHOPUR",
+        "number": 103,
+        "councillor": "HARISH OBEROI",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "TILAK NAGAR",
+        "name": "Jarnail Singh",
+        "party": "AAP"
+      },
+      "mp": {
+        "constituency": "West Delhi",
+        "name": "KAMALJEET SEHRAWAT",
+        "party": "BJP"
+      }
+    },
+    "JANAK PURI SOUTH": {
+      "ward": {
+        "name": "JANAK PURI SOUTH",
+        "number": 104,
+        "councillor": "DIMPLE AHUJA",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "JANAKPURI",
+        "name": "Ashish Sood",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "West Delhi",
+        "name": "KAMALJEET SEHRAWAT",
+        "party": "BJP"
+      }
+    },
+    "MAHAVEER ENCLAVE": {
+      "ward": {
+        "name": "MAHAVEER ENCLAVE",
+        "number": 105,
+        "councillor": "PARVEEN KUMAR",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "JANAKPURI",
+        "name": "Ashish Sood",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "West Delhi",
+        "name": "KAMALJEET SEHRAWAT",
+        "party": "BJP"
+      }
+    },
+    "JANAK PURI WEST": {
+      "ward": {
+        "name": "JANAK PURI WEST",
+        "number": 106,
+        "councillor": "URMILA CHAWLA",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "JANAKPURI",
+        "name": "Ashish Sood",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "West Delhi",
+        "name": "KAMALJEET SEHRAWAT",
+        "party": "BJP"
+      }
+    },
+    "VIKAS PURI": {
+      "ward": {
+        "name": "VIKAS PURI",
+        "number": 107,
+        "councillor": "SAHIB KUMAR",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "VIKASPURI",
+        "name": "Pankaj Kumar Singh",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "West Delhi",
+        "name": "KAMALJEET SEHRAWAT",
+        "party": "BJP"
+      }
+    },
+    "HASTSAL": {
+      "ward": {
+        "name": "HASTSAL",
+        "number": 108,
+        "councillor": "RAKHI YADAV",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "VIKASPURI",
+        "name": "Pankaj Kumar Singh",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "West Delhi",
+        "name": "KAMALJEET SEHRAWAT",
+        "party": "BJP"
+      }
+    },
+    "VIKAS NAGAR": {
+      "ward": {
+        "name": "VIKAS NAGAR",
+        "number": 109,
+        "councillor": "ASHOK PANDEY",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "VIKASPURI",
+        "name": "Pankaj Kumar Singh",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "West Delhi",
+        "name": "KAMALJEET SEHRAWAT",
+        "party": "BJP"
+      }
+    },
+    "KUNWAR SINGH NAGAR": {
+      "ward": {
+        "name": "KUNWAR SINGH NAGAR",
+        "number": 110,
+        "councillor": "RAJ BALA",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "VIKASPURI",
+        "name": "Pankaj Kumar Singh",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "West Delhi",
+        "name": "KAMALJEET SEHRAWAT",
+        "party": "BJP"
+      }
+    },
+    "BAPROLA": {
+      "ward": {
+        "name": "BAPROLA",
+        "number": 111,
+        "councillor": "RAVINDER",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "VIKASPURI",
+        "name": "Pankaj Kumar Singh",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "West Delhi",
+        "name": "KAMALJEET SEHRAWAT",
+        "party": "BJP"
+      }
+    },
+    "SAINIK ENCLAVE": {
+      "ward": {
+        "name": "SAINIK ENCLAVE",
+        "number": 112,
+        "councillor": "NIRMALA KUMARI",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "VIKASPURI",
+        "name": "Pankaj Kumar Singh",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "West Delhi",
+        "name": "KAMALJEET SEHRAWAT",
+        "party": "BJP"
+      }
+    },
+    "MOHAN GARDEN": {
+      "ward": {
+        "name": "MOHAN GARDEN",
+        "number": 113,
+        "councillor": "SURENDER KAUSHIK",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "UTTAM NAGAR",
+        "name": "Pawan Sharma",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "West Delhi",
+        "name": "KAMALJEET SEHRAWAT",
+        "party": "BJP"
+      }
+    },
+    "NAWADA": {
+      "ward": {
+        "name": "NAWADA",
+        "number": 114,
+        "councillor": "NIRMLA DEVI",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "UTTAM NAGAR",
+        "name": "Pawan Sharma",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "West Delhi",
+        "name": "KAMALJEET SEHRAWAT",
+        "party": "BJP"
+      }
+    },
+    "UTTAM NAGAR": {
+      "ward": {
+        "name": "UTTAM NAGAR",
+        "number": 115,
+        "councillor": "DEEPAK VOHRA",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "UTTAM NAGAR",
+        "name": "Pawan Sharma",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "West Delhi",
+        "name": "KAMALJEET SEHRAWAT",
+        "party": "BJP"
+      }
+    },
+    "BINDA PUR": {
+      "ward": {
+        "name": "BINDA PUR",
+        "number": 116,
+        "councillor": "KRISHNA DEVI RAGHAV",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "UTTAM NAGAR",
+        "name": "Pawan Sharma",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "West Delhi",
+        "name": "KAMALJEET SEHRAWAT",
+        "party": "BJP"
+      }
+    },
+    "DABRI": {
+      "ward": {
+        "name": "DABRI",
+        "number": 117,
+        "councillor": "TILOTMA CHOUDHARY",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "DWARKA",
+        "name": "Pradyuman Rajput",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "West Delhi",
+        "name": "KAMALJEET SEHRAWAT",
+        "party": "BJP"
+      }
+    },
+    "SAGARPUR": {
+      "ward": {
+        "name": "SAGARPUR",
+        "number": 118,
+        "councillor": "SIMMI YADAV",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "DWARKA",
+        "name": "Pradyuman Rajput",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "West Delhi",
+        "name": "KAMALJEET SEHRAWAT",
+        "party": "BJP"
+      }
+    },
+    "MANGLAPURI": {
+      "ward": {
+        "name": "MANGLAPURI",
+        "number": 119,
+        "councillor": "NARENDER KUMAR",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "DWARKA",
+        "name": "Pradyuman Rajput",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "West Delhi",
+        "name": "KAMALJEET SEHRAWAT",
+        "party": "BJP"
+      }
+    },
+    "DWARKA-B": {
+      "ward": {
+        "name": "DWARKA-B",
+        "number": 120,
+        "councillor": "KAMALJEET SEHRAWAT",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "MATIALA",
+        "name": "Sandeep Sehrawat",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "West Delhi",
+        "name": "KAMALJEET SEHRAWAT",
+        "party": "BJP"
+      }
+    },
+    "DWARKA-A": {
+      "ward": {
+        "name": "DWARKA-A",
+        "number": 121,
+        "councillor": "RAM NIWAS",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "MATIALA",
+        "name": "Sandeep Sehrawat",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "West Delhi",
+        "name": "KAMALJEET SEHRAWAT",
+        "party": "BJP"
+      }
+    },
+    "MATIALA": {
+      "ward": {
+        "name": "MATIALA",
+        "number": 122,
+        "councillor": "ANURADHA SHARMA",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "MATIALA",
+        "name": "Sandeep Sehrawat",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "West Delhi",
+        "name": "KAMALJEET SEHRAWAT",
+        "party": "BJP"
+      }
+    },
+    "KAKROLA": {
+      "ward": {
+        "name": "KAKROLA",
+        "number": 123,
+        "councillor": "SUDESH KUMAR",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "MATIALA",
+        "name": "Sandeep Sehrawat",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "West Delhi",
+        "name": "KAMALJEET SEHRAWAT",
+        "party": "BJP"
+      }
+    },
+    "NANGLI SAKRAWATI": {
+      "ward": {
+        "name": "NANGLI SAKRAWATI",
+        "number": 124,
+        "councillor": "SAVITA",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "MATIALA",
+        "name": "Sandeep Sehrawat",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "West Delhi",
+        "name": "KAMALJEET SEHRAWAT",
+        "party": "BJP"
+      }
+    },
+    "CHHAWALA": {
+      "ward": {
+        "name": "CHHAWALA",
+        "number": 125,
+        "councillor": "SHASHI YADAV",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "MATIALA",
+        "name": "Sandeep Sehrawat",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "West Delhi",
+        "name": "KAMALJEET SEHRAWAT",
+        "party": "BJP"
+      }
+    },
+    "ISAPUR": {
+      "ward": {
+        "name": "ISAPUR",
+        "number": 126,
+        "councillor": "MEENA DEVI",
+        "party": "INDEPENDENT"
+      },
+      "mla": {
+        "constituency": "NAJAFGARH",
+        "name": "Neelam Pahalwan",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "West Delhi",
+        "name": "KAMALJEET SEHRAWAT",
+        "party": "BJP"
+      }
+    },
+    "NAJAFGARH": {
+      "ward": {
+        "name": "NAJAFGARH",
+        "number": 127,
+        "councillor": "AMIT KHARKHARI",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "NAJAFGARH",
+        "name": "Neelam Pahalwan",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "West Delhi",
+        "name": "KAMALJEET SEHRAWAT",
+        "party": "BJP"
+      }
+    },
+    "DICHAON KALAN": {
+      "ward": {
+        "name": "DICHAON KALAN",
+        "number": 128,
+        "councillor": "NEELAM",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "NAJAFGARH",
+        "name": "Neelam Pahalwan",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "West Delhi",
+        "name": "KAMALJEET SEHRAWAT",
+        "party": "BJP"
+      }
+    },
+    "ROSHAN PURA": {
+      "ward": {
+        "name": "ROSHAN PURA",
+        "number": 129,
+        "councillor": "DEVENDER",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "NAJAFGARH",
+        "name": "Neelam Pahalwan",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "West Delhi",
+        "name": "KAMALJEET SEHRAWAT",
+        "party": "BJP"
+      }
+    },
+    "DWARKA-C": {
+      "ward": {
+        "name": "DWARKA-C",
+        "number": 130,
+        "councillor": "SUNITA",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "BIJWASAN",
+        "name": "Kailash Gahlot",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "South Delhi",
+        "name": "RAMVIR SINGH BIDHURI",
+        "party": "BJP"
+      }
+    },
+    "BIJWASAN": {
+      "ward": {
+        "name": "BIJWASAN",
+        "number": 131,
+        "councillor": "JAIVIR SINGH RANA",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "BIJWASAN",
+        "name": "Kailash Gahlot",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "South Delhi",
+        "name": "RAMVIR SINGH BIDHURI",
+        "party": "BJP"
+      }
+    },
+    "KAPASHERA": {
+      "ward": {
+        "name": "KAPASHERA",
+        "number": 132,
+        "councillor": "AARTI YADAV",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "BIJWASAN",
+        "name": "Kailash Gahlot",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "South Delhi",
+        "name": "RAMVIR SINGH BIDHURI",
+        "party": "BJP"
+      }
+    },
+    "MAHIPALPUR": {
+      "ward": {
+        "name": "MAHIPALPUR",
+        "number": 133,
+        "councillor": "INDERJEET SEHRAWAT",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "BIJWASAN",
+        "name": "Kailash Gahlot",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "South Delhi",
+        "name": "RAMVIR SINGH BIDHURI",
+        "party": "BJP"
+      }
+    },
+    "RAJ NAGAR": {
+      "ward": {
+        "name": "RAJ NAGAR",
+        "number": 134,
+        "councillor": "POONAM BHARDWAJ",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "BIJWASAN",
+        "name": "Kailash Gahlot",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "South Delhi",
+        "name": "RAMVIR SINGH BIDHURI",
+        "party": "BJP"
+      }
+    },
+    "PALAM": {
+      "ward": {
+        "name": "PALAM",
+        "number": 135,
+        "councillor": "SEEMA PANDIT",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "PALAM",
+        "name": "Kuldeep Solanki",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "South Delhi",
+        "name": "RAMVIR SINGH BIDHURI",
+        "party": "BJP"
+      }
+    },
+    "MADHU VIHAR": {
+      "ward": {
+        "name": "MADHU VIHAR",
+        "number": 136,
+        "councillor": "SUSHMA RATHEE",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "PALAM",
+        "name": "Kuldeep Solanki",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "South Delhi",
+        "name": "RAMVIR SINGH BIDHURI",
+        "party": "BJP"
+      }
+    },
+    "SADH NAGAR": {
+      "ward": {
+        "name": "SADH NAGAR",
+        "number": 138,
+        "councillor": "INDER KAUR",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "PALAM",
+        "name": "Kuldeep Solanki",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "South Delhi",
+        "name": "RAMVIR SINGH BIDHURI",
+        "party": "BJP"
+      }
+    },
+    "NARAINA": {
+      "ward": {
+        "name": "NARAINA",
+        "number": 139,
+        "councillor": "UMANG BAJAJ",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "RAJINDER NAGAR",
+        "name": "Umang Bajaj",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "New Delhi",
+        "name": "BANSURI SWARAJ",
+        "party": "BJP"
+      }
+    },
+    "INDER PURI": {
+      "ward": {
+        "name": "INDER PURI",
+        "number": 140,
+        "councillor": "JYOTI GAUTAM",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "RAJINDER NAGAR",
+        "name": "Umang Bajaj",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "New Delhi",
+        "name": "BANSURI SWARAJ",
+        "party": "BJP"
+      }
+    },
+    "RAJINDER NAGAR": {
+      "ward": {
+        "name": "RAJINDER NAGAR",
+        "number": 141,
+        "councillor": "ARTI CHAWLA",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "RAJINDER NAGAR",
+        "name": "Umang Bajaj",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "New Delhi",
+        "name": "BANSURI SWARAJ",
+        "party": "BJP"
+      }
+    },
+    "DARYAGANJ": {
+      "ward": {
+        "name": "DARYAGANJ",
+        "number": 142,
+        "councillor": "SARIKA CHAUDHARY",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "JANGPURA",
+        "name": "Tarvinder Singh Marwah",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "East Delhi",
+        "name": "HARSH MALHOTRA",
+        "party": "BJP"
+      }
+    },
+    "SIDHARTHA NAGAR": {
+      "ward": {
+        "name": "SIDHARTHA NAGAR",
+        "number": 143,
+        "councillor": "SONALI",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "JANGPURA",
+        "name": "Tarvinder Singh Marwah",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "East Delhi",
+        "name": "HARSH MALHOTRA",
+        "party": "BJP"
+      }
+    },
+    "LAJPAT NAGAR": {
+      "ward": {
+        "name": "LAJPAT NAGAR",
+        "number": 144,
+        "councillor": "ARJUN PAL SINGH MARWAH",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "JANGPURA",
+        "name": "Tarvinder Singh Marwah",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "East Delhi",
+        "name": "HARSH MALHOTRA",
+        "party": "BJP"
+      }
+    },
+    "ANDREWS GANJ": {
+      "ward": {
+        "name": "ANDREWS GANJ",
+        "number": 145,
+        "councillor": "ANITA BAISOYA",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "KASTURBA NAGAR",
+        "name": "Neeraj Basoya",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "New Delhi",
+        "name": "BANSURI SWARAJ",
+        "party": "BJP"
+      }
+    },
+    "AMAR COLONY": {
+      "ward": {
+        "name": "AMAR COLONY",
+        "number": 146,
+        "councillor": "SHARAD KAPOOR",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "KASTURBA NAGAR",
+        "name": "Neeraj Basoya",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "New Delhi",
+        "name": "BANSURI SWARAJ",
+        "party": "BJP"
+      }
+    },
+    "KOTLA MUBARAKPUR": {
+      "ward": {
+        "name": "KOTLA MUBARAKPUR",
+        "number": 147,
+        "councillor": "KUSUM LATA",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "KASTURBA NAGAR",
+        "name": "Neeraj Basoya",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "New Delhi",
+        "name": "BANSURI SWARAJ",
+        "party": "BJP"
+      }
+    },
+    "HAUZ KHAS": {
+      "ward": {
+        "name": "HAUZ KHAS",
+        "number": 148,
+        "councillor": "KAMAL BHARDWAJ",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "MALVIYA NAGAR",
+        "name": "Satish Upadhyay",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "New Delhi",
+        "name": "BANSURI SWARAJ",
+        "party": "BJP"
+      }
+    },
+    "MALVIYA NAGAR": {
+      "ward": {
+        "name": "MALVIYA NAGAR",
+        "number": 149,
+        "councillor": "LEENA KUMAR",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "MALVIYA NAGAR",
+        "name": "Satish Upadhyay",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "New Delhi",
+        "name": "BANSURI SWARAJ",
+        "party": "BJP"
+      }
+    },
+    "GREEN PARK": {
+      "ward": {
+        "name": "GREEN PARK",
+        "number": 150,
+        "councillor": "SARITA PHOGAAT",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "MALVIYA NAGAR",
+        "name": "Satish Upadhyay",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "New Delhi",
+        "name": "BANSURI SWARAJ",
+        "party": "BJP"
+      }
+    },
+    "MUNIRKA": {
+      "ward": {
+        "name": "MUNIRKA",
+        "number": 151,
+        "councillor": "RAJ BALA TOKAS",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "R K PURAM",
+        "name": "Anil Kumar Sharma",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "New Delhi",
+        "name": "BANSURI SWARAJ",
+        "party": "BJP"
+      }
+    },
+    "R.K. PURAM": {
+      "ward": {
+        "name": "R.K. PURAM",
+        "number": 152,
+        "councillor": "DHARAMVIR SINGH",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "R K PURAM",
+        "name": "Anil Kumar Sharma",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "New Delhi",
+        "name": "BANSURI SWARAJ",
+        "party": "BJP"
+      }
+    },
+    "VASANT VIHAR": {
+      "ward": {
+        "name": "VASANT VIHAR",
+        "number": 153,
+        "councillor": "HIMANI JAIN",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "R K PURAM",
+        "name": "Anil Kumar Sharma",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "New Delhi",
+        "name": "BANSURI SWARAJ",
+        "party": "BJP"
+      }
+    },
+    "LADO SARAI": {
+      "ward": {
+        "name": "LADO SARAI",
+        "number": 154,
+        "councillor": "RAJEEV SANSANWAL",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "MEHRAULI",
+        "name": "Gajender Yadav",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "South Delhi",
+        "name": "RAMVIR SINGH BIDHURI",
+        "party": "BJP"
+      }
+    },
+    "MEHRAULI": {
+      "ward": {
+        "name": "MEHRAULI",
+        "number": 155,
+        "councillor": "REKHA MAHENDER CHAUDHARY",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "MEHRAULI",
+        "name": "Gajender Yadav",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "South Delhi",
+        "name": "RAMVIR SINGH BIDHURI",
+        "party": "BJP"
+      }
+    },
+    "VASANT KUNJ": {
+      "ward": {
+        "name": "VASANT KUNJ",
+        "number": 156,
+        "councillor": "JAGMOHAN MEHLAWAT",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "MEHRAULI",
+        "name": "Gajender Yadav",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "South Delhi",
+        "name": "RAMVIR SINGH BIDHURI",
+        "party": "BJP"
+      }
+    },
+    "AYA NAGAR": {
+      "ward": {
+        "name": "AYA NAGAR",
+        "number": 157,
+        "councillor": "VED PAL SHEETAL CHAUDHARY",
+        "party": "INDIAN NATIONAL CONGRESS"
+      },
+      "mla": {
+        "constituency": "CHHATARPUR",
+        "name": "Kartar Singh Tanwar",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "South Delhi",
+        "name": "RAMVIR SINGH BIDHURI",
+        "party": "BJP"
+      }
+    },
+    "BHATI": {
+      "ward": {
+        "name": "BHATI",
+        "number": 158,
+        "councillor": "SUNDER SINGH",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "CHHATARPUR",
+        "name": "Kartar Singh Tanwar",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "South Delhi",
+        "name": "RAMVIR SINGH BIDHURI",
+        "party": "BJP"
+      }
+    },
+    "CHHATARPUR": {
+      "ward": {
+        "name": "CHHATARPUR",
+        "number": 159,
+        "councillor": "PINKY TYAGI",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "CHHATARPUR",
+        "name": "Kartar Singh Tanwar",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "South Delhi",
+        "name": "RAMVIR SINGH BIDHURI",
+        "party": "BJP"
+      }
+    },
+    "SAID-UL-AJAIB": {
+      "ward": {
+        "name": "SAID-UL-AJAIB",
+        "number": 160,
+        "councillor": "UMED SINGH",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "CHHATARPUR",
+        "name": "Kartar Singh Tanwar",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "South Delhi",
+        "name": "RAMVIR SINGH BIDHURI",
+        "party": "BJP"
+      }
+    },
+    "DEOLI": {
+      "ward": {
+        "name": "DEOLI",
+        "number": 161,
+        "councillor": "ANITA",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "DEOLI",
+        "name": "Prem Chauhan",
+        "party": "AAP"
+      },
+      "mp": {
+        "constituency": "South Delhi",
+        "name": "RAMVIR SINGH BIDHURI",
+        "party": "BJP"
+      }
+    },
+    "TIGRI": {
+      "ward": {
+        "name": "TIGRI",
+        "number": 162,
+        "councillor": "JYOTI PRAKASH JARWAL",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "DEOLI",
+        "name": "Prem Chauhan",
+        "party": "AAP"
+      },
+      "mp": {
+        "constituency": "South Delhi",
+        "name": "RAMVIR SINGH BIDHURI",
+        "party": "BJP"
+      }
+    },
+    "SANGAM VIHAR-A": {
+      "ward": {
+        "name": "SANGAM VIHAR-A",
+        "number": 163,
+        "councillor": "CHANDAN KUMAR CHOUDHARY",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "DEOLI",
+        "name": "Prem Chauhan",
+        "party": "AAP"
+      },
+      "mp": {
+        "constituency": "South Delhi",
+        "name": "RAMVIR SINGH BIDHURI",
+        "party": "BJP"
+      }
+    },
+    "DAKSHIN PURI": {
+      "ward": {
+        "name": "DAKSHIN PURI",
+        "number": 164,
+        "councillor": "PREM CHAUHAN",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "DEOLI",
+        "name": "Prem Chauhan",
+        "party": "AAP"
+      },
+      "mp": {
+        "constituency": "South Delhi",
+        "name": "RAMVIR SINGH BIDHURI",
+        "party": "BJP"
+      }
+    },
+    "MADANGIR": {
+      "ward": {
+        "name": "MADANGIR",
+        "number": 165,
+        "councillor": "GEETA",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "AMBEDKAR NAGAR",
+        "name": "Ajay Dutt",
+        "party": "AAP"
+      },
+      "mp": {
+        "constituency": "South Delhi",
+        "name": "RAMVIR SINGH BIDHURI",
+        "party": "BJP"
+      }
+    },
+    "PUSHP VIHAR": {
+      "ward": {
+        "name": "PUSHP VIHAR",
+        "number": 166,
+        "councillor": "ARUN NAVARIYA",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "AMBEDKAR NAGAR",
+        "name": "Ajay Dutt",
+        "party": "AAP"
+      },
+      "mp": {
+        "constituency": "South Delhi",
+        "name": "RAMVIR SINGH BIDHURI",
+        "party": "BJP"
+      }
+    },
+    "KHANPUR": {
+      "ward": {
+        "name": "KHANPUR",
+        "number": 167,
+        "councillor": "MAMTA YADAV",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "AMBEDKAR NAGAR",
+        "name": "Ajay Dutt",
+        "party": "AAP"
+      },
+      "mp": {
+        "constituency": "South Delhi",
+        "name": "RAMVIR SINGH BIDHURI",
+        "party": "BJP"
+      }
+    },
+    "SANGAM VIHAR-C": {
+      "ward": {
+        "name": "SANGAM VIHAR-C",
+        "number": 168,
+        "councillor": "PANKAJ GUPTA",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "SANGAM VIHAR",
+        "name": "Chandan Kumar Choudhary",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "South Delhi",
+        "name": "RAMVIR SINGH BIDHURI",
+        "party": "BJP"
+      }
+    },
+    "SANGAM VIHAR-B": {
+      "ward": {
+        "name": "SANGAM VIHAR-B",
+        "number": 169,
+        "councillor": "KAJAL SINGH",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "SANGAM VIHAR",
+        "name": "Chandan Kumar Choudhary",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "South Delhi",
+        "name": "RAMVIR SINGH BIDHURI",
+        "party": "BJP"
+      }
+    },
+    "TUGHLAKABAD EXTENSION": {
+      "ward": {
+        "name": "TUGHLAKABAD EXTENSION",
+        "number": 170,
+        "councillor": "BHAGBIR",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "SANGAM VIHAR",
+        "name": "Chandan Kumar Choudhary",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "South Delhi",
+        "name": "RAMVIR SINGH BIDHURI",
+        "party": "BJP"
+      }
+    },
+    "CHITARANJAN PARK": {
+      "ward": {
+        "name": "CHITARANJAN PARK",
+        "number": 171,
+        "councillor": "ASHU THAKUR",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "GREATER KAILASH",
+        "name": "Shikha Roy",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "New Delhi",
+        "name": "BANSURI SWARAJ",
+        "party": "BJP"
+      }
+    },
+    "CHIRAG DELHI": {
+      "ward": {
+        "name": "CHIRAG DELHI",
+        "number": 172,
+        "councillor": "KRISHAN JAKHAR",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "GREATER KAILASH",
+        "name": "Shikha Roy",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "New Delhi",
+        "name": "BANSURI SWARAJ",
+        "party": "BJP"
+      }
+    },
+    "GREATER KAILASH": {
+      "ward": {
+        "name": "GREATER KAILASH",
+        "number": 173,
+        "councillor": "SHIKHA ROY",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "GREATER KAILASH",
+        "name": "Shikha Roy",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "New Delhi",
+        "name": "BANSURI SWARAJ",
+        "party": "BJP"
+      }
+    },
+    "SRI NIWAS PURI": {
+      "ward": {
+        "name": "SRI NIWAS PURI",
+        "number": 174,
+        "councillor": "RAJPAL SINGH",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "KALKAJI",
+        "name": "Atishi Marlena",
+        "party": "AAP"
+      },
+      "mp": {
+        "constituency": "South Delhi",
+        "name": "RAMVIR SINGH BIDHURI",
+        "party": "BJP"
+      }
+    },
+    "KALKAJI": {
+      "ward": {
+        "name": "KALKAJI",
+        "number": 175,
+        "councillor": "YOGITA SINGH",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "KALKAJI",
+        "name": "Atishi Marlena",
+        "party": "AAP"
+      },
+      "mp": {
+        "constituency": "South Delhi",
+        "name": "RAMVIR SINGH BIDHURI",
+        "party": "BJP"
+      }
+    },
+    "GOVIND PURI": {
+      "ward": {
+        "name": "GOVIND PURI",
+        "number": 176,
+        "councillor": "CHANDER PRAKASH",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "KALKAJI",
+        "name": "Atishi Marlena",
+        "party": "AAP"
+      },
+      "mp": {
+        "constituency": "South Delhi",
+        "name": "RAMVIR SINGH BIDHURI",
+        "party": "BJP"
+      }
+    },
+    "HARKESH NAGAR": {
+      "ward": {
+        "name": "HARKESH NAGAR",
+        "number": 177,
+        "councillor": "MAMTA",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "TUGHLAKABAD",
+        "name": "Sahi Ram",
+        "party": "AAP"
+      },
+      "mp": {
+        "constituency": "South Delhi",
+        "name": "RAMVIR SINGH BIDHURI",
+        "party": "BJP"
+      }
+    },
+    "TUGHLAKABAD": {
+      "ward": {
+        "name": "TUGHLAKABAD",
+        "number": 178,
+        "councillor": "SUGANDHA",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "TUGHLAKABAD",
+        "name": "Sahi Ram",
+        "party": "AAP"
+      },
+      "mp": {
+        "constituency": "South Delhi",
+        "name": "RAMVIR SINGH BIDHURI",
+        "party": "BJP"
+      }
+    },
+    "PUL PEHLADPUR": {
+      "ward": {
+        "name": "PUL PEHLADPUR",
+        "number": 179,
+        "councillor": "RAKESH LOHIA",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "TUGHLAKABAD",
+        "name": "Sahi Ram",
+        "party": "AAP"
+      },
+      "mp": {
+        "constituency": "South Delhi",
+        "name": "RAMVIR SINGH BIDHURI",
+        "party": "BJP"
+      }
+    },
+    "BADARPUR": {
+      "ward": {
+        "name": "BADARPUR",
+        "number": 180,
+        "councillor": "MANJU DEVI",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "BADARPUR",
+        "name": "Ram Singh Netaji",
+        "party": "AAP"
+      },
+      "mp": {
+        "constituency": "South Delhi",
+        "name": "RAMVIR SINGH BIDHURI",
+        "party": "BJP"
+      }
+    },
+    "MOLARBAND": {
+      "ward": {
+        "name": "MOLARBAND",
+        "number": 181,
+        "councillor": "HEMCHAND GOEL",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "BADARPUR",
+        "name": "Ram Singh Netaji",
+        "party": "AAP"
+      },
+      "mp": {
+        "constituency": "South Delhi",
+        "name": "RAMVIR SINGH BIDHURI",
+        "party": "BJP"
+      }
+    },
+    "MEETHAPUR": {
+      "ward": {
+        "name": "MEETHAPUR",
+        "number": 182,
+        "councillor": "GUDDI DEVI",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "BADARPUR",
+        "name": "Ram Singh Netaji",
+        "party": "AAP"
+      },
+      "mp": {
+        "constituency": "South Delhi",
+        "name": "RAMVIR SINGH BIDHURI",
+        "party": "BJP"
+      }
+    },
+    "HARI NAGAR EXTENSION": {
+      "ward": {
+        "name": "HARI NAGAR EXTENSION",
+        "number": 183,
+        "councillor": "NIKHIL CHAPRANA",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "BADARPUR",
+        "name": "Ram Singh Netaji",
+        "party": "AAP"
+      },
+      "mp": {
+        "constituency": "South Delhi",
+        "name": "RAMVIR SINGH BIDHURI",
+        "party": "BJP"
+      }
+    },
+    "JAITPUR": {
+      "ward": {
+        "name": "JAITPUR",
+        "number": 184,
+        "councillor": "HEMA",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "BADARPUR",
+        "name": "Ram Singh Netaji",
+        "party": "AAP"
+      },
+      "mp": {
+        "constituency": "South Delhi",
+        "name": "RAMVIR SINGH BIDHURI",
+        "party": "BJP"
+      }
+    },
+    "MADANPUR KHADAR EAST": {
+      "ward": {
+        "name": "MADANPUR KHADAR EAST",
+        "number": 185,
+        "councillor": "PRAVEEN KUMAR",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "OKHLA",
+        "name": "Amanatullah Khan",
+        "party": "AAP"
+      },
+      "mp": {
+        "constituency": "East Delhi",
+        "name": "HARSH MALHOTRA",
+        "party": "BJP"
+      }
+    },
+    "MADANPUR KHADAR WEST": {
+      "ward": {
+        "name": "MADANPUR KHADAR WEST",
+        "number": 186,
+        "councillor": "BRAHAM SINGH",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "OKHLA",
+        "name": "Amanatullah Khan",
+        "party": "AAP"
+      },
+      "mp": {
+        "constituency": "East Delhi",
+        "name": "HARSH MALHOTRA",
+        "party": "BJP"
+      }
+    },
+    "SARITA VIHAR": {
+      "ward": {
+        "name": "SARITA VIHAR",
+        "number": 187,
+        "councillor": "NEETU",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "OKHLA",
+        "name": "Amanatullah Khan",
+        "party": "AAP"
+      },
+      "mp": {
+        "constituency": "East Delhi",
+        "name": "HARSH MALHOTRA",
+        "party": "BJP"
+      }
+    },
+    "ABUL FAZAL ENCLAVE": {
+      "ward": {
+        "name": "ABUL FAZAL ENCLAVE",
+        "number": 188,
+        "councillor": "ARIBA KHAN",
+        "party": "INDIAN NATIONAL CONGRESS"
+      },
+      "mla": {
+        "constituency": "OKHLA",
+        "name": "Amanatullah Khan",
+        "party": "AAP"
+      },
+      "mp": {
+        "constituency": "East Delhi",
+        "name": "HARSH MALHOTRA",
+        "party": "BJP"
+      }
+    },
+    "ZAKIR NAGAR": {
+      "ward": {
+        "name": "ZAKIR NAGAR",
+        "number": 189,
+        "councillor": "NAZIYA DANISH",
+        "party": "INDIAN NATIONAL CONGRESS"
+      },
+      "mla": {
+        "constituency": "OKHLA",
+        "name": "Amanatullah Khan",
+        "party": "AAP"
+      },
+      "mp": {
+        "constituency": "East Delhi",
+        "name": "HARSH MALHOTRA",
+        "party": "BJP"
+      }
+    },
+    "NEW ASHOK NAGAR": {
+      "ward": {
+        "name": "NEW ASHOK NAGAR",
+        "number": 190,
+        "councillor": "SANJEEV KUMAR SINGH",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "TRILOKPURI",
+        "name": "Ravikant Ujjain",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "East Delhi",
+        "name": "HARSH MALHOTRA",
+        "party": "BJP"
+      }
+    },
+    "MAYUR VIHAR PHASE-I": {
+      "ward": {
+        "name": "MAYUR VIHAR PHASE-I",
+        "number": 191,
+        "councillor": "BEENA",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "TRILOKPURI",
+        "name": "Ravikant Ujjain",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "East Delhi",
+        "name": "HARSH MALHOTRA",
+        "party": "BJP"
+      }
+    },
+    "TRILOKPURI": {
+      "ward": {
+        "name": "TRILOKPURI",
+        "number": 192,
+        "councillor": "VIJAY KUMAR",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "TRILOKPURI",
+        "name": "Ravikant Ujjain",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "East Delhi",
+        "name": "HARSH MALHOTRA",
+        "party": "BJP"
+      }
+    },
+    "KONDLI": {
+      "ward": {
+        "name": "KONDLI",
+        "number": 193,
+        "councillor": "MUNESH",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "KONDLI",
+        "name": "Kuldeep Kumar",
+        "party": "AAP"
+      },
+      "mp": {
+        "constituency": "East Delhi",
+        "name": "HARSH MALHOTRA",
+        "party": "BJP"
+      }
+    },
+    "GHAROLI": {
+      "ward": {
+        "name": "GHAROLI",
+        "number": 194,
+        "councillor": "PRIYANKA GAUTAM",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "KONDLI",
+        "name": "Kuldeep Kumar",
+        "party": "AAP"
+      },
+      "mp": {
+        "constituency": "East Delhi",
+        "name": "HARSH MALHOTRA",
+        "party": "BJP"
+      }
+    },
+    "KALYANPURI": {
+      "ward": {
+        "name": "KALYANPURI",
+        "number": 195,
+        "councillor": "DHIRENDER KUMAR",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "KONDLI",
+        "name": "Kuldeep Kumar",
+        "party": "AAP"
+      },
+      "mp": {
+        "constituency": "East Delhi",
+        "name": "HARSH MALHOTRA",
+        "party": "BJP"
+      }
+    },
+    "MAYUR VIHAR PHASE-II": {
+      "ward": {
+        "name": "MAYUR VIHAR PHASE-II",
+        "number": 196,
+        "councillor": "DEVENDRA KUMAR",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "PATPARGANJ",
+        "name": "Ravinder Singh Negi",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "East Delhi",
+        "name": "HARSH MALHOTRA",
+        "party": "BJP"
+      }
+    },
+    "PATPAR GANJ": {
+      "ward": {
+        "name": "PATPAR GANJ",
+        "number": 197,
+        "councillor": "RENU CHAUDHARY",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "PATPARGANJ",
+        "name": "Ravinder Singh Negi",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "East Delhi",
+        "name": "HARSH MALHOTRA",
+        "party": "BJP"
+      }
+    },
+    "VINOD NAGAR": {
+      "ward": {
+        "name": "VINOD NAGAR",
+        "number": 198,
+        "councillor": "RAVINDER SINGH NEGI",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "PATPARGANJ",
+        "name": "Ravinder Singh Negi",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "East Delhi",
+        "name": "HARSH MALHOTRA",
+        "party": "BJP"
+      }
+    },
+    "MANDAWALI": {
+      "ward": {
+        "name": "MANDAWALI",
+        "number": 199,
+        "councillor": "SHASHI CHANDNA",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "PATPARGANJ",
+        "name": "Ravinder Singh Negi",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "East Delhi",
+        "name": "HARSH MALHOTRA",
+        "party": "BJP"
+      }
+    },
+    "PANDAV NAGAR": {
+      "ward": {
+        "name": "PANDAV NAGAR",
+        "number": 200,
+        "councillor": "YASHPAL SINGH",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "LAXMI NAGAR",
+        "name": "Abhay Verma",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "East Delhi",
+        "name": "HARSH MALHOTRA",
+        "party": "BJP"
+      }
+    },
+    "LALITA PARK": {
+      "ward": {
+        "name": "LALITA PARK",
+        "number": 201,
+        "councillor": "SHWETA NIGAM",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "LAXMI NAGAR",
+        "name": "Abhay Verma",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "East Delhi",
+        "name": "HARSH MALHOTRA",
+        "party": "BJP"
+      }
+    },
+    "SHAKARPUR": {
+      "ward": {
+        "name": "SHAKARPUR",
+        "number": 202,
+        "councillor": "RAM KISHOR SHARMA",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "LAXMI NAGAR",
+        "name": "Abhay Verma",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "East Delhi",
+        "name": "HARSH MALHOTRA",
+        "party": "BJP"
+      }
+    },
+    "LAXMI NAGAR": {
+      "ward": {
+        "name": "LAXMI NAGAR",
+        "number": 203,
+        "councillor": "ALKA RAGHAV",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "LAXMI NAGAR",
+        "name": "Abhay Verma",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "East Delhi",
+        "name": "HARSH MALHOTRA",
+        "party": "BJP"
+      }
+    },
+    "PREET VIHAR": {
+      "ward": {
+        "name": "PREET VIHAR",
+        "number": 204,
+        "councillor": "RAMESH KUMAR GARG",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "VISHWAS NAGAR",
+        "name": "Om Prakash Sharma",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "East Delhi",
+        "name": "HARSH MALHOTRA",
+        "party": "BJP"
+      }
+    },
+    "I.P. EXTENSION": {
+      "ward": {
+        "name": "I.P. EXTENSION",
+        "number": 205,
+        "councillor": "RACHNA",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "VISHWAS NAGAR",
+        "name": "Om Prakash Sharma",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "East Delhi",
+        "name": "HARSH MALHOTRA",
+        "party": "BJP"
+      }
+    },
+    "ANAND VIHAR": {
+      "ward": {
+        "name": "ANAND VIHAR",
+        "number": 206,
+        "councillor": "MONIKA PANT",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "VISHWAS NAGAR",
+        "name": "Om Prakash Sharma",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "East Delhi",
+        "name": "HARSH MALHOTRA",
+        "party": "BJP"
+      }
+    },
+    "VISHWAS NAGAR": {
+      "ward": {
+        "name": "VISHWAS NAGAR",
+        "number": 207,
+        "councillor": "JYOTI RANI",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "VISHWAS NAGAR",
+        "name": "Om Prakash Sharma",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "East Delhi",
+        "name": "HARSH MALHOTRA",
+        "party": "BJP"
+      }
+    },
+    "ANARKALI": {
+      "ward": {
+        "name": "ANARKALI",
+        "number": 208,
+        "councillor": "MEENAKSHI SHARMA",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "KRISHNA NAGAR",
+        "name": "Anil Goyal",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "East Delhi",
+        "name": "HARSH MALHOTRA",
+        "party": "BJP"
+      }
+    },
+    "JAGAT PURI": {
+      "ward": {
+        "name": "JAGAT PURI",
+        "number": 209,
+        "councillor": "RAJU SACHDEVA",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "KRISHNA NAGAR",
+        "name": "Anil Goyal",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "East Delhi",
+        "name": "HARSH MALHOTRA",
+        "party": "BJP"
+      }
+    },
+    "GEETA COLONY": {
+      "ward": {
+        "name": "GEETA COLONY",
+        "number": 210,
+        "councillor": "NEEMAA BHAGAT",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "KRISHNA NAGAR",
+        "name": "Anil Goyal",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "East Delhi",
+        "name": "HARSH MALHOTRA",
+        "party": "BJP"
+      }
+    },
+    "KRISHNA NAGAR": {
+      "ward": {
+        "name": "KRISHNA NAGAR",
+        "number": 211,
+        "councillor": "SANDEEP KAPOOR",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "KRISHNA NAGAR",
+        "name": "Anil Goyal",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "East Delhi",
+        "name": "HARSH MALHOTRA",
+        "party": "BJP"
+      }
+    },
+    "GANDHI NAGAR": {
+      "ward": {
+        "name": "GANDHI NAGAR",
+        "number": 212,
+        "councillor": "PRIYA KAMBOJ",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "GANDHI NAGAR",
+        "name": "Arvinder Singh Lovely",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "East Delhi",
+        "name": "HARSH MALHOTRA",
+        "party": "BJP"
+      }
+    },
+    "SHASTRI PARK": {
+      "ward": {
+        "name": "SHASTRI PARK",
+        "number": 213,
+        "councillor": "SAMEER AHAMD",
+        "party": "INDIAN NATIONAL CONGRESS"
+      },
+      "mla": {
+        "constituency": "GANDHI NAGAR",
+        "name": "Arvinder Singh Lovely",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "East Delhi",
+        "name": "HARSH MALHOTRA",
+        "party": "BJP"
+      }
+    },
+    "AZAD NAGAR": {
+      "ward": {
+        "name": "AZAD NAGAR",
+        "number": 214,
+        "councillor": "NEELAM",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "GANDHI NAGAR",
+        "name": "Arvinder Singh Lovely",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "East Delhi",
+        "name": "HARSH MALHOTRA",
+        "party": "BJP"
+      }
+    },
+    "SHAHDARA": {
+      "ward": {
+        "name": "SHAHDARA",
+        "number": 215,
+        "councillor": "BHARAT GAUTAM",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "SHAHDARA",
+        "name": "Sanjay Goyal",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "East Delhi",
+        "name": "HARSH MALHOTRA",
+        "party": "BJP"
+      }
+    },
+    "JHILMIL": {
+      "ward": {
+        "name": "JHILMIL",
+        "number": 216,
+        "councillor": "PANKAJ LUTHRA",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "SHAHDARA",
+        "name": "Sanjay Goyal",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "East Delhi",
+        "name": "HARSH MALHOTRA",
+        "party": "BJP"
+      }
+    },
+    "DILSHAD COLONY": {
+      "ward": {
+        "name": "DILSHAD COLONY",
+        "number": 217,
+        "councillor": "PREETI",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "SHAHDARA",
+        "name": "Sanjay Goyal",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "East Delhi",
+        "name": "HARSH MALHOTRA",
+        "party": "BJP"
+      }
+    },
+    "SUNDAR NAGRI": {
+      "ward": {
+        "name": "SUNDAR NAGRI",
+        "number": 218,
+        "councillor": "MOHINI",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "SEEMAPURI",
+        "name": "Veer Singh Dhingan",
+        "party": "AAP"
+      },
+      "mp": {
+        "constituency": "North East Delhi",
+        "name": "MANOJ TIWARI",
+        "party": "BJP"
+      }
+    },
+    "DILSHAD GARDEN": {
+      "ward": {
+        "name": "DILSHAD GARDEN",
+        "number": 219,
+        "councillor": "B S PANWAR",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "SEEMAPURI",
+        "name": "Veer Singh Dhingan",
+        "party": "AAP"
+      },
+      "mp": {
+        "constituency": "North East Delhi",
+        "name": "MANOJ TIWARI",
+        "party": "BJP"
+      }
+    },
+    "NAND NAGRI": {
+      "ward": {
+        "name": "NAND NAGRI",
+        "number": 220,
+        "councillor": "RAMESH KUMAR BISAIYA",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "SEEMAPURI",
+        "name": "Veer Singh Dhingan",
+        "party": "AAP"
+      },
+      "mp": {
+        "constituency": "North East Delhi",
+        "name": "MANOJ TIWARI",
+        "party": "BJP"
+      }
+    },
+    "ASHOK NAGAR": {
+      "ward": {
+        "name": "ASHOK NAGAR",
+        "number": 221,
+        "councillor": "REENA MAHESHWARI",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "ROHTAS NAGAR",
+        "name": "Jitender Mahajan",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "North East Delhi",
+        "name": "MANOJ TIWARI",
+        "party": "BJP"
+      }
+    },
+    "RAM NAGAR EAST": {
+      "ward": {
+        "name": "RAM NAGAR EAST",
+        "number": 222,
+        "councillor": "CHANDER PRAKASH SHARMA",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "ROHTAS NAGAR",
+        "name": "Jitender Mahajan",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "North East Delhi",
+        "name": "MANOJ TIWARI",
+        "party": "BJP"
+      }
+    },
+    "ROHTASH NAGAR": {
+      "ward": {
+        "name": "ROHTASH NAGAR",
+        "number": 223,
+        "councillor": "SHIVANI PANCHAL",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "ROHTAS NAGAR",
+        "name": "Jitender Mahajan",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "North East Delhi",
+        "name": "MANOJ TIWARI",
+        "party": "BJP"
+      }
+    },
+    "WELCOME COLONY": {
+      "ward": {
+        "name": "WELCOME COLONY",
+        "number": 224,
+        "councillor": "RITESH SUJI",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "ROHTAS NAGAR",
+        "name": "Jitender Mahajan",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "North East Delhi",
+        "name": "MANOJ TIWARI",
+        "party": "BJP"
+      }
+    },
+    "SEELAMPUR": {
+      "ward": {
+        "name": "SEELAMPUR",
+        "number": 225,
+        "councillor": "SHAKILA BEGUM",
+        "party": "INDEPENDENT"
+      },
+      "mla": {
+        "constituency": "SEELAMPUR",
+        "name": "Chaudhary Zubair Ahmad",
+        "party": "AAP"
+      },
+      "mp": {
+        "constituency": "North East Delhi",
+        "name": "MANOJ TIWARI",
+        "party": "BJP"
+      }
+    },
+    "GAUTAM PURI": {
+      "ward": {
+        "name": "GAUTAM PURI",
+        "number": 226,
+        "councillor": "SATYA SHARMA",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "SEELAMPUR",
+        "name": "Chaudhary Zubair Ahmad",
+        "party": "AAP"
+      },
+      "mp": {
+        "constituency": "North East Delhi",
+        "name": "MANOJ TIWARI",
+        "party": "BJP"
+      }
+    },
+    "CHAUHAN BANGER": {
+      "ward": {
+        "name": "CHAUHAN BANGER",
+        "number": 227,
+        "councillor": "SHAGUFTA CHAUDHARY ZUBAIR",
+        "party": "INDIAN NATIONAL CONGRESS"
+      },
+      "mla": {
+        "constituency": "SEELAMPUR",
+        "name": "Chaudhary Zubair Ahmad",
+        "party": "AAP"
+      },
+      "mp": {
+        "constituency": "North East Delhi",
+        "name": "MANOJ TIWARI",
+        "party": "BJP"
+      }
+    },
+    "MAUJPUR": {
+      "ward": {
+        "name": "MAUJPUR",
+        "number": 228,
+        "councillor": "ANIL KUMAR SHARMA",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "SEELAMPUR",
+        "name": "Chaudhary Zubair Ahmad",
+        "party": "AAP"
+      },
+      "mp": {
+        "constituency": "North East Delhi",
+        "name": "MANOJ TIWARI",
+        "party": "BJP"
+      }
+    },
+    "BRAHAM PURI": {
+      "ward": {
+        "name": "BRAHAM PURI",
+        "number": 229,
+        "councillor": "CHHAYA GAURAV SHARMA",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "GHONDA",
+        "name": "Ajay Mahawar",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "North East Delhi",
+        "name": "MANOJ TIWARI",
+        "party": "BJP"
+      }
+    },
+    "BHAJANPURA": {
+      "ward": {
+        "name": "BHAJANPURA",
+        "number": 230,
+        "councillor": "REKHA RANI",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "GHONDA",
+        "name": "Ajay Mahawar",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "North East Delhi",
+        "name": "MANOJ TIWARI",
+        "party": "BJP"
+      }
+    },
+    "GHONDA": {
+      "ward": {
+        "name": "GHONDA",
+        "number": 231,
+        "councillor": "PREETI GUPTA",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "GHONDA",
+        "name": "Ajay Mahawar",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "North East Delhi",
+        "name": "MANOJ TIWARI",
+        "party": "BJP"
+      }
+    },
+    "YAMUNA VIHAR": {
+      "ward": {
+        "name": "YAMUNA VIHAR",
+        "number": 232,
+        "councillor": "PRAMOD GUPTA",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "GHONDA",
+        "name": "Ajay Mahawar",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "North East Delhi",
+        "name": "MANOJ TIWARI",
+        "party": "BJP"
+      }
+    },
+    "SUBHASH MOHALLA": {
+      "ward": {
+        "name": "SUBHASH MOHALLA",
+        "number": 233,
+        "councillor": "MANISHA SINGH",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "BABARPUR",
+        "name": "Gopal Rai",
+        "party": "AAP"
+      },
+      "mp": {
+        "constituency": "North East Delhi",
+        "name": "MANOJ TIWARI",
+        "party": "BJP"
+      }
+    },
+    "KABIR NAGAR": {
+      "ward": {
+        "name": "KABIR NAGAR",
+        "number": 234,
+        "councillor": "ZARIF",
+        "party": "INDIAN NATIONAL CONGRESS"
+      },
+      "mla": {
+        "constituency": "BABARPUR",
+        "name": "Gopal Rai",
+        "party": "AAP"
+      },
+      "mp": {
+        "constituency": "North East Delhi",
+        "name": "MANOJ TIWARI",
+        "party": "BJP"
+      }
+    },
+    "GORAKH PARK": {
+      "ward": {
+        "name": "GORAKH PARK",
+        "number": 235,
+        "councillor": "PRIYANKA SAXENA",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "BABARPUR",
+        "name": "Gopal Rai",
+        "party": "AAP"
+      },
+      "mp": {
+        "constituency": "North East Delhi",
+        "name": "MANOJ TIWARI",
+        "party": "BJP"
+      }
+    },
+    "KARDAM PURI": {
+      "ward": {
+        "name": "KARDAM PURI",
+        "number": 236,
+        "councillor": "MUKESH KUMAR BANSAL",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "BABARPUR",
+        "name": "Gopal Rai",
+        "party": "AAP"
+      },
+      "mp": {
+        "constituency": "North East Delhi",
+        "name": "MANOJ TIWARI",
+        "party": "BJP"
+      }
+    },
+    "HARSH VIHAR": {
+      "ward": {
+        "name": "HARSH VIHAR",
+        "number": 237,
+        "councillor": "POONAM NIRMAL",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "GOKALPUR",
+        "name": "Surendra Kumar",
+        "party": "AAP"
+      },
+      "mp": {
+        "constituency": "North East Delhi",
+        "name": "MANOJ TIWARI",
+        "party": "BJP"
+      }
+    },
+    "SABOLI": {
+      "ward": {
+        "name": "SABOLI",
+        "number": 238,
+        "councillor": "JASWANT SINGH",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "GOKALPUR",
+        "name": "Surendra Kumar",
+        "party": "AAP"
+      },
+      "mp": {
+        "constituency": "North East Delhi",
+        "name": "MANOJ TIWARI",
+        "party": "BJP"
+      }
+    },
+    "GOKAL PURI": {
+      "ward": {
+        "name": "GOKAL PURI",
+        "number": 239,
+        "councillor": "SOMWATI CHAUDHARY",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "GOKALPUR",
+        "name": "Surendra Kumar",
+        "party": "AAP"
+      },
+      "mp": {
+        "constituency": "North East Delhi",
+        "name": "MANOJ TIWARI",
+        "party": "BJP"
+      }
+    },
+    "JOHARIPUR": {
+      "ward": {
+        "name": "JOHARIPUR",
+        "number": 240,
+        "councillor": "ROSHAN LAL",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "GOKALPUR",
+        "name": "Surendra Kumar",
+        "party": "AAP"
+      },
+      "mp": {
+        "constituency": "North East Delhi",
+        "name": "MANOJ TIWARI",
+        "party": "BJP"
+      }
+    },
+    "KARAWAL NAGAR-EAST": {
+      "ward": {
+        "name": "KARAWAL NAGAR-EAST",
+        "number": 241,
+        "councillor": "SHIMLA DEVI",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "MUSTAFABAD",
+        "name": "Mohan Singh Bisht",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "North East Delhi",
+        "name": "MANOJ TIWARI",
+        "party": "BJP"
+      }
+    },
+    "DAYALPUR": {
+      "ward": {
+        "name": "DAYALPUR",
+        "number": 242,
+        "councillor": "PUNEET SHARMA",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "MUSTAFABAD",
+        "name": "Mohan Singh Bisht",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "North East Delhi",
+        "name": "MANOJ TIWARI",
+        "party": "BJP"
+      }
+    },
+    "MUSTAFABAD": {
+      "ward": {
+        "name": "MUSTAFABAD",
+        "number": 243,
+        "councillor": "SABILA BEGUM",
+        "party": "INDIAN NATIONAL CONGRESS"
+      },
+      "mla": {
+        "constituency": "MUSTAFABAD",
+        "name": "Mohan Singh Bisht",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "North East Delhi",
+        "name": "MANOJ TIWARI",
+        "party": "BJP"
+      }
+    },
+    "NEHRU VIHAR": {
+      "ward": {
+        "name": "NEHRU VIHAR",
+        "number": 244,
+        "councillor": "ARUN SINGH BHATI",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "MUSTAFABAD",
+        "name": "Mohan Singh Bisht",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "North East Delhi",
+        "name": "MANOJ TIWARI",
+        "party": "BJP"
+      }
+    },
+    "BRIJ PURI": {
+      "ward": {
+        "name": "BRIJ PURI",
+        "number": 245,
+        "councillor": "NAZIA KHATOON",
+        "party": "INDIAN NATIONAL CONGRESS"
+      },
+      "mla": {
+        "constituency": "MUSTAFABAD",
+        "name": "Mohan Singh Bisht",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "North East Delhi",
+        "name": "MANOJ TIWARI",
+        "party": "BJP"
+      }
+    },
+    "SRI RAM COLONY": {
+      "ward": {
+        "name": "SRI RAM COLONY",
+        "number": 246,
+        "councillor": "MOHAMMAD AAMIL MALIK",
+        "party": "AAM AADMI PARTY"
+      },
+      "mla": {
+        "constituency": "KARAWAL NAGAR",
+        "name": "Kapil Mishra",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "North East Delhi",
+        "name": "MANOJ TIWARI",
+        "party": "BJP"
+      }
+    },
+    "SADATPUR": {
+      "ward": {
+        "name": "SADATPUR",
+        "number": 247,
+        "councillor": "NEETA BISHT",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "KARAWAL NAGAR",
+        "name": "Kapil Mishra",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "North East Delhi",
+        "name": "MANOJ TIWARI",
+        "party": "BJP"
+      }
+    },
+    "KARAWAL NAGAR-WEST": {
+      "ward": {
+        "name": "KARAWAL NAGAR-WEST",
+        "number": 248,
+        "councillor": "SATYA PAL SINGH",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "KARAWAL NAGAR",
+        "name": "Kapil Mishra",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "North East Delhi",
+        "name": "MANOJ TIWARI",
+        "party": "BJP"
+      }
+    },
+    "SONIA VIHAR": {
+      "ward": {
+        "name": "SONIA VIHAR",
+        "number": 249,
+        "councillor": "SONI PANDEY",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "KARAWAL NAGAR",
+        "name": "Kapil Mishra",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "North East Delhi",
+        "name": "MANOJ TIWARI",
+        "party": "BJP"
+      }
+    },
+    "SABAPUR": {
+      "ward": {
+        "name": "SABAPUR",
+        "number": 250,
+        "councillor": "BRIJESH SINGH",
+        "party": "BHARATIYA JANATA PARTY"
+      },
+      "mla": {
+        "constituency": "KARAWAL NAGAR",
+        "name": "Kapil Mishra",
+        "party": "BJP"
+      },
+      "mp": {
+        "constituency": "North East Delhi",
+        "name": "MANOJ TIWARI",
+        "party": "BJP"
+      }
+    }
+  }

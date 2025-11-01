@@ -1,0 +1,2250 @@
+{
+    "110001": [
+      {
+        "display_name": "Baroda House",
+        "ward_key": "BARODA HOUSE"
+      },
+      {
+        "display_name": "Bengali Market",
+        "ward_key": "BENGALI MARKET"
+      },
+      {
+        "display_name": "Bhagat Singh Market",
+        "ward_key": "BHAGAT SINGH MARKET"
+      },
+      {
+        "display_name": "Connaught Place",
+        "ward_key": "CONNAUGHT PLACE"
+      },
+      {
+        "display_name": "Constitution House",
+        "ward_key": "CONSTITUTION HOUSE"
+      },
+      {
+        "display_name": "Election Commission",
+        "ward_key": "ELECTION COMMISSION"
+      },
+      {
+        "display_name": "Janpath",
+        "ward_key": "JANPATH"
+      },
+      {
+        "display_name": "Krishi Bhawan",
+        "ward_key": "KRISHI BHAWAN"
+      },
+      {
+        "display_name": "Lady Harding Medical College",
+        "ward_key": "LADY HARDING MEDICAL COLLEGE"
+      },
+      {
+        "display_name": "North Avenue",
+        "ward_key": "NORTH AVENUE"
+      },
+      {
+        "display_name": "Parliament House",
+        "ward_key": "PARLIAMENT HOUSE"
+      },
+      {
+        "display_name": "Patiala House",
+        "ward_key": "PATIALA HOUSE"
+      },
+      {
+        "display_name": "Pragati Maidan Camp",
+        "ward_key": "PRAGATI MAIDAN CAMP"
+      },
+      {
+        "display_name": "Pragati Maidan",
+        "ward_key": "PRAGATI MAIDAN"
+      },
+      {
+        "display_name": "Rail Bhawan",
+        "ward_key": "RAIL BHAWAN"
+      },
+      {
+        "display_name": "Sansad Marg",
+        "ward_key": "SANSAD MARG"
+      },
+      {
+        "display_name": "Sansadiya Soudh",
+        "ward_key": "SANSADIYA SOUDH"
+      },
+      {
+        "display_name": "Secretariat North",
+        "ward_key": "SECRETARIAT NORTH"
+      },
+      {
+        "display_name": "Shastri Bhawan",
+        "ward_key": "SHASTRI BHAWAN"
+      },
+      {
+        "display_name": "Supreme Court",
+        "ward_key": "SUPREME COURT"
+      },
+      {
+        "display_name": "New Delhi G.P.O.",
+        "ward_key": "NEW DELHI G.P.O."
+      }
+    ],
+    "110002": [
+      {
+        "display_name": "A.G.C.R.",
+        "ward_key": "A.G.C.R."
+      },
+      {
+        "display_name": "Ajmeri Gate Extn.",
+        "ward_key": "AJMERI GATE EXTN."
+      },
+      {
+        "display_name": "Darya Ganj",
+        "ward_key": "DARYA GANJ"
+      },
+      {
+        "display_name": "Gandhi Smarak Nidhi",
+        "ward_key": "GANDHI SMARAK NIDHI"
+      },
+      {
+        "display_name": "I.P.Estate",
+        "ward_key": "I.P.ESTATE"
+      },
+      {
+        "display_name": "Indraprastha",
+        "ward_key": "INDRAPRASTHA"
+      },
+      {
+        "display_name": "Minto Road",
+        "ward_key": "MINTO ROAD"
+      }
+    ],
+    "110003": [
+      {
+        "display_name": "Aliganj",
+        "ward_key": "ALIGANJ"
+      },
+      {
+        "display_name": "CGO Complex",
+        "ward_key": "CGO COMPLEX"
+      },
+      {
+        "display_name": "Golf Links",
+        "ward_key": "GOLF LINKS"
+      },
+      {
+        "display_name": "Kasturba Nagar",
+        "ward_key": "KASTURBA NAGAR"
+      },
+      {
+        "display_name": "Lodi Road",
+        "ward_key": "LODI ROAD"
+      },
+      {
+        "display_name": "Pragati Vihar",
+        "ward_key": "PRAGATI VIHAR"
+      },
+      {
+        "display_name": "Safdarjung Air Port",
+        "ward_key": "SAFDARJUNG AIR PORT"
+      },
+      {
+        "display_name": "Pandara Road",
+        "ward_key": "PANDARA ROAD"
+      }
+    ],
+    "110004": [
+      {
+        "display_name": "Rashtrapati Bhawan",
+        "ward_key": "RASHTRAPATI BHAWAN"
+      }
+    ],
+    "110005": [
+      {
+        "display_name": "Anand Parbat Indl. Area",
+        "ward_key": "ANAND PARBAT INDL. AREA"
+      },
+      {
+        "display_name": "Anand Parbat",
+        "ward_key": "ANAND PARBAT"
+      },
+      {
+        "display_name": "Bank Street",
+        "ward_key": "BANK STREET"
+      },
+      {
+        "display_name": "Desh Bandhu Gupta Road",
+        "ward_key": "DESH BANDHU GUPTA ROAD"
+      },
+      {
+        "display_name": "Guru Gobind Singh Marg",
+        "ward_key": "GURU GOBIND SINGH MARG"
+      },
+      {
+        "display_name": "Karol Bagh",
+        "ward_key": "KAROL BAGH"
+      },
+      {
+        "display_name": "Master Prithvi Nath Marg",
+        "ward_key": "MASTER PRITHVI NATH MARG"
+      },
+      {
+        "display_name": "Sat Nagar",
+        "ward_key": "SAT NAGAR"
+      }
+    ],
+    "110006": [
+      {
+        "display_name": "Hauz Qazi",
+        "ward_key": "HAUZ QAZI"
+      },
+      {
+        "display_name": "Jama Masjid",
+        "ward_key": "JAMA MASJID"
+      },
+      {
+        "display_name": "Baratooti",
+        "ward_key": "BARATOOTI"
+      },
+      {
+        "display_name": "Chandni Chowk",
+        "ward_key": "CHANDNI CHOWK"
+      },
+      {
+        "display_name": "Chawri Bazar",
+        "ward_key": "CHAWRI BAZAR"
+      },
+      {
+        "display_name": "Dareeba",
+        "ward_key": "DAREEBA"
+      },
+      {
+        "display_name": "Delhi G.P.O.",
+        "ward_key": "DELHI G.P.O."
+      },
+      {
+        "display_name": "Delhi Sadar Bazar",
+        "ward_key": "DELHI SADAR BAZAR"
+      },
+      {
+        "display_name": "S.T. Road",
+        "ward_key": "S.T. ROAD"
+      }
+    ],
+    "110007": [
+      {
+        "display_name": "C.C.I.",
+        "ward_key": "C.C.I."
+      },
+      {
+        "display_name": "Delhi University",
+        "ward_key": "DELHI UNIVERSITY"
+      },
+      {
+        "display_name": "Gulabi Bagh",
+        "ward_key": "GULABI BAGH"
+      },
+      {
+        "display_name": "Jawahar Nagar",
+        "ward_key": "JAWAHAR NAGAR"
+      },
+      {
+        "display_name": "Kamla Nagar",
+        "ward_key": "KAMLA NAGAR"
+      },
+      {
+        "display_name": "Malka Ganj",
+        "ward_key": "MALKA GANJ"
+      },
+      {
+        "display_name": "Padam Nagar",
+        "ward_key": "PADAM NAGAR"
+      },
+      {
+        "display_name": "R.C.A.O.",
+        "ward_key": "R.C.A.O."
+      },
+      {
+        "display_name": "Rana Pratap Bagh",
+        "ward_key": "RANA PRATAP BAGH"
+      },
+      {
+        "display_name": "Roop Nagar",
+        "ward_key": "ROOP NAGAR"
+      },
+      {
+        "display_name": "Roshan Ara Road",
+        "ward_key": "ROSHAN ARA ROAD"
+      },
+      {
+        "display_name": "Shakti Nagar",
+        "ward_key": "SHAKTI NAGAR"
+      }
+    ],
+    "110008": [
+      {
+        "display_name": "Dada Ghosh Bhawan (Patel Nagar)",
+        "ward_key": "DADA GHOSH BHAWAN (PATEL NAGAR)"
+      },
+      {
+        "display_name": "Patel Nagar East",
+        "ward_key": "PATEL NAGAR EAST"
+      },
+      {
+        "display_name": "Patel Nagar",
+        "ward_key": "PATEL NAGAR"
+      },
+      {
+        "display_name": "Patel Nagar South",
+        "ward_key": "PATEL NAGAR SOUTH"
+      },
+      {
+        "display_name": "Patel Nagar West",
+        "ward_key": "PATEL NAGAR WEST"
+      }
+    ],
+    "110009": [
+      {
+        "display_name": "Dr. Mukerjee Nagar",
+        "ward_key": "DR. MUKERJEE NAGAR"
+      },
+      {
+        "display_name": "G.T.B.Nagar",
+        "ward_key": "G.T.B.NAGAR"
+      },
+      {
+        "display_name": "Gujranwala Colony",
+        "ward_key": "GUJRANWALA COLONY"
+      },
+      {
+        "display_name": "H.S.Sangh",
+        "ward_key": "H.S.SANGH"
+      },
+      {
+        "display_name": "Model Town II",
+        "ward_key": "MODEL TOWN II"
+      },
+      {
+        "display_name": "Model Town III",
+        "ward_key": "MODEL TOWN III"
+      },
+      {
+        "display_name": "Nirankari Colony",
+        "ward_key": "NIRANKARI COLONY"
+      }
+    ],
+    "110010": [
+      {
+        "display_name": "505 A B Workshop",
+        "ward_key": "505 A B WORKSHOP"
+      },
+      {
+        "display_name": "A F Palam",
+        "ward_key": "A F PALAM"
+      },
+      {
+        "display_name": "Aps Colony",
+        "ward_key": "APS COLONY"
+      },
+      {
+        "display_name": "Bazar Road",
+        "ward_key": "BAZAR ROAD"
+      },
+      {
+        "display_name": "C.V.D.",
+        "ward_key": "C.V.D."
+      },
+      {
+        "display_name": "COD",
+        "ward_key": "COD"
+      },
+      {
+        "display_name": "Delhi Cantt",
+        "ward_key": "DELHI CANTT"
+      },
+      {
+        "display_name": "Dhaula Kuan",
+        "ward_key": "DHAULA KUAN"
+      },
+      {
+        "display_name": "Kirby Place",
+        "ward_key": "KIRBY PLACE"
+      },
+      {
+        "display_name": "Pinto Park",
+        "ward_key": "PINTO PARK"
+      },
+      {
+        "display_name": "RR Hospital",
+        "ward_key": "RR HOSPITAL"
+      },
+      {
+        "display_name": "Signal Enclave",
+        "ward_key": "SIGNAL ENCLAVE"
+      },
+      {
+        "display_name": "Station Road",
+        "ward_key": "STATION ROAD"
+      },
+      {
+        "display_name": "Subroto Park",
+        "ward_key": "SUBROTO PARK"
+      }
+    ],
+    "110011": [
+      {
+        "display_name": "Nirman Bhawan",
+        "ward_key": "NIRMAN BHAWAN"
+      },
+      {
+        "display_name": "South Avenue",
+        "ward_key": "SOUTH AVENUE"
+      },
+      {
+        "display_name": "Udyog Bhawan",
+        "ward_key": "UDYOG BHAWAN"
+      }
+    ],
+    "110012": [
+      {
+        "display_name": "I.A.R.I.",
+        "ward_key": "I.A.R.I."
+      },
+      {
+        "display_name": "Inderpuri",
+        "ward_key": "INDEPURI"
+      },
+      {
+        "display_name": "National Physical Laboratory",
+        "ward_key": "NATIONAL PHYSICAL LABORATORY"
+      }
+    ],
+    "110013": [
+      {
+        "display_name": "Dargah Sharif",
+        "ward_key": "DARGAH SHARIF"
+      },
+      {
+        "display_name": "Hazrat Nizamuddin",
+        "ward_key": "HAZRAT NIZAMUDDIN"
+      }
+    ],
+    "110014": [
+      {
+        "display_name": "Hari Nagar Ashram",
+        "ward_key": "HARI NAGAR ASHRAM"
+      },
+      {
+        "display_name": "Jeevan Nagar",
+        "ward_key": "JEEVAN NAGAR"
+      },
+      {
+        "display_name": "Jungpura",
+        "ward_key": "JUNGPURA"
+      },
+      {
+        "display_name": "Pratap Market",
+        "ward_key": "PRATAP MARKET"
+      }
+    ],
+    "110015": [
+      {
+        "display_name": "Delhi Industrial Area",
+        "ward_key": "DELHI INDUSTRIAL AREA"
+      },
+      {
+        "display_name": "ESI",
+        "ward_key": "ESI"
+      },
+      {
+        "display_name": "Karam Pura",
+        "ward_key": "KARAM PURA"
+      },
+      {
+        "display_name": "L. M. Nagar Indl. Area",
+        "ward_key": "L. M. NAGAR INDL. AREA"
+      },
+      {
+        "display_name": "Mansarover Garden",
+        "ward_key": "MANSAROVER GARDEN"
+      },
+      {
+        "display_name": "N.I.Area",
+        "ward_key": "N.I.AREA"
+      },
+      {
+        "display_name": "Ramesh Nagar",
+        "ward_key": "RAMESH NAGAR"
+      },
+      {
+        "display_name": "Zakhira",
+        "ward_key": "ZAKHIRA"
+      }
+    ],
+    "110016": [
+      {
+        "display_name": "Green Park Market",
+        "ward_key": "GREEN PARK MARKET"
+      },
+      {
+        "display_name": "Hauz Khas Market",
+        "ward_key": "HAUZ KHAS MARKET"
+      },
+      {
+        "display_name": "Hauz Khas",
+        "ward_key": "HAUZ KHAS"
+      },
+      {
+        "display_name": "IT Hauz Khas",
+        "ward_key": "IT HAUZ KHAS"
+      },
+      {
+        "display_name": "NIE Campus",
+        "ward_key": "NIE CAMPUS"
+      },
+      {
+        "display_name": "Technology Bhawan",
+        "ward_key": "TECHNOLOGY BHAWAN"
+      }
+    ],
+    "110017": [
+      {
+        "display_name": "Distt. Court Complex, Saket",
+        "ward_key": "DISTT. COURT COMPLEX, SAKET"
+      },
+      {
+        "display_name": "Malviya Nagar",
+        "ward_key": "MALVIYA NAGAR"
+      },
+      {
+        "display_name": "MMTC/STC Colony",
+        "ward_key": "MMTC/STC COLONY"
+      },
+      {
+        "display_name": "Panchsheel Enclave",
+        "ward_key": "PANCHSHEEL ENCLAVE"
+      },
+      {
+        "display_name": "Pushp Vihar",
+        "ward_key": "PUSHP VIHAR"
+      },
+      {
+        "display_name": "Saket",
+        "ward_key": "SAKET"
+      },
+      {
+        "display_name": "Sarvodya Enclave",
+        "ward_key": "SARVODYA ENCLAVE"
+      },
+      {
+        "display_name": "South Malviya Nagar",
+        "ward_key": "SOUTH MALVIYA NAGAR"
+      }
+    ],
+    "110018": [
+      {
+        "display_name": "Ashok Nagar",
+        "ward_key": "ASHOK NAGAR"
+      },
+      {
+        "display_name": "Chand Nagar",
+        "ward_key": "CHAND NAGAR"
+      },
+      {
+        "display_name": "Chaukhandi",
+        "ward_key": "CHAUKHANDI"
+      },
+      {
+        "display_name": "Fateh Nagar",
+        "ward_key": "FATEH NAGAR"
+      },
+      {
+        "display_name": "Khyala Phase - I",
+        "ward_key": "KHYALA PHASE - I"
+      },
+      {
+        "display_name": "Khyala Phase - II",
+        "ward_key": "KHYALA PHASE - II"
+      },
+      {
+        "display_name": "M.B.S. Nagar",
+        "ward_key": "M.B.S. NAGAR"
+      },
+      {
+        "display_name": "Mahabir Nagar",
+        "ward_key": "MAHABIR NAGAR"
+      },
+      {
+        "display_name": "Tilak Nagar East",
+        "ward_key": "TILAK NAGAR EAST"
+      },
+      {
+        "display_name": "Tilak Nagar",
+        "ward_key": "TILAK NAGAR"
+      },
+      {
+        "display_name": "Vikas Puri",
+        "ward_key": "VIKAS PURI"
+      },
+      {
+        "display_name": "Vishnu Garden",
+        "ward_key": "VISHNU GARDEN"
+      }
+    ],
+    "110019": [
+      {
+        "display_name": "Alaknanda",
+        "ward_key": "ALAKNANDA"
+      },
+      {
+        "display_name": "Chittranjan Park",
+        "ward_key": "CHITTRANJAN PARK"
+      },
+      {
+        "display_name": "Kalkaji",
+        "ward_key": "KALKAJI"
+      },
+      {
+        "display_name": "Nehru Place",
+        "ward_key": "NEHRU PLACE"
+      }
+    ],
+    "110020": [
+      {
+        "display_name": "FFC Okhla",
+        "ward_key": "FFC OKHLA"
+      },
+      {
+        "display_name": "CRRI",
+        "ward_key": "CRRI"
+      },
+      {
+        "display_name": "Okhla Industrial Area Phase-i",
+        "ward_key": "OKHLA INDUSTRIAL AREA PHASE-I"
+      },
+      {
+        "display_name": "Okhla Industrial Estate",
+        "ward_key": "OKHLA INDUSTRIAL ESTATE"
+      },
+      {
+        "display_name": "Tehkhand",
+        "ward_key": "TEHKHAND"
+      }
+    ],
+    "110021": [
+      {
+        "display_name": "Anand Niketan",
+        "ward_key": "ANAND NIKETAN"
+      },
+      {
+        "display_name": "Chanakya Puri",
+        "ward_key": "CHANAKYA PURI"
+      },
+      {
+        "display_name": "Malcha Marg",
+        "ward_key": "MALCHA MARG"
+      },
+      {
+        "display_name": "Moti Bagh",
+        "ward_key": "MOTI BAGH"
+      },
+      {
+        "display_name": "Nanak Pura",
+        "ward_key": "NANAK PURA"
+      },
+      {
+        "display_name": "South Delhi Campus",
+        "ward_key": "SOUTH DELHI CAMPUS"
+      }
+    ],
+    "110022": [
+      {
+        "display_name": "RK Puram Sect-1",
+        "ward_key": "RK PURAM SECT-1"
+      },
+      {
+        "display_name": "RK Puram Sect-12",
+        "ward_key": "RK PURAM SECT-12"
+      },
+      {
+        "display_name": "RK Puram Sect-3",
+        "ward_key": "RK PURAM SECT-3"
+      },
+      {
+        "display_name": "RK Puram Sect-4",
+        "ward_key": "RK PURAM SECT-4"
+      },
+      {
+        "display_name": "RK Puram Sect-5",
+        "ward_key": "RK PURAM SECT-5"
+      },
+      {
+        "display_name": "RK Puram Sect-8",
+        "ward_key": "RK PURAM SECT-8"
+      },
+      {
+        "display_name": "RK Puram Sect7",
+        "ward_key": "RK PURAM SECT7"
+      },
+      {
+        "display_name": "RK Puram Sector 6 Postal SB",
+        "ward_key": "RK PURAM SECTOR 6 POSTAL SB"
+      }
+    ],
+    "110023": [
+      {
+        "display_name": "Kidwai Nagar East",
+        "ward_key": "KIDWAI NAGAR EAST"
+      },
+      {
+        "display_name": "Kidwai Nagar West",
+        "ward_key": "KIDWAI NAGAR WEST"
+      },
+      {
+        "display_name": "Laxmi Bai Nagar",
+        "ward_key": "LAXMI BAI NAGAR"
+      },
+      {
+        "display_name": "Netaji Nagar",
+        "ward_key": "NETAJI NAGAR"
+      },
+      {
+        "display_name": "Sarojini Nagar",
+        "ward_key": "SAROJINI NAGAR"
+      }
+    ],
+    "110024": [
+      {
+        "display_name": "Amar Colony",
+        "ward_key": "AMAR COLONY"
+      },
+      {
+        "display_name": "Defence Colony",
+        "ward_key": "DEFENCE COLONY"
+      },
+      {
+        "display_name": "Krishna Market",
+        "ward_key": "KRISHNA MARKET"
+      },
+      {
+        "display_name": "Lajpat Nagar",
+        "ward_key": "LAJPAT NAGAR"
+      }
+    ],
+    "110025": [
+      {
+        "display_name": "Abul Fazal Enclave-I",
+        "ward_key": "ABUL FAZAL ENCLAVE-I"
+      },
+      {
+        "display_name": "Jamia Nagar",
+        "ward_key": "JAMIA NAGAR"
+      },
+      {
+        "display_name": "New Friends Colony",
+        "ward_key": "NEW FRIENDS COLONY"
+      },
+      {
+        "display_name": "Sukhdev Vihar",
+        "ward_key": "SUKHDEV VIHAR"
+      },
+      {
+        "display_name": "Zakir Nagar",
+        "ward_key": "ZAKIR NAGAR"
+      }
+    ],
+    "110026": [
+      {
+        "display_name": "Ashoka Park Extn.",
+        "ward_key": "ASHOKA PARK EXTN."
+      },
+      {
+        "display_name": "Punjabi Bagh",
+        "ward_key": "PUNJABI BAGH"
+      },
+      {
+        "display_name": "Punjabi Bagh Sec - III",
+        "ward_key": "PUNJABI BAGH SEC - III"
+      },
+      {
+        "display_name": "Shivaji Park",
+        "ward_key": "SHIVAJI PARK"
+      }
+    ],
+    "110027": [
+      {
+        "display_name": "Janta Market",
+        "ward_key": "JANTA MARKET"
+      },
+      {
+        "display_name": "Rajouri Garden J-6",
+        "ward_key": "RAJOURI GARDEN J-6"
+      },
+      {
+        "display_name": "Rajouri Market",
+        "ward_key": "RAJOURI MARKET"
+      },
+      {
+        "display_name": "Subhash Nagar",
+        "ward_key": "SUBHASH NAGAR"
+      },
+      {
+        "display_name": "Subhash Nagar West",
+        "ward_key": "SUBHASH NAGAR WEST"
+      },
+      {
+        "display_name": "Tagore Garden",
+        "ward_key": "TAGORE GARDEN"
+      }
+    ],
+    "110028": [
+      {
+        "display_name": "Kair B.O",
+        "ward_key": "KAIR B.O"
+      },
+      {
+        "display_name": "Khaira B.0",
+        "ward_key": "KHAIRA B.0"
+      },
+      {
+        "display_name": "Naraina Industrial Estate",
+        "ward_key": "NARAINA INDUSTRIAL ESTATE"
+      },
+      {
+        "display_name": "Naraina Village",
+        "ward_key": "NARAINA VILLAGE"
+      }
+    ],
+    "110029": [
+      {
+        "display_name": "Ansari Nagar",
+        "ward_key": "ANSARI NAGAR"
+      },
+      {
+        "display_name": "Safdarjung Enclave",
+        "ward_key": "SAFDARJUNG ENCLAVE"
+      },
+      {
+        "display_name": "Nauroji Nagar",
+        "ward_key": "NAUROJI NAGAR"
+      }
+    ],
+    "110030": [
+      {
+        "display_name": "Gadaipur",
+        "ward_key": "GADAIPUR"
+      },
+      {
+        "display_name": "Ghitorni",
+        "ward_key": "GHITORNI"
+      },
+      {
+        "display_name": "Lado Sarai",
+        "ward_key": "LADO SARAI"
+      },
+      {
+        "display_name": "Mehrauli",
+        "ward_key": "MEHRAULI"
+      },
+      {
+        "display_name": "Paryavaran Complex",
+        "ward_key": "PARYAVARAN COMPLEX"
+      },
+      {
+        "display_name": "Sultanpur",
+        "ward_key": "SULTANPUR"
+      },
+      {
+        "display_name": "TB Hospital",
+        "ward_key": "TB HOSPITAL"
+      }
+    ],
+    "110031": [
+      {
+        "display_name": "Gandhi Nagar Bazar",
+        "ward_key": "GANDHI NAGAR BAZAR"
+      },
+      {
+        "display_name": "Gandhi Nagar",
+        "ward_key": "GANDHI NAGAR"
+      },
+      {
+        "display_name": "Geeta Colony",
+        "ward_key": "GEETA COLONY"
+      },
+      {
+        "display_name": "Kailash Nagar",
+        "ward_key": "KAILASH NAGAR"
+      },
+      {
+        "display_name": "Raghubar Pura",
+        "ward_key": "RAGHUBAR PURA"
+      },
+      {
+        "display_name": "Rajgarh Colony",
+        "ward_key": "RAJGARH COLONY"
+      },
+      {
+        "display_name": "Shastri Nagar",
+        "ward_key": "SHASTRI NAGAR"
+      }
+    ],
+    "110032": [
+      {
+        "display_name": "Balbir Nagar",
+        "ward_key": "BALBIR NAGAR"
+      },
+      {
+        "display_name": "Bhola Nath Nagar",
+        "ward_key": "BHOLA NATH NAGAR"
+      },
+      {
+        "display_name": "Distt. Court (KKD)",
+        "ward_key": "DISTT. COURT (KKD)"
+      },
+      {
+        "display_name": "Goverdhan Bihari Colony",
+        "ward_key": "GOVERDHAN BIHARI COLONY"
+      },
+      {
+        "display_name": "Loni Road",
+        "ward_key": "LONI ROAD"
+      },
+      {
+        "display_name": "Man Sarovar Park",
+        "ward_key": "MAN SAROVAR PARK"
+      },
+      {
+        "display_name": "Rohtash Nagar",
+        "ward_key": "ROHTASH NAGAR"
+      },
+      {
+        "display_name": "Shahdara Mandi",
+        "ward_key": "SHAHDARA MANDI"
+      },
+      {
+        "display_name": "Shahdara",
+        "ward_key": "SHAHDARA"
+      },
+      {
+        "display_name": "Shivaji Park",
+        "ward_key": "SHIVAJI PARK"
+      },
+      {
+        "display_name": "Telewara",
+        "ward_key": "TELEWARA"
+      },
+      {
+        "display_name": "Vishwas Nagar",
+        "ward_key": "VISHWAS NAGAR"
+      },
+      {
+        "display_name": "Babarpur",
+        "ward_key": "BABARPUR"
+      }
+    ],
+    "110033": [
+      {
+        "display_name": "Adrash Nagar",
+        "ward_key": "ADRASH NAGAR"
+      },
+      {
+        "display_name": "Bhalaswa",
+        "ward_key": "BHALASWA"
+      },
+      {
+        "display_name": "Jahangir Puri A Block",
+        "ward_key": "JAHANGIR PURI A BLOCK"
+      },
+      {
+        "display_name": "Jahangir Puri D Block",
+        "ward_key": "JAHANGIR PURI D BLOCK"
+      },
+      {
+        "display_name": "Jahangir Puri H Block",
+        "ward_key": "JAHANGIR PURI H BLOCK"
+      },
+      {
+        "display_name": "N.S.Mandi",
+        "ward_key": "N.S.MANDI"
+      }
+    ],
+    "110034": [
+      {
+        "display_name": "Anandvas Shakurpur",
+        "ward_key": "ANANDVAS SHAKURPUR"
+      },
+      {
+        "display_name": "Maurya Enclave",
+        "ward_key": "MAURYA ENCLAVE"
+      },
+      {
+        "display_name": "Rani Bagh",
+        "ward_key": "RANI BAGH"
+      },
+      {
+        "display_name": "Saraswati Vihar",
+        "ward_key": "SARASWATI VIHAR"
+      },
+      {
+        "display_name": "Shakur Pur I Block",
+        "ward_key": "SHAKUR PUR I BLOCK"
+      },
+      {
+        "display_name": "Shakurbasti Rs",
+        "ward_key": "SHAKURBASTI RS"
+      },
+      {
+        "display_name": "Sri Nagar Colony",
+        "ward_key": "SRI NAGAR COLONY"
+      }
+    ],
+    "110035": [
+      {
+        "display_name": "Ganeshpura",
+        "ward_key": "GANESHPURA"
+      },
+      {
+        "display_name": "Keshav Puram",
+        "ward_key": "KESHAV PURAM"
+      },
+      {
+        "display_name": "Onkar Nagar",
+        "ward_key": "ONKAR NAGAR"
+      },
+      {
+        "display_name": "Power House",
+        "ward_key": "POWER HOUSE"
+      },
+      {
+        "display_name": "Rampura",
+        "ward_key": "RAMPURA"
+      },
+      {
+        "display_name": "Sarai Rohilla",
+        "ward_key": "SARAI ROHILLA"
+      }
+    ],
+    "110036": [
+      {
+        "display_name": "Alipur",
+        "ward_key": "ALIPUR"
+      },
+      {
+        "display_name": "Bakhtawar Pur",
+        "ward_key": "BAKHTAWAR PUR"
+      },
+      {
+        "display_name": "Bakoli",
+        "ward_key": "BAKOLI"
+      },
+      {
+        "display_name": "Hiranki",
+        "ward_key": "HIRANKI"
+      },
+      {
+        "display_name": "Kadipur",
+        "ward_key": "KADIPUR"
+      },
+      {
+        "display_name": "Khampur",
+        "ward_key": "KHAMPUR"
+      },
+      {
+        "display_name": "Mukhmelpur",
+        "ward_key": "MUKHMELPUR"
+      },
+      {
+        "display_name": "Nangal Poona",
+        "ward_key": "NANGAL POONA"
+      },
+      {
+        "display_name": "Palla",
+        "ward_key": "PALLA"
+      },
+      {
+        "display_name": "Tajpur Kalan",
+        "ward_key": "TAJPUR KALAN"
+      }
+    ],
+    "110037": [
+      {
+        "display_name": "Gurgaon Road",
+        "ward_key": "GURGAON ROAD"
+      },
+      {
+        "display_name": "IGI Airport",
+        "ward_key": "IGI AIRPORT"
+      },
+      {
+        "display_name": "Mahipalpur",
+        "ward_key": "MAHIPALPUR"
+      },
+      {
+        "display_name": "Nangal Dewat",
+        "ward_key": "NANGAL DEWAT"
+      },
+      {
+        "display_name": "Palam Airport",
+        "ward_key": "PALAM AIRPORT"
+      }
+    ],
+    "110038": [
+      {
+        "display_name": "A F Rajokari",
+        "ward_key": "A F RAJOKARI"
+      },
+      {
+        "display_name": "Rajokari",
+        "ward_key": "RAJOKARI"
+      }
+    ],
+    "110039": [
+      {
+        "display_name": "Hareveli",
+        "ward_key": "HAREVELI"
+      },
+      {
+        "display_name": "Jat Khore",
+        "ward_key": "JAT KHORE"
+      },
+      {
+        "display_name": "Katewara",
+        "ward_key": "KATEWARA"
+      },
+      {
+        "display_name": "Mungeshpur",
+        "ward_key": "MUNGESHPUR"
+      },
+      {
+        "display_name": "Nangal Thakran",
+        "ward_key": "NANGAL THAKRAN"
+      },
+      {
+        "display_name": "Pooth Khurd",
+        "ward_key": "POOTH KHURD"
+      },
+      {
+        "display_name": "Qutabagarh",
+        "ward_key": "QUTABAGARH"
+      },
+      {
+        "display_name": "Auchandi",
+        "ward_key": "AUCHANDI"
+      },
+      {
+        "display_name": "Barwala",
+        "ward_key": "BARWALA"
+      },
+      {
+        "display_name": "Bawana",
+        "ward_key": "BAWANA"
+      },
+      {
+        "display_name": "Daryapur Kalan",
+        "ward_key": "DARYAPUR KALAN"
+      },
+      {
+        "display_name": "Ghoga",
+        "ward_key": "GHOGA"
+      }
+    ],
+    "110040": [
+      {
+        "display_name": "Bankner",
+        "ward_key": "BANKNER"
+      },
+      {
+        "display_name": "Bhorgarh",
+        "ward_key": "BHORGARH"
+      },
+      {
+        "display_name": "Kanya Gurukul",
+        "ward_key": "KANYA GURUKUL"
+      },
+      {
+        "display_name": "Lampur",
+        "ward_key": "LAMPUR"
+      },
+      {
+        "display_name": "Narela",
+        "ward_key": "NARELA"
+      },
+      {
+        "display_name": "Sanoth",
+        "ward_key": "SANOTH"
+      },
+      {
+        "display_name": "Singhu",
+        "ward_key": "SINGHU"
+      },
+      {
+        "display_name": "Tikri Khurd",
+        "ward_key": "TIKRI KHURD"
+      }
+    ],
+    "110041": [
+      {
+        "display_name": "Bakkarwala",
+        "ward_key": "BAKKARWALA"
+      },
+      {
+        "display_name": "Hirankudna",
+        "ward_key": "HIRANKUDNA"
+      },
+      {
+        "display_name": "Mundka",
+        "ward_key": "MUNDKA"
+      },
+      {
+        "display_name": "Nangloi - II",
+        "ward_key": "NANGLOI - II"
+      },
+      {
+        "display_name": "Nangloi - III",
+        "ward_key": "NANGLOI - III"
+      },
+      {
+        "display_name": "Nangloi",
+        "ward_key": "NANGLOI"
+      },
+      {
+        "display_name": "Nilothi",
+        "ward_key": "NILOTHI"
+      },
+      {
+        "display_name": "Ranhola",
+        "ward_key": "RANHOLA"
+      },
+      {
+        "display_name": "Tikri Kalan",
+        "ward_key": "TIKRI KALAN"
+      }
+    ],
+    "110042": [
+      {
+        "display_name": "Badli",
+        "ward_key": "BADLI"
+      },
+      {
+        "display_name": "Delhi Engg. College",
+        "ward_key": "DELHI ENGG. COLLEGE"
+      },
+      {
+        "display_name": "Pehlad Pur",
+        "ward_key": "PEHLAD PUR"
+      },
+      {
+        "display_name": "Samai Pur",
+        "ward_key": "SAMAI PUR"
+      },
+      {
+        "display_name": "Shahbad Daulatpur",
+        "ward_key": "SHAHBAD DAULATPUR"
+      },
+      {
+        "display_name": "Siraspur",
+        "ward_key": "SIRASPUR"
+      }
+    ],
+    "110043": [
+      {
+        "display_name": "Najafgarh",
+        "ward_key": "NAJAFGARH"
+      },
+      {
+        "display_name": "Pandwala Kalan",
+        "ward_key": "PANDWALA KALAN"
+      },
+      {
+        "display_name": "Papravat",
+        "ward_key": "PAPRAVAT"
+      },
+      {
+        "display_name": "Rewla Khanpur",
+        "ward_key": "REWLA KHANPUR"
+      },
+      {
+        "display_name": "Surehra",
+        "ward_key": "SUREHRA"
+      },
+      {
+        "display_name": "Tilangpur Kotla",
+        "ward_key": "TILANGPUR KOTLA"
+      }
+    ],
+    "110044": [
+      {
+        "display_name": "Badarpur",
+        "ward_key": "BADARPUR"
+      },
+      {
+        "display_name": "BTPS",
+        "ward_key": "BTPS"
+      },
+      {
+        "display_name": "Jaitpur",
+        "ward_key": "JAITPUR"
+      },
+      {
+        "display_name": "Lal Kuan",
+        "ward_key": "LAL KUAN"
+      },
+      {
+        "display_name": "Molarband",
+        "ward_key": "MOLARBAND"
+      },
+      {
+        "display_name": "Pul Pahladpur",
+        "ward_key": "PUL PAHLADPUR"
+      },
+      {
+        "display_name": "Tugalkabad",
+        "ward_key": "TUGALKABAD"
+      },
+      {
+        "display_name": "Tugalkabad Railway Colony",
+        "ward_key": "TUGALKABAD RAILWAY COLONY"
+      }
+    ],
+    "110045": [
+      {
+        "display_name": "Dabri",
+        "ward_key": "DABRI"
+      },
+      {
+        "display_name": "Indira Park",
+        "ward_key": "INDIRA PARK"
+      },
+      {
+        "display_name": "Nasirpur",
+        "ward_key": "NASIRPUR"
+      },
+      {
+        "display_name": "Palam Village",
+        "ward_key": "PALAM VILLAGE"
+      }
+    ],
+    "110046": [
+      {
+        "display_name": "Nangal Raya",
+        "ward_key": "NANGAL RAYA"
+      },
+      {
+        "display_name": "Sagarpur",
+        "ward_key": "SAGARPUR"
+      }
+    ],
+    "110048": [
+      {
+        "display_name": "Greater Kailash",
+        "ward_key": "GREATER KAILASH"
+      },
+      {
+        "display_name": "Kailash Colony",
+        "ward_key": "KAILASH COLONY"
+      },
+      {
+        "display_name": "Masjid Moth",
+        "ward_key": "MASJID MOTH"
+      }
+    ],
+    "110049": [
+      {
+        "display_name": "Andrewsganj",
+        "ward_key": "ANDREWSGANJ"
+      },
+      {
+        "display_name": "Gautam Nagar",
+        "ward_key": "GAUTAM NAGAR"
+      },
+      {
+        "display_name": "Gulmohar Park",
+        "ward_key": "GULMOHAR PARK"
+      },
+      {
+        "display_name": "New Delhi South Ext-II",
+        "ward_key": "NEW DELHI SOUTH EXT-II"
+      },
+      {
+        "display_name": "Sadiq Nagar",
+        "ward_key": "SADIQ NAGAR"
+      },
+      {
+        "display_name": "Sahpurjat",
+        "ward_key": "SAHPURJAT"
+      }
+    ],
+    "110051": [
+      {
+        "display_name": "Azad Nagar",
+        "ward_key": "AZAD NAGAR"
+      },
+      {
+        "display_name": "Govind Pura",
+        "ward_key": "GOVIND PURA"
+      },
+      {
+        "display_name": "Krishna Nagar",
+        "ward_key": "KRISHNA NAGAR"
+      },
+      {
+        "display_name": "Ram Nagar",
+        "ward_key": "RAM NAGAR"
+      }
+    ],
+    "110052": [
+      {
+        "display_name": "Ashok Vihar",
+        "ward_key": "ASHOK VIHAR"
+      },
+      {
+        "display_name": "Nimri",
+        "ward_key": "NIMRI"
+      },
+      {
+        "display_name": "Satyawati Nagar",
+        "ward_key": "SATYAWATI NAGAR"
+      },
+      {
+        "display_name": "Shastri Nagar",
+        "ward_key": "SHASTRI NAGAR"
+      },
+      {
+        "display_name": "Wazir Pur III",
+        "ward_key": "WAZIR PUR III"
+      }
+    ],
+    "110053": [
+      {
+        "display_name": "Brahampuri",
+        "ward_key": "BRAHAMPURI"
+      },
+      {
+        "display_name": "Garhi Mandu",
+        "ward_key": "GARHI MANDU"
+      },
+      {
+        "display_name": "Ghonda",
+        "ward_key": "GHONDA"
+      },
+      {
+        "display_name": "Jafrabad",
+        "ward_key": "JAFRABAD"
+      },
+      {
+        "display_name": "Jagjit Nagar",
+        "ward_key": "JAGJIT NAGAR"
+      },
+      {
+        "display_name": "Maujpur",
+        "ward_key": "MAUJPUR"
+      },
+      {
+        "display_name": "New Usmanpur",
+        "ward_key": "NEW USMANPUR"
+      },
+      {
+        "display_name": "Seelampur",
+        "ward_key": "SEELAMPUR"
+      },
+      {
+        "display_name": "Yamuna Vihar",
+        "ward_key": "YAMUNA VIHAR"
+      },
+      {
+        "display_name": "Bhajan Pura",
+        "ward_key": "BHAJAN PURA"
+      }
+    ],
+    "110054": [
+      {
+        "display_name": "Aruna Nagar",
+        "ward_key": "ARUNA NAGAR"
+      },
+      {
+        "display_name": "Civil Lines",
+        "ward_key": "CIVIL LINES"
+      },
+      {
+        "display_name": "District Courts",
+        "ward_key": "DISTRICT COURTS"
+      },
+      {
+        "display_name": "Majnu ka Tila",
+        "ward_key": "MAJNU KA TILA"
+      },
+      {
+        "display_name": "Patrachar Vidyalay",
+        "ward_key": "PATRACHAR VIDYALAY"
+      },
+      {
+        "display_name": "Timarpur",
+        "ward_key": "TIMARPUR"
+      }
+    ],
+    "110055": [
+      {
+        "display_name": "A.K.Market",
+        "ward_key": "A.K.MARKET"
+      },
+      {
+        "display_name": "Multani Dhanda",
+        "ward_key": "MULTANI DHANDA"
+      },
+      {
+        "display_name": "Pahar Ganj",
+        "ward_key": "PAHAR GANJ"
+      },
+      {
+        "display_name": "Swami Ram Tirth Nagar",
+        "ward_key": "SWAMI RAM TIRTH NAGAR"
+      }
+    ],
+    "110056": [
+      {
+        "display_name": "New Multan Nagar",
+        "ward_key": "NEW MULTAN NAGAR"
+      },
+      {
+        "display_name": "Shakur Basti Depot",
+        "ward_key": "SHAKUR BASTI DEPOT"
+      }
+    ],
+    "110057": [
+      {
+        "display_name": "Vasant Vihar-1",
+        "ward_key": "VASANT VIHAR-1"
+      },
+      {
+        "display_name": "Vasant Vihar-2",
+        "ward_key": "VASANT VIHAR-2"
+      }
+    ],
+    "110058": [
+      {
+        "display_name": "D.E.S.U. Colony",
+        "ward_key": "D.E.S.U. COLONY"
+      },
+      {
+        "display_name": "Jail Road",
+        "ward_key": "JAIL ROAD"
+      },
+      {
+        "display_name": "Janakpuri A-3",
+        "ward_key": "JANAKPURI A-3"
+      },
+      {
+        "display_name": "Janakpuri B-1",
+        "ward_key": "JANAKPURI B-1"
+      },
+      {
+        "display_name": "Janakpuri C-4",
+        "ward_key": "JANAKPURI C-4"
+      }
+    ],
+    "110059": [
+      {
+        "display_name": "D. K. Mohan Garden",
+        "ward_key": "D. K. MOHAN GARDEN"
+      },
+      {
+        "display_name": "Hastal Village",
+        "ward_key": "HASTAL VILLAGE"
+      },
+      {
+        "display_name": "Jeevan Park",
+        "ward_key": "JEEVAN PARK"
+      },
+      {
+        "display_name": "Matiala",
+        "ward_key": "MATIALA"
+      },
+      {
+        "display_name": "Uttam Nagar",
+        "ward_key": "UTTAM NAGAR"
+      }
+    ],
+    "110060": [
+      {
+        "display_name": "Rajender Nagar",
+        "ward_key": "RAJENDER NAGAR"
+      }
+    ],
+    "110061": [
+      {
+        "display_name": "Bijwasan",
+        "ward_key": "BIJWASAN"
+      },
+      {
+        "display_name": "Shahbad Mohammadpur",
+        "ward_key": "SHAHBAD MOHAMMADPUR"
+      }
+    ],
+    "110062": [
+      {
+        "display_name": "Air Force Station Tugalkabad",
+        "ward_key": "AIR FORCE STATION TUGALKABAD"
+      },
+      {
+        "display_name": "BSF Camp Tigri",
+        "ward_key": "BSF CAMP TIGRI"
+      },
+      {
+        "display_name": "Dakshinpuri Phase-I",
+        "ward_key": "DAKSHINPURI PHASE-I"
+      },
+      {
+        "display_name": "Dakshinpuri Phase-II",
+        "ward_key": "DAKSHINPURI PHASE-II"
+      },
+      {
+        "display_name": "Dakshinpuri Phase-III",
+        "ward_key": "DAKSHINPURI PHASE-III"
+      },
+      {
+        "display_name": "Deoli",
+        "ward_key": "DEOLI"
+      },
+      {
+        "display_name": "Dr. Ambedkar Nagar",
+        "ward_key": "DR. AMBEDKAR NAGAR"
+      },
+      {
+        "display_name": "Hamdard Nagar",
+        "ward_key": "HAMDARD NAGAR"
+      },
+      {
+        "display_name": "Khanpur",
+        "ward_key": "KHANPUR"
+      },
+      {
+        "display_name": "Pushpa Bhawan",
+        "ward_key": "PUSHPA BHAWAN"
+      },
+      {
+        "display_name": "Talimabad",
+        "ward_key": "TALIMABAD"
+      }
+    ],
+    "110063": [
+      {
+        "display_name": "Jawala Heri",
+        "ward_key": "JAWALA HERI"
+      },
+      {
+        "display_name": "Madipur Slum Quarter",
+        "ward_key": "MADIPUR SLUM QUARTER"
+      },
+      {
+        "display_name": "Madipur Village",
+        "ward_key": "MADIPUR VILLAGE"
+      },
+      {
+        "display_name": "Paschim Vihar B Block",
+        "ward_key": "PASCHIM VIHAR B BLOCK"
+      },
+      {
+        "display_name": "Paschim Vihar",
+        "ward_key": "PASCHIM VIHAR"
+      },
+      {
+        "display_name": "Peeragarhi",
+        "ward_key": "PEERAGARHI"
+      }
+    ],
+    "110064": [
+      {
+        "display_name": "Maya Puri",
+        "ward_key": "MAYA PURI"
+      },
+      {
+        "display_name": "Mayapuri Shopping Centre",
+        "ward_key": "MAYAPURI SHOPPING CENTRE"
+      },
+      {
+        "display_name": "Hari Nagar BE Block",
+        "ward_key": "HARI NAGAR BE BLOCK"
+      },
+      {
+        "display_name": "Hari Nagar Dadb Block",
+        "ward_key": "HARI NAGAR DADB BLOCK"
+      },
+      {
+        "display_name": "Hari Nagar",
+        "ward_key": "HARI NAGAR"
+      }
+    ],
+    "110065": [
+      {
+        "display_name": "East Of Kailash Phase-I",
+        "ward_key": "EAST OF KAILASH PHASE-I"
+      },
+      {
+        "display_name": "East Of Kailash",
+        "ward_key": "EAST OF KAILASH"
+      },
+      {
+        "display_name": "Nehru Nagar",
+        "ward_key": "NEHRU NAGAR"
+      },
+      {
+        "display_name": "Sant Nagar",
+        "ward_key": "SANT NAGAR"
+      },
+      {
+        "display_name": "Sriniwaspuri",
+        "ward_key": "SRINIWASPURI"
+      }
+    ],
+    "110066": [
+      {
+        "display_name": "RK Puram (Main)",
+        "ward_key": "RK PURAM (MAIN)"
+      },
+      {
+        "display_name": "RK Puram West",
+        "ward_key": "RK PURAM WEST"
+      }
+    ],
+    "110067": [
+      {
+        "display_name": "J.N.U.",
+        "ward_key": "J.N.U."
+      },
+      {
+        "display_name": "JNU New Campus",
+        "ward_key": "JNU NEW CAMPUS"
+      },
+      {
+        "display_name": "Munirka",
+        "ward_key": "MUNIRKA"
+      }
+    ],
+    "110068": [
+      {
+        "display_name": "Ignou",
+        "ward_key": "IGNOU"
+      },
+      {
+        "display_name": "Maidan Garhi",
+        "ward_key": "MAIDAN GARHI"
+      }
+    ],
+    "110069": [
+      {
+        "display_name": "Union Public Service Commission",
+        "ward_key": "UNION PUBLIC SERVICE COMMISSION"
+      }
+    ],
+    "110070": [
+      {
+        "display_name": "Masood Pur",
+        "ward_key": "MASOOD PUR"
+      },
+      {
+        "display_name": "Vasant Kunj Pkt-A",
+        "ward_key": "VASANT KUNJ PKT-A"
+      },
+      {
+        "display_name": "Vasant Kunj",
+        "ward_key": "VASANT KUNJ"
+      }
+    ],
+    "110074": [
+      {
+        "display_name": "C.S.K.M. School",
+        "ward_key": "C.S.K.M. SCHOOL"
+      },
+      {
+        "display_name": "Chandanhoola",
+        "ward_key": "CHANDANHOOLA"
+      },
+      {
+        "display_name": "Chattarpur",
+        "ward_key": "CHATTARPUR"
+      },
+      {
+        "display_name": "Dera",
+        "ward_key": "DERA"
+      },
+      {
+        "display_name": "Fatehpur Beri",
+        "ward_key": "FATEHPUR BERI"
+      },
+      {
+        "display_name": "Sanjay Colony Bhati Mines",
+        "ward_key": "SANJAY COLONY BHATI MINES"
+      },
+      {
+        "display_name": "Satbari",
+        "ward_key": "SATBARI"
+      },
+      {
+        "display_name": "Sawan Public School",
+        "ward_key": "SAWAN PUBLIC SCHOOL"
+      }
+    ],
+    "110075": [
+      {
+        "display_name": "Amberhai",
+        "ward_key": "AMBERHAI"
+      },
+      {
+        "display_name": "District Court Complex Dwarka",
+        "ward_key": "DISTRICT COURT COMPLEX DWARKA"
+      },
+      {
+        "display_name": "Dwarka Sec-6",
+        "ward_key": "DWARKA SEC-6"
+      }
+    ],
+    "110076": [
+      {
+        "display_name": "Ali village",
+        "ward_key": "ALI VILLAGE"
+      },
+      {
+        "display_name": "Madanpur Khadar",
+        "ward_key": "MADANPUR KHADAR"
+      },
+      {
+        "display_name": "Sarita Vihar",
+        "ward_key": "SARITA VIHAR"
+      }
+    ],
+    "110077": [
+      {
+        "display_name": "Bagdola",
+        "ward_key": "BAGDOLA"
+      },
+      {
+        "display_name": "Barthal",
+        "ward_key": "BARTHAL"
+      },
+      {
+        "display_name": "Dhulsiras",
+        "ward_key": "DHULSIRAS"
+      },
+      {
+        "display_name": "Raj Nagar II",
+        "ward_key": "RAJ NAGAR II"
+      },
+      {
+        "display_name": "Palam Extn (Harijan Basti)",
+        "ward_key": "PALAM EXTN (HARIJAN BASTI)"
+      }
+    ],
+    "110078": [
+      {
+        "display_name": "Kakrola",
+        "ward_key": "KAKROLA"
+      },
+      {
+        "display_name": "N.S.I.T. Dwarka",
+        "ward_key": "N.S.I.T. DWARKA"
+      },
+      {
+        "display_name": "Distt. Court Complex, Dwarka",
+        "ward_key": "DISTT. COURT COMPLEX, DWARKA"
+      },
+      {
+        "display_name": "GGSIP University",
+        "ward_key": "GGSIP UNIVERSITY"
+      }
+    ],
+    "110080": [
+      {
+        "display_name": "Sangam Vihar",
+        "ward_key": "SANGAM VIHAR"
+      }
+    ],
+    "110081": [
+      {
+        "display_name": "Chand Pur",
+        "ward_key": "CHAND PUR"
+      },
+      {
+        "display_name": "Gheora",
+        "ward_key": "GHEORA"
+      },
+      {
+        "display_name": "Jaunti",
+        "ward_key": "JAUNTI"
+      },
+      {
+        "display_name": "Kanjhawla",
+        "ward_key": "KANJHAWLA"
+      },
+      {
+        "display_name": "Karala",
+        "ward_key": "KARALA"
+      },
+      {
+        "display_name": "Lad Pur",
+        "ward_key": "LAD PUR"
+      },
+      {
+        "display_name": "Majra Dabas",
+        "ward_key": "MAJRA DABAS"
+      },
+      {
+        "display_name": "Mubarak Pur Dabas",
+        "ward_key": "MUBARAK PUR DABAS"
+      },
+      {
+        "display_name": "Nizampur",
+        "ward_key": "NIZAMPUR"
+      },
+      {
+        "display_name": "Punjab Khor",
+        "ward_key": "PUNJAB KHOR"
+      },
+      {
+        "display_name": "Rani Khera",
+        "ward_key": "RANI KHERA"
+      }
+    ],
+    "110082": [
+      {
+        "display_name": "Holambi Kalan",
+        "ward_key": "HOLAMBI KALAN"
+      },
+      {
+        "display_name": "Khera Kalan",
+        "ward_key": "KHERA KALAN"
+      },
+      {
+        "display_name": "Khera Khurd",
+        "ward_key": "KHERA KHURD"
+      },
+      {
+        "display_name": "Naya Bans",
+        "ward_key": "NAYA BANS"
+      }
+    ],
+    "110083": [
+      {
+        "display_name": "Mangolpuri A Block",
+        "ward_key": "MANGOLPURI A BLOCK"
+      },
+      {
+        "display_name": "Mangolpuri I Block",
+        "ward_key": "MANGOLPURI I BLOCK"
+      },
+      {
+        "display_name": "Mangolpuri N Block",
+        "ward_key": "MANGOLPURI N BLOCK"
+      },
+      {
+        "display_name": "Mangolpuri S Block",
+        "ward_key": "MANGOLPURI S BLOCK"
+      }
+    ],
+    "110084": [
+      {
+        "display_name": "Burari",
+        "ward_key": "BURARI"
+      },
+      {
+        "display_name": "Jagatpur",
+        "ward_key": "JAGATPUR"
+      },
+      {
+        "display_name": "Jharoda Majraa",
+        "ward_key": "JHARODA MAJRAA"
+      },
+      {
+        "display_name": "Wazirabad Village",
+        "ward_key": "WAZIRABAD VILLAGE"
+      }
+    ],
+    "110085": [
+      {
+        "display_name": "Avantika",
+        "ward_key": "AVANTIKA"
+      },
+      {
+        "display_name": "Naharpur",
+        "ward_key": "NAHARPUR"
+      },
+      {
+        "display_name": "Prashant Vihar",
+        "ward_key": "PRASHANT VIHAR"
+      },
+      {
+        "display_name": "Rithala",
+        "ward_key": "RITHALA"
+      },
+      {
+        "display_name": "Rohini Courts",
+        "ward_key": "ROHINI COURTS"
+      },
+      {
+        "display_name": "Rohini sec-11",
+        "ward_key": "ROHINI SEC-11"
+      },
+      {
+        "display_name": "Rohini Sector 5",
+        "ward_key": "ROHINI SECTOR 5"
+      },
+      {
+        "display_name": "Rohini Sector-7",
+        "ward_key": "ROHINI SECTOR-7"
+      }
+    ],
+    "110086": [
+      {
+        "display_name": "Begumpur",
+        "ward_key": "BEGUMPUR"
+      },
+      {
+        "display_name": "Budh Vihar",
+        "ward_key": "BUDH VIHAR"
+      },
+      {
+        "display_name": "Pooth Kalan",
+        "ward_key": "POOTH KALAN"
+      },
+      {
+        "display_name": "Pooth Kalan Resettlement",
+        "ward_key": "POOTH KALAN RESETTLEMENT"
+      },
+      {
+        "display_name": "Prem Nagar",
+        "ward_key": "PREM NAGAR"
+      },
+      {
+        "display_name": "Sultanpuri B Block",
+        "ward_key": "SULTANPURI B BLOCK"
+      },
+      {
+        "display_name": "Sultanpuri C Block",
+        "ward_key": "SULTANPURI C BLOCK"
+      },
+      {
+        "display_name": "Sultanpuri F Block",
+        "ward_key": "SULTANPURI F BLOCK"
+      }
+    ],
+    "110087": [
+      {
+        "display_name": "Jwala Puri",
+        "ward_key": "JWALA PURI"
+      },
+      {
+        "display_name": "Sunder Vihar",
+        "ward_key": "SUNDER VIHAR"
+      }
+    ],
+    "110088": [
+      {
+        "display_name": "Haiderpur",
+        "ward_key": "HAIDERPUR"
+      },
+      {
+        "display_name": "Shalamar",
+        "ward_key": "SHALAMAR"
+      },
+      {
+        "display_name": "Shalimar Bagh",
+        "ward_key": "SHALIMAR BAGH"
+      }
+    ],
+    "110089": [
+      {
+        "display_name": "Rohini Sector 15",
+        "ward_key": "ROHINI SECTOR 15"
+      }
+    ],
+    "110090": [
+      {
+        "display_name": "Badarpur Khadar",
+        "ward_key": "BADARPUR KHADAR"
+      },
+      {
+        "display_name": "Karawal Nagar",
+        "ward_key": "KARAWAL NAGAR"
+      },
+      {
+        "display_name": "Sonia Vihar",
+        "ward_key": "SONIA VIHAR"
+      },
+      {
+        "display_name": "Shaheed Bhagat Singh Colony",
+        "ward_key": "SHAHEED BHAGAT SINGH COLONY"
+      },
+      {
+        "display_name": "Shriram Colony Rajeev Nagar",
+        "ward_key": "SHRIRAM COLONY RAJEEV NAGAR"
+      }
+    ],
+    "110091": [
+      {
+        "display_name": "Chilla",
+        "ward_key": "CHILLA"
+      },
+      {
+        "display_name": "Himmatpuri",
+        "ward_key": "HIMMATPURI"
+      },
+      {
+        "display_name": "Kalyanpuri",
+        "ward_key": "KALYANPURI"
+      },
+      {
+        "display_name": "Kalyanvas",
+        "ward_key": "KALYANVAS"
+      },
+      {
+        "display_name": "Mayur Vihar Ph-I",
+        "ward_key": "MAYUR VIHAR PH-I"
+      },
+      {
+        "display_name": "Patparganj",
+        "ward_key": "PATPARGANJ"
+      },
+      {
+        "display_name": "Trilok Puri",
+        "ward_key": "TRILOK PURI"
+      }
+    ],
+    "110092": [
+      {
+        "display_name": "Anand Vihar",
+        "ward_key": "ANAND VIHAR"
+      },
+      {
+        "display_name": "IP Extension",
+        "ward_key": "IP EXTENSION"
+      },
+      {
+        "display_name": "Laxmi Nagar",
+        "ward_key": "LAXMI NAGAR"
+      },
+      {
+        "display_name": "Mandawali Fazalpur",
+        "ward_key": "MANDAWALI FAZALPUR"
+      },
+      {
+        "display_name": "Nirman Vihar",
+        "ward_key": "NIRMAN VIHAR"
+      },
+      {
+        "display_name": "Shakarpur",
+        "ward_key": "SHAKARPUR"
+      },
+      {
+        "display_name": "Surajmal Vihar",
+        "ward_key": "SURAJMAL VIHAR"
+      },
+      {
+        "display_name": "Yozna Vihar",
+        "ward_key": "YOZNA VIHAR"
+      }
+    ],
+    "110093": [
+      {
+        "display_name": "Harsh Vihar",
+        "ward_key": "HARSH VIHAR"
+      },
+      {
+        "display_name": "Loni Road Housing Complex",
+        "ward_key": "LONI ROAD HOUSING COMPLEX"
+      },
+      {
+        "display_name": "Nand Nagri \"A\"",
+        "ward_key": "NAND NAGRI \"A\""
+      },
+      {
+        "display_name": "Nand Nagri \"C\"",
+        "ward_key": "NAND NAGRI \"C\""
+      },
+      {
+        "display_name": "Mandoli Saboli",
+        "ward_key": "MANDOLI SABOLI"
+      },
+      {
+        "display_name": "Sunder Nagari",
+        "ward_key": "SUNDER NAGARI"
+      }
+    ],
+    "110094": [
+      {
+        "display_name": "Gokal Puri",
+        "ward_key": "GOKAL PURI"
+      },
+      {
+        "display_name": "Johripur",
+        "ward_key": "JOHRIPUR"
+      },
+      {
+        "display_name": "Khazuri Khas",
+        "ward_key": "KHAZURI KHAS"
+      },
+      {
+        "display_name": "Dayalpur",
+        "ward_key": "DAYALPUR"
+      },
+      {
+        "display_name": "Sabhapur",
+        "ward_key": "SABHAPUR"
+      }
+    ],
+    "110095": [
+      {
+        "display_name": "Dilshad Garden",
+        "ward_key": "DILSHAD GARDEN"
+      },
+      {
+        "display_name": "G.T.B. Hospital",
+        "ward_key": "G.T.B. HOSPITAL"
+      },
+      {
+        "display_name": "Jhilmil",
+        "ward_key": "JHILMIL"
+      },
+      {
+        "display_name": "Jhilmil Tahirpur B.O",
+        "ward_key": "JHILMIL TAHIRPUR B.O"
+      },
+      {
+        "display_name": "New Seemapuri",
+        "ward_key": "NEW SEEMAPURI"
+      },
+      {
+        "display_name": "Old Seemapuri",
+        "ward_key": "OLD SEEMAPURI"
+      },
+      {
+        "display_name": "V.K. Nagar",
+        "ward_key": "V.K. NAGAR"
+      },
+      {
+        "display_name": "Vivek Vihar",
+        "ward_key": "VIVEK VIHAR"
+      }
+    ],
+    "110096": [
+      {
+        "display_name": "Ghazipur",
+        "ward_key": "GHAZIPUR"
+      },
+      {
+        "display_name": "Mayur Vihar Ph-III",
+        "ward_key": "MAYUR VIHAR PH-III"
+      },
+      {
+        "display_name": "Vasundhra Enclave",
+        "ward_key": "VASUNDHRA ENCLAVE"
+      }
+    ],
+    "110097": [
+      {
+        "display_name": "Kapashera.",
+        "ward_key": "KAPASHERA."
+      }
+    ],
+    "110098": [
+      {
+        "display_name": "New Ashok Nagar",
+        "ward_key": "NEW ASHOK NAGAR"
+      }
+    ]
+  }
