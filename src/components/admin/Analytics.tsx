@@ -91,10 +91,14 @@ interface CommunityAnalytic {
 }
 
 interface PriorityAnalytic {
-  priority: string;
+  priority?: string;
+  priority_id?: string;
+  priority_name?: string;
+  status_display?: string;
   complaint_count: number;
   resolved_count: number;
   acknowledged_count: number;
+  forwarded_count?: number;
   resolution_rate: number;
 }
 
@@ -292,13 +296,54 @@ const Analytics: React.FC = () => {
     }
   };
 
+  // Helper function to format status for display
+  const formatStatusForChart = (item: PriorityAnalytic): { status: string; complaints: number; resolved: number; resolution_rate: number } | null => {
+    // Try multiple fields to get status name
+    let statusDisplay = item.status_display || item.priority_name || item.priority || item.priority_id || '';
+    
+    // Convert to string and handle null/undefined
+    statusDisplay = String(statusDisplay || '').trim();
+    
+    // Skip if empty or explicitly "Unknown"
+    if (!statusDisplay || statusDisplay.toLowerCase() === 'unknown' || statusDisplay === 'null' || statusDisplay === 'undefined') {
+      // Use priority_id as last resort if it exists and is valid
+      const fallbackStatus = String(item.priority_id || '').trim();
+      if (fallbackStatus && fallbackStatus.toLowerCase() !== 'unknown') {
+        statusDisplay = fallbackStatus;
+      } else {
+        return null; // Skip this item
+      }
+    }
+    
+    // Format status name: handle underscores, capitalize properly
+    let formattedStatus = statusDisplay
+      .toLowerCase()
+      .split(/[\s_]+/)
+      .filter(word => word && word !== 'unknown')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+    
+    // Final validation
+    if (!formattedStatus || formattedStatus.trim() === '' || formattedStatus.toLowerCase() === 'unknown') {
+      return null;
+    }
+    
+    return {
+      status: formattedStatus.trim(),
+      complaints: item.complaint_count || 0,
+      resolved: item.resolved_count || 0,
+      resolution_rate: item.resolution_rate || 0
+    };
+  };
+
   const fetchPriorityAnalytics = async () => {
     try {
       console.log('📊 Fetching priority analytics (status data)...');
       
       // Try RPC function first
       const { data: rpcData, error: rpcError } = await supabase.rpc('get_priority_analytics');
-      if (!rpcError && rpcData) {
+      if (!rpcError && rpcData && Array.isArray(rpcData) && rpcData.length > 0) {
+        console.log('✅ Using RPC data for priority analytics:', rpcData);
         setPriorityAnalytics(rpcData);
         return;
       }
@@ -312,6 +357,13 @@ const Analytics: React.FC = () => {
       
       if (complaintsError) {
         console.error('Error fetching complaints for status analytics:', complaintsError);
+        setPriorityAnalytics([]);
+        return;
+      }
+      
+      if (!complaintsData || complaintsData.length === 0) {
+        console.warn('No complaints data found for status analytics');
+        setPriorityAnalytics([]);
         return;
       }
       
@@ -322,6 +374,7 @@ const Analytics: React.FC = () => {
         'resolved': 'Resolved',
         'pending': 'Pending',
         'in_progress': 'In Progress',
+        'in-progress': 'In Progress',
         'rejected': 'Rejected'
       };
       
@@ -332,7 +385,8 @@ const Analytics: React.FC = () => {
         }
         const normalizedStatus = status.toLowerCase().trim();
         return statusNameMap[normalizedStatus] || normalizedStatus
-          .split('_')
+          .split(/[\s_-]+/)
+          .filter(word => word && word !== 'unknown')
           .map(word => word.charAt(0).toUpperCase() + word.slice(1))
           .join(' ');
       };
@@ -348,7 +402,7 @@ const Analytics: React.FC = () => {
         resolution_rate: number;
       }>();
       
-      complaintsData?.forEach(complaint => {
+      complaintsData.forEach(complaint => {
         const status = complaint.status;
         if (!status || typeof status !== 'string') {
           return; // Skip invalid statuses
@@ -356,6 +410,11 @@ const Analytics: React.FC = () => {
         
         const normalizedStatus = status.toLowerCase().trim();
         const displayName = formatStatusName(status);
+        
+        // Skip if display name would be invalid
+        if (!displayName || displayName.toLowerCase().includes('unknown')) {
+          return;
+        }
         
         if (!statusMap.has(normalizedStatus)) {
           statusMap.set(normalizedStatus, {
@@ -383,6 +442,7 @@ const Analytics: React.FC = () => {
       
       // Calculate resolution rates and convert to format expected by chart
       const statusAnalytics = Array.from(statusMap.values())
+        .filter(status => status.complaint_count > 0) // Only include statuses with complaints
         .map(status => ({
           priority_id: status.status,
           priority_name: status.status_display,
@@ -396,17 +456,28 @@ const Analytics: React.FC = () => {
             ? Math.round((status.resolved_count / status.complaint_count) * 100)
             : 0
         }))
-        .filter(item => item.status_display && item.status_display !== 'Unknown' && item.status_display !== 'unknown'); // Filter out any Unknown values
+        .filter(item => {
+          // Strict filter: ensure no Unknown values in any field
+          const display = String(item.status_display || '').toLowerCase();
+          const name = String(item.priority_name || '').toLowerCase();
+          const priority = String(item.priority || '').toLowerCase();
+          return display && display !== 'unknown' && 
+                 name && name !== 'unknown' && 
+                 priority && priority !== 'unknown' &&
+                 item.complaint_count > 0;
+        });
       
       // Sort by complaint count descending for better visualization
       statusAnalytics.sort((a, b) => b.complaint_count - a.complaint_count);
       
-      setPriorityAnalytics(statusAnalytics);
       console.log('✅ Status analytics generated from direct query (as priority replacement):', statusAnalytics);
-      console.log('📊 Raw complaints data for status:', complaintsData);
+      console.log(`📊 Found ${complaintsData.length} complaints, created ${statusAnalytics.length} status groups`);
+      
+      setPriorityAnalytics(statusAnalytics);
       
     } catch (error) {
       console.warn('Priority analytics fetch failed:', error);
+      setPriorityAnalytics([]);
     }
   };
 
@@ -875,44 +946,19 @@ const Analytics: React.FC = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                {priorityAnalytics.length > 0 ? (
-                  <div className="h-[350px]">
-                    <ResponsiveContainer width="100%" height="100%" minWidth={300} minHeight={250}>
-                      <RechartsBarChart 
-                        data={priorityAnalytics
-                          .filter(p => {
-                            // Filter out any items with Unknown status
-                            const statusDisplay = p.status_display || p.priority_name || p.priority || '';
-                            return statusDisplay && 
-                                   statusDisplay.toLowerCase() !== 'unknown' && 
-                                   statusDisplay.trim() !== '' &&
-                                   p.complaint_count > 0;
-                          })
-                          .map(p => {
-                            // Use the status_display field first, then fallback to priority_name or priority
-                            const statusDisplay = p.status_display || p.priority_name || p.priority || '';
-                            
-                            // Ensure we never show Unknown - use a fallback
-                            let formattedStatus = statusDisplay;
-                            if (!formattedStatus || formattedStatus.toLowerCase() === 'unknown') {
-                              formattedStatus = 'Pending'; // Default to Pending
-                            }
-                            
-                            // Final formatting: capitalize properly
-                            formattedStatus = formattedStatus
-                              .split(' ')
-                              .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-                              .join(' ');
-                            
-                            return {
-                              status: formattedStatus,
-                              complaints: p.complaint_count || 0,
-                              resolved: p.resolved_count || 0,
-                              resolution_rate: p.resolution_rate || 0
-                            };
-                          })}
-                        margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
-                      >
+                {(() => {
+                  // Process data using the helper function
+                  const chartData = priorityAnalytics
+                    .map(formatStatusForChart)
+                    .filter((item): item is { status: string; complaints: number; resolved: number; resolution_rate: number } => item !== null && item.complaints > 0);
+
+                  return chartData.length > 0 ? (
+                    <div className="h-[350px]">
+                      <ResponsiveContainer width="100%" height="100%" minWidth={300} minHeight={250}>
+                        <RechartsBarChart 
+                          data={chartData}
+                          margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+                        >
                         <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                         <XAxis 
                           dataKey="status" 
@@ -1224,44 +1270,19 @@ const Analytics: React.FC = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                {priorityAnalytics.length > 0 ? (
-                  <div className="h-[350px]">
-                    <ResponsiveContainer width="100%" height="100%" minWidth={300} minHeight={250}>
-                      <RechartsBarChart 
-                        data={priorityAnalytics
-                          .filter(p => {
-                            // Filter out any items with Unknown status
-                            const statusDisplay = p.status_display || p.priority_name || p.priority || '';
-                            return statusDisplay && 
-                                   statusDisplay.toLowerCase() !== 'unknown' && 
-                                   statusDisplay.trim() !== '' &&
-                                   p.complaint_count > 0;
-                          })
-                          .map(p => {
-                            // Use the status_display field first, then fallback to priority_name or priority
-                            const statusDisplay = p.status_display || p.priority_name || p.priority || '';
-                            
-                            // Ensure we never show Unknown - use a fallback
-                            let formattedStatus = statusDisplay;
-                            if (!formattedStatus || formattedStatus.toLowerCase() === 'unknown') {
-                              formattedStatus = 'Pending'; // Default to Pending
-                            }
-                            
-                            // Final formatting: capitalize properly
-                            formattedStatus = formattedStatus
-                              .split(' ')
-                              .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-                              .join(' ');
-                            
-                            return {
-                              status: formattedStatus,
-                              complaints: p.complaint_count || 0,
-                              resolved: p.resolved_count || 0,
-                              resolution_rate: p.resolution_rate || 0
-                            };
-                          })}
-                        margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
-                      >
+                {(() => {
+                  // Process data using the helper function
+                  const chartData = priorityAnalytics
+                    .map(formatStatusForChart)
+                    .filter((item): item is { status: string; complaints: number; resolved: number; resolution_rate: number } => item !== null && item.complaints > 0);
+
+                  return chartData.length > 0 ? (
+                    <div className="h-[350px]">
+                      <ResponsiveContainer width="100%" height="100%" minWidth={300} minHeight={250}>
+                        <RechartsBarChart 
+                          data={chartData}
+                          margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+                        >
                         <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                         <XAxis 
                           dataKey="status" 
@@ -1308,17 +1329,20 @@ const Analytics: React.FC = () => {
                       </RechartsBarChart>
                     </ResponsiveContainer>
                   </div>
-                ) : (
-                  <div className="h-[350px] flex items-center justify-center text-muted-foreground">
-                    <div className="text-center">
-                      <Activity className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                      <p>No status data available</p>
-                      <p className="text-xs mt-2">
-                        Run the SQL functions in Supabase to see data
-                      </p>
+                  ) : (
+                    <div className="h-[350px] flex items-center justify-center text-muted-foreground">
+                      <div className="text-center">
+                        <Activity className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                        <p>No status data available</p>
+                        <p className="text-xs mt-2">
+                          {priorityAnalytics.length > 0 
+                            ? `Found ${priorityAnalytics.length} items but none match display criteria`
+                            : 'No complaints data found. Complaints will appear here once submitted.'}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                )}
+                  );
+                })()}
               </CardContent>
             </Card>
           </div>

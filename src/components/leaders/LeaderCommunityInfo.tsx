@@ -124,48 +124,86 @@ const LeaderCommunityInfo: React.FC<LeaderCommunityInfoProps> = ({ communityId, 
         console.warn('Error fetching leaders:', leadersError);
       }
 
-      // Fetch community members with user details
-      const { data: membersData, error: membersError } = await getCommunityMembers(communityId);
-      
-      if (membersError) {
-        console.warn('Error fetching members:', membersError);
-      }
-
-      // Fetch user details for all members
+      // Fetch community members with user details directly
+      // Query user_communities with joined user data for better RLS compatibility
       let membersWithDetails: CommunityMember[] = [];
-      if (membersData && membersData.length > 0) {
-        const userIds = Array.from(new Set(membersData.map((m: any) => m.user_id)));
-        
-        // Fetch user details
-        const { data: usersData, error: usersError } = await supabase
-          .from('users')
-          .select('id, full_name, email')
-          .in('id', userIds);
+      
+      try {
+        const { data: membersWithUsers, error: membersError } = await supabase
+          .from('user_communities')
+          .select(`
+            id,
+            user_id,
+            role,
+            address,
+            block_name,
+            joined_at,
+            users!inner (
+              id,
+              full_name,
+              email
+            )
+          `)
+          .eq('community_id', communityId)
+          .eq('status', 'approved')
+          .order('joined_at', { ascending: false });
 
-        if (usersError) {
-          console.warn('Error fetching user details for members:', usersError);
+        if (membersError) {
+          console.error('Error fetching members with users:', membersError);
+          // Fallback to getCommunityMembers if direct query fails
+          const { data: membersData, error: fallbackError } = await getCommunityMembers(communityId);
+          
+          if (fallbackError) {
+            console.warn('Fallback getCommunityMembers also failed:', fallbackError);
+          } else if (membersData && membersData.length > 0) {
+            const userIds = Array.from(new Set(membersData.map((m: any) => m.user_id)));
+            
+            // Fetch user details separately
+            const { data: usersData, error: usersError } = await supabase
+              .from('users')
+              .select('id, full_name, email')
+              .in('id', userIds);
+
+            if (usersError) {
+              console.warn('Error fetching user details for members:', usersError);
+            }
+
+            // Create a map of user_id to user details
+            const userMap: Record<string, { full_name?: string; email?: string }> = {};
+            usersData?.forEach((user: any) => {
+              userMap[user.id] = {
+                full_name: user.full_name,
+                email: user.email
+              };
+            });
+
+            // Merge membership data with user details
+            membersWithDetails = membersData.map((member: any) => ({
+              id: member.id,
+              user_id: member.user_id,
+              role: member.role || 'member',
+              address: member.address,
+              block_name: member.block_name,
+              joined_at: member.joined_at,
+              user_name: userMap[member.user_id]?.full_name || 'Unknown User',
+              user_email: userMap[member.user_id]?.email || 'No Email'
+            }));
+          }
+        } else {
+          // Process members with user data from joined query
+          membersWithDetails = (membersWithUsers || []).map((member: any) => ({
+            id: member.id,
+            user_id: member.user_id,
+            role: member.role || 'member',
+            address: member.address,
+            block_name: member.block_name,
+            joined_at: member.joined_at,
+            user_name: (member.users as any)?.full_name || (member.users?.full_name) || 'Unknown User',
+            user_email: (member.users as any)?.email || (member.users?.email) || 'No Email'
+          }));
         }
-
-        // Create a map of user_id to user details
-        const userMap: Record<string, { full_name?: string; email?: string }> = {};
-        usersData?.forEach((user: any) => {
-          userMap[user.id] = {
-            full_name: user.full_name,
-            email: user.email
-          };
-        });
-
-        // Merge membership data with user details
-        membersWithDetails = membersData.map((member: any) => ({
-          id: member.id,
-          user_id: member.user_id,
-          role: member.role || 'member',
-          address: member.address,
-          block_name: member.block_name,
-          joined_at: member.joined_at,
-          user_name: userMap[member.user_id]?.full_name || 'Unknown User',
-          user_email: userMap[member.user_id]?.email || 'No Email'
-        }));
+      } catch (membersError) {
+        console.error('Exception fetching community members:', membersError);
       }
 
       setCommunityInfo({
