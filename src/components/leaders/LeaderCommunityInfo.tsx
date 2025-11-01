@@ -17,6 +17,7 @@ import {
 import { supabase } from '@/lib/supabase';
 import { getCommunityLeaders } from '@/lib/leaders';
 import { LeaderType, CommunityLeader } from '@/lib/leaders';
+import { getCommunityMembers } from '@/lib/communities';
 import { useToast } from '@/hooks/use-toast';
 
 interface LeaderCommunityInfoProps {
@@ -40,9 +41,21 @@ interface CommunityInfo {
   total_amount: number;
 }
 
+interface CommunityMember {
+  id: string;
+  user_id: string;
+  role: string;
+  address?: string;
+  block_name?: string;
+  joined_at: string;
+  user_name?: string;
+  user_email?: string;
+}
+
 const LeaderCommunityInfo: React.FC<LeaderCommunityInfoProps> = ({ communityId, leaderType }) => {
   const [communityInfo, setCommunityInfo] = useState<CommunityInfo | null>(null);
   const [leaders, setLeaders] = useState<CommunityLeader[]>([]);
+  const [members, setMembers] = useState<CommunityMember[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
@@ -111,6 +124,50 @@ const LeaderCommunityInfo: React.FC<LeaderCommunityInfoProps> = ({ communityId, 
         console.warn('Error fetching leaders:', leadersError);
       }
 
+      // Fetch community members with user details
+      const { data: membersData, error: membersError } = await getCommunityMembers(communityId);
+      
+      if (membersError) {
+        console.warn('Error fetching members:', membersError);
+      }
+
+      // Fetch user details for all members
+      let membersWithDetails: CommunityMember[] = [];
+      if (membersData && membersData.length > 0) {
+        const userIds = Array.from(new Set(membersData.map((m: any) => m.user_id)));
+        
+        // Fetch user details
+        const { data: usersData, error: usersError } = await supabase
+          .from('users')
+          .select('id, full_name, email')
+          .in('id', userIds);
+
+        if (usersError) {
+          console.warn('Error fetching user details for members:', usersError);
+        }
+
+        // Create a map of user_id to user details
+        const userMap: Record<string, { full_name?: string; email?: string }> = {};
+        usersData?.forEach((user: any) => {
+          userMap[user.id] = {
+            full_name: user.full_name,
+            email: user.email
+          };
+        });
+
+        // Merge membership data with user details
+        membersWithDetails = membersData.map((member: any) => ({
+          id: member.id,
+          user_id: member.user_id,
+          role: member.role || 'member',
+          address: member.address,
+          block_name: member.block_name,
+          joined_at: member.joined_at,
+          user_name: userMap[member.user_id]?.full_name || 'Unknown User',
+          user_email: userMap[member.user_id]?.email || 'No Email'
+        }));
+      }
+
       setCommunityInfo({
         id: community.id,
         name: community.name,
@@ -128,6 +185,7 @@ const LeaderCommunityInfo: React.FC<LeaderCommunityInfoProps> = ({ communityId, 
       });
 
       setLeaders(leadersData || []);
+      setMembers(membersWithDetails);
 
     } catch (error) {
       console.error('Error fetching community info:', error);
@@ -341,6 +399,85 @@ const LeaderCommunityInfo: React.FC<LeaderCommunityInfoProps> = ({ communityId, 
                   <Badge className={getLeaderTypeColor(leader.leader_type)}>
                     {getLeaderTypeLabel(leader.leader_type)}
                   </Badge>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Community Members */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Users className="h-5 w-5" />
+            Community Members ({members.length})
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {members.length === 0 ? (
+            <div className="text-center py-6">
+              <Users className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+              <p className="text-sm text-muted-foreground">No members found</p>
+            </div>
+          ) : (
+            <div className="space-y-3 max-h-[500px] overflow-y-auto">
+              {members.map((member) => (
+                <div 
+                  key={member.id} 
+                  className="flex items-center gap-4 p-3 border rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  <Avatar className="h-10 w-10">
+                    <AvatarFallback>
+                      {getInitials(member.user_name)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-medium text-gray-900 truncate">
+                      {member.user_name}
+                    </h4>
+                    <div className="flex flex-wrap items-center gap-3 text-sm text-gray-600 mt-1">
+                      <div className="flex items-center gap-1">
+                        <Mail className="h-3 w-3" />
+                        <span className="truncate">{member.user_email}</span>
+                      </div>
+                      {member.block_name && (
+                        <div className="flex items-center gap-1">
+                          <Building2 className="h-3 w-3" />
+                          <span>Block: {member.block_name}</span>
+                        </div>
+                      )}
+                      {member.address && (
+                        <div className="flex items-center gap-1">
+                          <MapPin className="h-3 w-3" />
+                          <span className="truncate">{member.address}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-end gap-2">
+                    <Badge 
+                      className={
+                        member.role === 'admin' 
+                          ? 'bg-purple-100 text-purple-800'
+                          : member.role === 'owner'
+                          ? 'bg-green-100 text-green-800'
+                          : member.role === 'tenant'
+                          ? 'bg-blue-100 text-blue-800'
+                          : 'bg-gray-100 text-gray-800'
+                      }
+                    >
+                      {member.role.charAt(0).toUpperCase() + member.role.slice(1)}
+                    </Badge>
+                    <div className="flex items-center gap-1 text-xs text-gray-500">
+                      <Calendar className="h-3 w-3" />
+                      <span>Joined {new Date(member.joined_at).toLocaleDateString('en-US', { 
+                        month: 'short', 
+                        day: 'numeric',
+                        year: 'numeric'
+                      })}</span>
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
